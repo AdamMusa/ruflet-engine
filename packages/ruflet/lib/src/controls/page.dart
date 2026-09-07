@@ -81,6 +81,9 @@ class _PageControlState extends State<PageControl> with WidgetsBindingObserver {
     super.initState();
 
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) didChangePlatformBrightness();
+    });
     _updateMultiViews();
 
     _routeParser = RouteParser();
@@ -152,6 +155,16 @@ class _PageControlState extends State<PageControl> with WidgetsBindingObserver {
   @override
   void didChangeMetrics() {
     _updateMultiViews();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    final brightness =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    final backend = widget.control.backend;
+    if (backend.platformBrightness != brightness) {
+      backend.updateBrightness(brightness);
+    }
   }
 
   @override
