@@ -1,0 +1,12 @@
+.DS_Store
+.dart_tool/
+.cache/
+.pub-cache/
+build/
+coverage/
+.idea/
+.vscode/
+pubspec.lock
+pubspec_overrides.yaml
+Pods/
+.symlinks/
