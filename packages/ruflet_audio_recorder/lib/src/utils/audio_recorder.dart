@@ -49,6 +49,8 @@ IosRecordConfig? parseIosRecordConfig(dynamic value,
       .nonNulls
       .toList();
   return IosRecordConfig(
+    // Moving to AudioRecorder.ios.manageAudioSession changes behavior.
+    // ignore: deprecated_member_use
     manageAudioSession: parseBool(value["manage_audio_session"], true)!,
     categoryOptions: options,
   );
