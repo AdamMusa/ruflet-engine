@@ -53,6 +53,8 @@ class _GridViewControlState extends State<GridViewControl> {
 
     var clipBehavior =
         widget.control.getClipBehavior("clip_behavior", Clip.hardEdge)!;
+    final keyboardDismissBehavior =
+        widget.control.getKeyboardDismissBehavior("keyboard_dismiss_behavior");
 
     final onRefresh = widget.control.getBool("on_refresh", false)!;
     final refreshable = onRefresh && !horizontal && !reverse;
@@ -78,6 +80,7 @@ class _GridViewControlState extends State<GridViewControl> {
                 shrinkWrap: shrinkWrap,
                 cacheExtent: cacheExtent,
                 clipBehavior: clipBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior,
                 semanticChildCount: semanticChildCount ?? controls.length,
                 slivers: [gridViewSliver(context, widget.control, controls)],
               ),
@@ -93,6 +96,7 @@ class _GridViewControlState extends State<GridViewControl> {
                 scrollDirection: horizontal ? Axis.horizontal : Axis.vertical,
                 controller: _controller,
                 clipBehavior: clipBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior,
                 reverse: reverse,
                 cacheExtent: cacheExtent,
                 semanticChildCount: semanticChildCount,
@@ -110,6 +114,7 @@ class _GridViewControlState extends State<GridViewControl> {
                 scrollDirection: horizontal ? Axis.horizontal : Axis.vertical,
                 controller: _controller,
                 clipBehavior: clipBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior,
                 reverse: reverse,
                 cacheExtent: cacheExtent,
                 semanticChildCount: semanticChildCount,
