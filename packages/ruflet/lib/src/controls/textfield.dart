@@ -104,13 +104,19 @@ class _TextFieldControlState extends State<TextFieldControl> {
   }
 
   void _onShiftEnterFocusChange() {
-    _focused = _shiftEnterfocusNode.hasFocus;
+    // Rebuild so focused_color and focused_bgcolor follow focus.
+    setState(() {
+      _focused = _shiftEnterfocusNode.hasFocus;
+    });
     widget.control
         .triggerEvent(_shiftEnterfocusNode.hasFocus ? "focus" : "blur");
   }
 
   void _onFocusChange() {
-    _focused = _focusNode.hasFocus;
+    // Rebuild so focused_color and focused_bgcolor follow focus.
+    setState(() {
+      _focused = _focusNode.hasFocus;
+    });
     widget.control.triggerEvent(_focusNode.hasFocus ? "focus" : "blur");
   }
 
