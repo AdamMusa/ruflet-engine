@@ -15,26 +15,27 @@ enum StepperStepState { indexed, editing, complete, disabled, error }
 
 /// One Ruby `stepper_step` (wire type `Step`), resolved for either renderer.
 class StepperStep {
-  final Control control;
+  /// The `Step` child control (not the Stepper).
+  final Control stepControl;
   final int index;
 
-  const StepperStep(this.control, this.index);
+  const StepperStep(this.stepControl, this.index);
 
   StepperStepState get state => parseEnum(
       StepperStepState.values,
-      control.getString("state")?.replaceAll("_", ""),
+      stepControl.getString("state")?.replaceAll("_", ""),
       StepperStepState.indexed)!;
 
-  bool get isActive => control.getBool("is_active", false)!;
+  bool get isActive => stepControl.getBool("is_active", false)!;
 
-  Widget get title => control.buildTextOrWidget("title", required: true)!;
+  Widget get title => stepControl.buildTextOrWidget("title", required: true)!;
 
-  Widget? get subtitle => control.buildTextOrWidget("subtitle");
+  Widget? get subtitle => stepControl.buildTextOrWidget("subtitle");
 
   Widget get content =>
-      control.buildWidget("content") ?? const SizedBox.shrink();
+      stepControl.buildWidget("content") ?? const SizedBox.shrink();
 
-  Widget? get label => control.buildTextOrWidget("label");
+  Widget? get label => stepControl.buildTextOrWidget("label");
 }
 
 /// The Ruby Stepper state shared by the Material and Cupertino renderers.
@@ -64,10 +65,10 @@ class StepperModel {
           "Stepper.steps must contain at least one visible step");
     }
     for (final step in steps) {
-      if (step.control.type != "Step") {
+      if (step.stepControl.type != "Step") {
         return ErrorControl("Stepper.steps must contain only Step controls",
             description: "Build each step with stepper_step(title: ...), "
-                "not ${step.control.type}");
+                "not ${step.stepControl.type}");
       }
     }
     return null;
@@ -94,7 +95,7 @@ class StepperModel {
   bool canTap(StepperStep step) =>
       onStepTapped != null &&
       step.state != StepperStepState.disabled &&
-      !step.control.disabled;
+      !step.stepControl.disabled;
 
   /// Fires `step_tap` with the tapped index; null without a Ruby handler.
   ValueChanged<int>? get onStepTapped =>

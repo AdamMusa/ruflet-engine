@@ -26,7 +26,7 @@ class MaterialStepperControl extends StatelessWidget {
     return Stepper(
       // Flutter asserts that the step count never changes for one State, so a
       // different Ruby step list gets a fresh Stepper.
-      key: ValueKey(model.steps.map((step) => step.control.id).join(",")),
+      key: ValueKey(model.steps.map((step) => step.stepControl.id).join(",")),
       type: model.horizontal ? StepperType.horizontal : StepperType.vertical,
       currentStep: model.currentStep,
       physics: const ClampingScrollPhysics(),

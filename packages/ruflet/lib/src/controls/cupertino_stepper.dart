@@ -48,7 +48,7 @@ class CupertinoStepperControl extends StatelessWidget {
       children: [
         for (final step in model.steps)
           KeyedSubtree(
-            key: ValueKey(step.control.id),
+            key: ValueKey(step.stepControl.id),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -192,7 +192,7 @@ class CupertinoStepperControl extends StatelessWidget {
                   children: [
                     for (final step in model.steps)
                       Visibility(
-                        key: ValueKey(step.control.id),
+                        key: ValueKey(step.stepControl.id),
                         visible: step.index == current,
                         maintainState: true,
                         child: ClipRect(
