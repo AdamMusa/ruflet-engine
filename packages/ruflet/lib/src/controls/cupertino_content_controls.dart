@@ -207,9 +207,11 @@ class CupertinoExpansionPanelListControl extends StatelessWidget {
               child: Row(children: [
                 Expanded(
                     child: panel.buildWidget("header") ?? const Text("Header")),
-                Icon(expanded
-                    ? CupertinoIcons.chevron_up
-                    : CupertinoIcons.chevron_down),
+                Icon(
+                    expanded
+                        ? CupertinoIcons.chevron_up
+                        : CupertinoIcons.chevron_down,
+                    color: control.getColor("expand_icon_color", context)),
               ]),
             ),
             if (expanded)
