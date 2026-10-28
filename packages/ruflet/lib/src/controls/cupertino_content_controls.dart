@@ -360,11 +360,24 @@ class CupertinoTabBarControl extends StatelessWidget {
     if (tabControls.isEmpty) {
       return const ErrorControl("TabBar.tabs must not be empty");
     }
+    // Pointer hover (macOS, iPadOS with a pointer), reported per tab like
+    // Material's TabBar.onHover.
+    final onHover = control.getBool("on_hover", false)!;
+    Widget hoverable(int index, Widget tab) => !onHover
+        ? tab
+        : MouseRegion(
+            onEnter: (_) => control
+                .triggerEvent("hover", {"hovering": true, "index": index}),
+            onExit: (_) => control
+                .triggerEvent("hover", {"hovering": false, "index": index}),
+            child: tab);
     final segments = <int, Widget>{
       for (final (index, tab) in tabControls.indexed)
-        index: tab.type == "Tab"
-            ? CupertinoTabControl(control: tab)
-            : ControlWidget(control: tab),
+        index: hoverable(
+            index,
+            tab.type == "Tab"
+                ? CupertinoTabControl(control: tab)
+                : ControlWidget(control: tab)),
     };
     final bar = CupertinoSlidingSegmentedControl<int>(
       groupValue: tabs.selectedIndex.clamp(0, segments.length - 1),
