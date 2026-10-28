@@ -38,6 +38,7 @@ import 'controls/draggable.dart';
 import 'controls/dropdown.dart';
 import 'controls/expansion_panel.dart';
 import 'controls/expansion_tile.dart';
+import 'controls/fitted_box.dart';
 import 'controls/ruflet_app_control.dart';
 import 'controls/floating_action_button.dart';
 import 'controls/gesture_detector.dart';
@@ -184,6 +185,8 @@ class RufletCoreExtension extends RufletExtension {
         return ExpansionPanelListControl(key: key, control: control);
       case "ExpansionTile":
         return ExpansionTileControl(key: key, control: control);
+      case "FittedBox":
+        return FittedBoxControl(key: key, control: control);
       case "RufletApp":
         return RufletAppControl(key: key, control: control);
       case "FloatingActionButton":
