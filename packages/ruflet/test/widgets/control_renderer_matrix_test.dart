@@ -48,6 +48,8 @@ class Fixtures {
         props['value'] = 'Content';
       case 'Hero':
         props['tag'] = 'hero';
+      case 'CarouselView':
+        props['item_extent'] = 200.0;
       case 'Chip':
         props['label'] = text('Chip');
       case 'GestureDetector':
