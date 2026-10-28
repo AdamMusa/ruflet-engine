@@ -15,6 +15,7 @@ import 'controls/adaptive_progress_ring.dart';
 import 'controls/adaptive_radio.dart';
 import 'controls/adaptive_segmented_button.dart';
 import 'controls/adaptive_slider.dart';
+import 'controls/adaptive_stepper.dart';
 import 'controls/adaptive_switch.dart';
 import 'controls/adaptive_texfield.dart';
 import 'controls/adaptive_timer_picker.dart';
@@ -281,6 +282,8 @@ class RufletCoreExtension extends RufletExtension {
         return SnackBarControl(key: key, control: control);
       case "Stack":
         return StackControl(key: key, control: control);
+      case "Stepper":
+        return AdaptiveStepperControl(key: key, control: control);
       case "SubmenuButton":
         return SubmenuButtonControl(key: key, control: control);
       case "Switch":
