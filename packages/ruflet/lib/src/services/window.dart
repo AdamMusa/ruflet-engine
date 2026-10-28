@@ -62,6 +62,9 @@ class WindowService extends RufletService with WindowListener {
       return;
     }
     debugPrint("WindowService(${control.id}).init");
+    // Register now: the window must not look unhandled during the platform
+    // round trip below. _invokeMethod waits for the window state itself.
+    control.addInvokeMethodListener(_invokeMethod);
     _initWindowState();
   }
 
@@ -87,7 +90,6 @@ class WindowService extends RufletService with WindowListener {
 
       if (!_listenersAttached) {
         windowManager.addListener(this);
-        control.addInvokeMethodListener(_invokeMethod);
         control.parent?.addListener(_onPageChanged);
         _listenersAttached = true;
       }
@@ -377,6 +379,7 @@ class WindowService extends RufletService with WindowListener {
   }
 
   Future<dynamic> _invokeMethod(String name, dynamic args) async {
+    await _initWindowStateCompleter.future;
     switch (name) {
       case "wait_until_ready_to_show":
         await waitUntilReadyToShow();
@@ -410,9 +413,9 @@ class WindowService extends RufletService with WindowListener {
 
   @override
   void dispose() {
+    control.removeInvokeMethodListener(_invokeMethod);
     if (_listenersAttached) {
       windowManager.removeListener(this);
-      control.removeInvokeMethodListener(_invokeMethod);
       control.parent?.removeListener(_onPageChanged);
       _listenersAttached = false;
     }
