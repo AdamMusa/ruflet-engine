@@ -185,6 +185,9 @@ class CupertinoMenuItemButtonControl extends StatelessWidget {
     final button = CupertinoButton(
       alignment: AlignmentDirectional.centerStart,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      autofocus: control.getBool("autofocus", false)!,
+      onFocusChange: (focused) =>
+          control.triggerEvent(focused ? "focus" : "blur"),
       onPressed: control.disabled || !control.getBool("on_click", false)!
           ? null
           : () => control.triggerEvent("click"),
