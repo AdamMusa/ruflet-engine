@@ -25,10 +25,8 @@ class _CupertinoContextMenuControlState
     debugPrint("CupertinoContextMenu build ($hashCode): ${widget.control.id}");
 
     var content = widget.control.buildWidget("content");
-    var items = widget.control.children("actions");
-    if (items.isEmpty) {
-      items = widget.control.children("items");
-    }
+    final (button, items) = _longPressMenu();
+    _button = button;
 
     if (items.isEmpty) {
       return const ErrorControl(
@@ -56,6 +54,46 @@ class _CupertinoContextMenuControlState
   int _openActions = 0;
   bool _selected = false;
   int _itemCount = 0;
+  String _button = "secondary";
+
+  // iOS has one context-menu gesture, the long press. It stands for the
+  // pointer button a desktop user would use for the same menu: primary when
+  // `primary_trigger` is long_press, otherwise secondary (the context click)
+  // unless `secondary_trigger` is disabled. As on Material, that button's
+  // list is shown, else `items`, else `actions`. A menu whose only items are
+  // in another per-button list (e.g. tertiary, a middle click) still opens
+  // on long press rather than showing an error.
+  (String, List<Control>) _longPressMenu() {
+    final button = _trigger("primary") == "longPress"
+        ? "primary"
+        : _trigger("secondary") != "disabled"
+            ? "secondary"
+            : "primary";
+    for (final key in ["${button}_items", "items", "actions"]) {
+      final list = widget.control.children(key);
+      if (list.isNotEmpty) return (button, list);
+    }
+    for (final other in const ["primary", "secondary", "tertiary"]) {
+      final list = widget.control.children("${other}_items");
+      if (list.isNotEmpty) return (other, list);
+    }
+    return (button, const []);
+  }
+
+  static const _defaultTriggers = {
+    "primary": "disabled",
+    "secondary": "down",
+    "tertiary": "down",
+  };
+
+  /// The configured trigger name, spelled as Material reports it.
+  String _trigger(String button) {
+    final value = (widget.control.getString("${button}_trigger") ??
+            _defaultTriggers[button]!)
+        .toLowerCase()
+        .replaceAll("_", "");
+    return value == "longpress" ? "longPress" : value;
+  }
 
   void _attach(int itemCount) {
     if (_openActions++ == 0) _selected = false;
@@ -77,11 +115,12 @@ class _CupertinoContextMenuControlState
             itemIndex: items.contains(item) ? items.indexOf(item) : null));
   }
 
-  // Same keys as the Material ContextMenu payload. The native menu opens on
-  // a primary long press and reports no pointer position.
+  // Same keys as the Material ContextMenu payload: the button the long press
+  // stands for and its configured trigger. The native menu reports no
+  // pointer position.
   Map<String, dynamic> _payload({int? itemId, int? itemIndex}) => {
-        "b": "primary",
-        "tr": "longPress",
+        "b": _button,
+        "tr": _trigger(_button),
         "id": itemId,
         "idx": itemIndex,
         "ic": _itemCount,
