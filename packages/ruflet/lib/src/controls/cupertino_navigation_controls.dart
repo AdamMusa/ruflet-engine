@@ -204,7 +204,7 @@ class CupertinoMenuItemButtonControl extends StatelessWidget {
 Future<void> _showCupertinoMenu(
     BuildContext context, Control control, List<Control> entries) async {
   control.triggerEvent("open");
-  await showCupertinoModalPopup<void>(
+  final chosen = await showCupertinoModalPopup<bool>(
     context: context,
     builder: (context) => CupertinoPopupSurface(
       child: SafeArea(
@@ -216,18 +216,29 @@ Future<void> _showCupertinoMenu(
             children: entries
                 .map((entry) => GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        final value = entry.getString("value") ??
-                            entry.getString("text") ??
-                            entry.id.toString();
-                        entry.triggerEvent("click");
-                        control.triggerEvent("select", value);
-                        Navigator.pop(context);
-                      },
+                      onTap: entry.disabled
+                          ? null
+                          : () {
+                              // Same payloads as Material's popup menu
+                              // (buildPopupMenuEntries): a checked item
+                              // reports its toggled state, and `select`
+                              // carries the item id.
+                              final checked = entry.getBool("checked");
+                              entry.triggerEvent(
+                                  "click", checked == null ? null : !checked);
+                              control.triggerEvent(
+                                  "select", entry.id.toString());
+                              Navigator.pop(context, true);
+                            },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12),
-                        child: ControlWidget(control: entry),
+                        // The row is the menu choice. Entries such as
+                        // PopupMenuItem render as tappable actions of their
+                        // own, which would otherwise win the tap, close the
+                        // sheet without a selection and skip on_select.
+                        child:
+                            IgnorePointer(child: ControlWidget(control: entry)),
                       ),
                     ))
                 .toList(),
@@ -236,6 +247,8 @@ Future<void> _showCupertinoMenu(
       ),
     ),
   );
+  // Closed without choosing an entry (barrier tap, swipe, back).
+  if (chosen != true) control.triggerEvent("cancel");
   control.triggerEvent("close");
 }
 
