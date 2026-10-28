@@ -97,11 +97,20 @@ class _TextFieldControlState extends State<TextFieldControl> {
     debugPrint("TextField.$name($args)");
     switch (name) {
       case "focus":
-        _focusNode.requestFocus();
+        _activeFocusNode.requestFocus();
+      case "blur":
+        _focusNode.unfocus();
+        _shiftEnterfocusNode.unfocus();
       default:
         throw Exception("Unknown TextField method: $name");
     }
   }
+
+  // shift_enter fields render with their own focus node.
+  FocusNode get _activeFocusNode =>
+      widget.control.getBool("shift_enter", false)!
+          ? _shiftEnterfocusNode
+          : _focusNode;
 
   void _onShiftEnterFocusChange() {
     _focused = _shiftEnterfocusNode.hasFocus;
