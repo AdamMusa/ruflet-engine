@@ -66,13 +66,16 @@ class CupertinoChipControl extends StatelessWidget {
             ]),
           ),
           if (control.getBool("on_delete", false)!)
-            CupertinoButton(
-              padding: const EdgeInsetsDirectional.only(end: 8),
-              minimumSize: const Size.square(30),
-              onPressed: control.disabled
-                  ? null
-                  : () => control.triggerEvent("delete"),
-              child: deleteIcon,
+            Semantics(
+              tooltip: control.getString("delete_icon_tooltip"),
+              child: CupertinoButton(
+                padding: const EdgeInsetsDirectional.only(end: 8),
+                minimumSize: const Size.square(30),
+                onPressed: control.disabled
+                    ? null
+                    : () => control.triggerEvent("delete"),
+                child: deleteIcon,
+              ),
             ),
         ],
       ),
