@@ -178,9 +178,9 @@ InputDecoration buildInputDecoration(
       constraints: control.getBoxConstraints("size_constraints"),
       isCollapsed: control.getBool("collapsed"),
       prefixIconConstraints:
-          control.getBoxConstraints("prefix_icon_constraints"),
+          control.getBoxConstraints("prefix_icon_size_constraints"),
       suffixIconConstraints:
-          control.getBoxConstraints("suffix_icon_constraints"),
+          control.getBoxConstraints("suffix_icon_size_constraints"),
       focusColor: control.getColor("focus_color", context),
       alignLabelWithHint: control.getBool("align_label_with_hint"),
       prefixIcon: control.buildIconOrWidget("prefix_icon"),
