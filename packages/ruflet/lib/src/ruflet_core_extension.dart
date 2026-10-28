@@ -9,6 +9,7 @@ import 'controls/adaptive_checkbox.dart';
 import 'controls/adaptive_context_menu.dart';
 import 'controls/adaptive_context_menu_action.dart';
 import 'controls/adaptive_date_picker.dart';
+import 'controls/adaptive_draggable_scrollable_sheet.dart';
 import 'controls/adaptive_list_tile.dart';
 import 'controls/adaptive_picker.dart';
 import 'controls/adaptive_progress_ring.dart';
@@ -178,6 +179,8 @@ class RufletCoreExtension extends RufletExtension {
         return DragTargetControl(key: key, control: control);
       case "Draggable":
         return DraggableControl(key: key, control: control);
+      case "DraggableScrollableSheet":
+        return DraggableScrollableSheetControl(key: key, control: control);
       case "Dropdown":
         return DropdownControl(key: key, control: control);
       case "ExpansionPanelList":
