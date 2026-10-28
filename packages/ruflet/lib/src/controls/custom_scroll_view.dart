@@ -92,7 +92,7 @@ class _CustomScrollViewControlState extends State<CustomScrollViewControl> {
           semanticChildCount: semanticChildCount,
           shrinkWrap: shrinkWrap,
           slivers: [
-            for (final sliver in slivers) buildSliverChild(sliver, host)
+            for (final sliver in slivers) ...buildSlivers(sliver, host)
           ],
         );
 

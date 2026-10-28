@@ -40,6 +40,7 @@ const Map<String, String> _controlTypeAliases = {
   "CupertinoDialogAction": "Button",
   "CupertinoPicker": "Picker",
   "CupertinoTimerPicker": "TimerPicker",
+  "CupertinoSliverNavigationBar": "SliverAppBar",
   "DropdownM2": "Dropdown",
 };
 

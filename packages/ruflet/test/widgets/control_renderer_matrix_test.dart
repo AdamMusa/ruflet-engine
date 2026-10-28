@@ -58,6 +58,8 @@ class Fixtures {
         ];
       case 'CustomScrollView':
         props['slivers'] = [
+          node('SliverAppBar',
+              {'title': text('Title'), 'variant': 'large', 'pinned': true}),
           node('SliverList', {
             'header': text('H'),
             'sticky_header': true,
