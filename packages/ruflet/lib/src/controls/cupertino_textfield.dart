@@ -167,29 +167,49 @@ class _CupertinoTextFieldControlState extends State<CupertinoTextFieldControl> {
   /// `bgcolor`, `filled`/`fill_color`, `gradient`, `image` and `shadows`
   /// still paint on any style. Returns null when there is nothing to paint,
   /// which also keeps disabled "none" fields free of a gray box.
+  ///
+  /// While focused, `focused_border_color`/`focused_border_width` restyle the
+  /// drawn border (like Material's focusedBorder, "none" stays borderless) and
+  /// `focused_bgcolor` replaces the background. Border styling without a
+  /// `border` keyword implies "outline", as on Material.
   BoxDecoration? _decoration(BuildContext context, RufletStyleTheme theme) {
     final native = const CupertinoTextField().decoration!;
     final nativeSide = (native.border! as Border).top;
     final rawBorder = widget.control.get("border");
-    final style = rawBorder is String
+    var style = rawBorder is String
         ? parseFormFieldInputBorder(rawBorder.replaceAll("_", ""))
         : null;
     if (rawBorder is String && style == null) {
       debugPrint("CupertinoTextField: unknown border \"$rawBorder\"");
     }
 
+    final borderColor = widget.control.getColor("border_color", context);
     final borderWidth = widget.control.getDouble("border_width");
+    final focusedBorderColor =
+        widget.control.getColor("focused_border_color", context);
+    final focusedBorderWidth = widget.control.getDouble("focused_border_width");
+    if (rawBorder == null &&
+        (borderColor != null ||
+            borderWidth != null ||
+            focusedBorderColor != null ||
+            focusedBorderWidth != null)) {
+      style = FormFieldInputBorder.outline;
+    }
+    final focusColor = _focused ? focusedBorderColor : null;
+    final focusWidth = _focused ? focusedBorderWidth : null;
     final side = borderWidth == 0
         ? BorderSide.none
         : nativeSide.copyWith(
-            color: widget.control.getColor("border_color", context),
-            width: borderWidth);
+            color: focusColor ?? borderColor, width: focusWidth ?? borderWidth);
     final bgcolor = widget.control.getColor("bgcolor", context);
     var color = widget.control.getBool("filled", false)!
         ? widget.control.getColor("fill_color", context) ??
             bgcolor ??
             CupertinoColors.tertiarySystemFill
         : bgcolor;
+    if (_focused) {
+      color = widget.control.getColor("focused_bgcolor", context) ?? color;
+    }
     final gradient = widget.control.getGradient("gradient", theme);
     final image = widget.control.getDecorationImage("image", context);
     final shadows = widget.control.getBoxShadows("shadows", theme);
@@ -208,7 +228,8 @@ class _CupertinoTextFieldControlState extends State<CupertinoTextFieldControl> {
         border = null;
       case null:
         border = rawBorder is Map
-            ? widget.control.getBorder("border", theme)
+            ? _restyleSides(widget.control.getBorder("border", theme),
+                focusColor, focusWidth)
             : native.border;
         color ??= native.color;
     }
@@ -231,6 +252,19 @@ class _CupertinoTextFieldControlState extends State<CupertinoTextFieldControl> {
       borderRadius: radius,
       boxShadow: shadows,
     );
+  }
+
+  /// Applies the focused color/width to every side a Border map draws.
+  Border? _restyleSides(Border? border, Color? color, double? width) {
+    if (border == null || (color == null && width == null)) return border;
+    BorderSide restyle(BorderSide side) => side == BorderSide.none
+        ? side
+        : side.copyWith(color: color, width: width);
+    return Border(
+        top: restyle(border.top),
+        right: restyle(border.right),
+        bottom: restyle(border.bottom),
+        left: restyle(border.left));
   }
 
   @override
