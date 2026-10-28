@@ -24,6 +24,7 @@ import '../routing/router_delegate.dart';
 import '../services/service_binding.dart';
 import '../services/service_registry.dart';
 import '../utils/device_info.dart';
+import '../utils/invoke.dart';
 import '../utils/locale.dart';
 import '../utils/numbers.dart';
 import '../utils/platform.dart';
@@ -276,17 +277,20 @@ class _PageControlState extends State<PageControl> with WidgetsBindingObserver {
         }
 
       case "push_route":
-        _routeState.route = args["route"];
+        _routeState.route =
+            requireInvokeArg(args, "route", "Page.push_route").toString();
         break;
       case "get_device_info":
         return await getDeviceInfo();
       case "set_allowed_device_orientations":
         if (isMobilePlatform()) {
-          var orientations = args["orientations"]
-                  ?.map((o) => parseDeviceOrientation(o))
+          var value = args["orientations"];
+          var orientations = value is List
+              ? value
+                  .map((o) => parseDeviceOrientation(o))
                   .whereType<DeviceOrientation>()
-                  .toList() ??
-              List<DeviceOrientation>.from(DeviceOrientation.values);
+                  .toList()
+              : List<DeviceOrientation>.from(DeviceOrientation.values);
           await SystemChrome.setPreferredOrientations(orientations);
         }
         break;

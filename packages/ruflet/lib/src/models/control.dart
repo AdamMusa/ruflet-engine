@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 import '../ruflet_backend.dart';
+import '../utils/invoke.dart';
 
 typedef InvokeControlMethodCallback = Future<dynamic> Function(
     String name, dynamic args);
@@ -484,6 +485,8 @@ class Control extends ChangeNotifier {
   Future<dynamic> invokeMethod(
       String name, dynamic args, Duration timeout) async {
     debugPrint("$type($id).$name($args)");
+    // Listeners always receive a map, even when Ruby sends `args: nil`.
+    args = invokeArgs(args);
 
     // If no listeners, wait until one is added or timeout occurs
     if (_invokeMethodListeners.isEmpty) {
