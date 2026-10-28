@@ -85,7 +85,8 @@ class _ViewControlState extends State<ViewControl> {
         break;
       case "confirm_pop":
         if (_popCompleter != null && !_popCompleter!.isCompleted) {
-          _popCompleter?.complete(args["should_pop"]);
+          // A missing answer keeps the view rather than discarding it.
+          _popCompleter?.complete(parseBool(args["should_pop"], false)!);
         }
         break;
     }
