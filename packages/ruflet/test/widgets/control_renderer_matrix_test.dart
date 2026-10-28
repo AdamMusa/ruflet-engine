@@ -56,6 +56,21 @@ class Fixtures {
         props['actions'] = [
           node('ContextMenuAction', {'content': text('Action')})
         ];
+      case 'CustomScrollView':
+        props['slivers'] = [
+          node('SliverList', {
+            'header': text('H'),
+            'sticky_header': true,
+            'controls': [text('A'), text('B')]
+          }),
+          node('SliverGrid', {
+            'runs_count': 2,
+            'controls': [text('G1'), text('G2')]
+          }),
+          node('SliverToBoxAdapter', {'content': text('Box')}),
+          text('Auto-wrapped'),
+          node('SliverFillRemaining', {'content': text('Fill')}),
+        ];
       case 'Image':
         props['src'] =
             'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a6i8AAAAASUVORK5CYII=';
