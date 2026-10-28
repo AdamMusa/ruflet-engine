@@ -45,6 +45,9 @@ class CupertinoChipControl extends StatelessWidget {
           CupertinoButton(
             padding: control.getPadding(
                 "padding", const EdgeInsets.symmetric(horizontal: 12)),
+            autofocus: control.getBool("autofocus", false)!,
+            onFocusChange: (focused) =>
+                control.triggerEvent(focused ? "focus" : "blur"),
             onPressed: control.disabled || (!onSelect && !onClick)
                 ? null
                 : () {
