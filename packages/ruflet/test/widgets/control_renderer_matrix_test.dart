@@ -80,6 +80,15 @@ class Fixtures {
             })
           ]
         });
+      case 'Table':
+        props['rows'] = [
+          node('TableRow', {
+            'controls': [text('A'), text('B')]
+          }),
+          node('TableRow', {
+            'controls': [text('C')]
+          })
+        ];
       case 'NavigationBar':
       case 'NavigationRail':
         props['destinations'] = [

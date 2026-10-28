@@ -80,6 +80,7 @@ import 'controls/shimmer.dart';
 import 'controls/snack_bar.dart';
 import 'controls/stack.dart';
 import 'controls/submenu_button.dart';
+import 'controls/table.dart';
 import 'controls/tabs.dart';
 import 'controls/text.dart';
 import 'controls/time_picker.dart';
@@ -291,6 +292,8 @@ class RufletCoreExtension extends RufletExtension {
         return TabBarControl(key: key, control: control);
       case "TabBarView":
         return TabBarViewControl(key: key, control: control);
+      case "Table":
+        return TableControl(key: key, control: control);
       case "Tabs":
         return TabsControl(key: key, control: control);
       case "Text":
