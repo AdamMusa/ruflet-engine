@@ -108,6 +108,8 @@ class Fixtures {
             })
           ]
         });
+      case 'ListSection':
+        props['header'] = text('Header');
       case 'ExpansionTile':
       case 'ListTile':
       case 'AppBar':

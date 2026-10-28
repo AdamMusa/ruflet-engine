@@ -26,6 +26,8 @@ const Map<String, String> _controlTypeAliases = {
   "AdaptiveTextField": "TextField",
   "CupertinoTextField": "TextField",
   "CupertinoActivityIndicator": "ProgressRing",
+  "CupertinoFormSection": "ListSection",
+  "CupertinoListSection": "ListSection",
   "CupertinoListTile": "ListTile",
   "CupertinoNavigationBar": "NavigationBar",
   "CupertinoSegmentedButton": "SegmentedButton",
