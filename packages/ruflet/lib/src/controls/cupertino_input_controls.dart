@@ -143,13 +143,18 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
       placeholder: control.getString("hint_text"),
       padding: control.getPadding("content_padding", const EdgeInsets.all(10))!,
       prefix: control.buildIconOrWidget("leading_icon"),
-      suffix: CupertinoButton(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        minimumSize: const Size.square(32),
-        onPressed: control.disabled ? null : _showOptions,
-        child: control.buildIconOrWidget("trailing_icon") ??
-            const Icon(CupertinoIcons.chevron_down, size: 18),
-      ),
+      suffix: Row(mainAxisSize: MainAxisSize.min, children: [
+        // Ruby selected_suffix: shown after the chosen option's text.
+        if (selected.isNotEmpty)
+          if (control.buildWidget("selected_suffix") case final suffix?) suffix,
+        CupertinoButton(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          minimumSize: const Size.square(32),
+          onPressed: control.disabled ? null : _showOptions,
+          child: control.buildIconOrWidget("trailing_icon") ??
+              const Icon(CupertinoIcons.chevron_down, size: 18),
+        ),
+      ]),
       onTap: editable ? null : _showOptions,
       onChanged: editable
           ? (value) {
