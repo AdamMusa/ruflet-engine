@@ -205,9 +205,7 @@ AxisTitles parseAxisTitles(Control? control) {
 FLHorizontalAlignment? parseFLHorizontalAlignment(String? value,
     [FLHorizontalAlignment? defaultValue]) {
   if (value == null) return defaultValue;
-  return FLHorizontalAlignment.values.firstWhereOrNull(
-          (e) => e.name.toLowerCase() == value.toLowerCase()) ??
-      defaultValue;
+  return parseEnum(FLHorizontalAlignment.values, value, defaultValue);
 }
 
 String resolveFlTouchEventType(FlTouchEvent event) {
