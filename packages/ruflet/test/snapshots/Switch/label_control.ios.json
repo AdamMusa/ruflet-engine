@@ -1,0 +1,70 @@
+{
+  "fixture": "label_control",
+  "design": "ios",
+  "geometry": {
+    "size": {
+      "w": 800.0,
+      "h": 39.0
+    },
+    "elements": [
+      {
+        "text": "{value: Custom}",
+        "rect": {
+          "l": 59.0,
+          "t": 11.0,
+          "w": 248.9,
+          "h": 17.0
+        }
+      }
+    ]
+  },
+  "semantics": [
+    {
+      "label": "{value: Custom}",
+      "flags": [
+        "hasEnabledState",
+        "isEnabled",
+        "hasToggledState",
+        "isFocusable"
+      ],
+      "actions": [
+        "tap",
+        "focus"
+      ],
+      "rect": {
+        "l": 0.0,
+        "t": 0.0,
+        "w": 800.0,
+        "h": 39.0
+      }
+    }
+  ],
+  "steps": [
+    {
+      "step": "tap text \"Custom\"",
+      "note": "text not rendered",
+      "sent": [],
+      "semantics": [
+        {
+          "label": "{value: Custom}",
+          "flags": [
+            "hasEnabledState",
+            "isEnabled",
+            "hasToggledState",
+            "isFocusable"
+          ],
+          "actions": [
+            "tap",
+            "focus"
+          ],
+          "rect": {
+            "l": 0.0,
+            "t": 0.0,
+            "w": 800.0,
+            "h": 39.0
+          }
+        }
+      ]
+    }
+  ]
+}
