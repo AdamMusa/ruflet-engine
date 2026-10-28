@@ -43,7 +43,7 @@
         {
           "id": 1001,
           "event": "change",
-          "data": null
+          "data": false
         }
       ],
       "semantics": [

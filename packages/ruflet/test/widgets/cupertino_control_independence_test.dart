@@ -1,4 +1,5 @@
 import 'package:ruflet/ruflet.dart';
+import 'package:ruflet/src/controls/adaptive_switch.dart';
 import 'package:ruflet/src/controls/cupertino_alert_dialog.dart';
 import 'package:ruflet/src/controls/cupertino_app_bar.dart';
 import 'package:ruflet/src/controls/cupertino_button.dart';
@@ -6,7 +7,6 @@ import 'package:ruflet/src/controls/cupertino_checkbox.dart';
 import 'package:ruflet/src/controls/cupertino_container.dart';
 import 'package:ruflet/src/controls/cupertino_dialog_action.dart';
 import 'package:ruflet/src/controls/cupertino_radio.dart';
-import 'package:ruflet/src/controls/cupertino_switch.dart';
 import 'package:ruflet/src/controls/cupertino_textfield.dart';
 import 'package:ruflet/src/utils/cupertino_theme.dart';
 import 'package:ruflet/src/widgets/list_tile_clicks.dart';
@@ -86,7 +86,7 @@ void main() {
           groupValue: 'a',
           onChanged: (_) => changedRadio = true,
           child: CupertinoRadioControl(control: radio)),
-      CupertinoSwitchControl(control: toggle),
+      AdaptiveSwitchControl(control: toggle),
     ])));
     expect(
         tester
@@ -116,7 +116,7 @@ void main() {
         notifier: clicks,
         child: Column(children: [
           CupertinoCheckboxControl(control: checkbox),
-          CupertinoSwitchControl(control: toggle)
+          AdaptiveSwitchControl(control: toggle)
         ]))));
     clicks.onClick();
     expect(checkbox.get('value'), isFalse);

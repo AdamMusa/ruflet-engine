@@ -10,8 +10,8 @@
       {
         "text": "Big",
         "rect": {
-          "l": 59.0,
-          "t": 21.5,
+          "l": 86.8,
+          "t": 16.9,
           "w": 49.8,
           "h": 17.0
         }
@@ -52,7 +52,7 @@
         {
           "id": 1001,
           "event": "change",
-          "data": null
+          "data": true
         }
       ],
       "semantics": [
