@@ -219,11 +219,15 @@ Future<void> _showCupertinoMenu(
                       onTap: entry.disabled
                           ? null
                           : () {
-                              final value = entry.getString("value") ??
-                                  entry.getString("text") ??
-                                  entry.id.toString();
-                              entry.triggerEvent("click");
-                              control.triggerEvent("select", value);
+                              // Same payloads as Material's popup menu
+                              // (buildPopupMenuEntries): a checked item
+                              // reports its toggled state, and `select`
+                              // carries the item id.
+                              final checked = entry.getBool("checked");
+                              entry.triggerEvent(
+                                  "click", checked == null ? null : !checked);
+                              control.triggerEvent(
+                                  "select", entry.id.toString());
                               Navigator.pop(context, true);
                             },
                       child: Padding(
