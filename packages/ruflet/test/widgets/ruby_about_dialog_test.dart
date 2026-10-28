@@ -10,6 +10,9 @@ import 'control_renderer_matrix_test.dart' show materialOnly;
 
 class _Backend extends RufletBackend {
   final events = <String>[];
+
+  /// `"<control id>:<event>"`, to tell which control was dismissed.
+  final controlEvents = <String>[];
   _Backend(TargetPlatform target)
       : super(
             pageUri: Uri.parse('inprocess://about-dialog-test'),
@@ -25,8 +28,10 @@ class _Backend extends RufletBackend {
       super.updateControl(id, props, dart: dart, python: false, notify: notify);
 
   @override
-  void triggerControlEvent(Control control, String name, [dynamic data]) =>
-      events.add(name);
+  void triggerControlEvent(Control control, String name, [dynamic data]) {
+    events.add(name);
+    controlEvents.add('${control.id}:$name');
+  }
 }
 
 const _package = 'ruflet_test_package';
@@ -60,9 +65,21 @@ Control _about(_Backend backend, [Map<String, dynamic> props = const {}]) =>
       ...props,
     }, backend);
 
+/// Another control's dialog, mounted next to the AboutDialog.
+Control _otherDialog(_Backend backend) => Control.fromMap({
+      '_c': 'AlertDialog',
+      '_i': 20,
+      'open': false,
+      'title': 'Other dialog',
+    }, backend);
+
 Future<void> _show(WidgetTester tester, _Backend backend, Control about,
-    {String title = 'Ruflet App'}) async {
-  final child = Center(child: ControlWidget(control: about));
+    {String title = 'Ruflet App', List<Control> others = const []}) async {
+  final child = Center(
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+    ControlWidget(control: about),
+    for (final other in others) ControlWidget(control: other),
+  ]));
   await tester.pumpWidget(ChangeNotifierProvider<RufletBackend>.value(
     value: backend,
     child: backend.platform == TargetPlatform.iOS
@@ -236,6 +253,61 @@ void main() {
       expect(backend.events, isEmpty);
       _expectCupertinoOnly(tester);
     });
+
+    testWidgets('open: false leaves another dialog above it alone',
+        (tester) async {
+      final about = _about(backend);
+      final other = _otherDialog(backend);
+      await _show(tester, backend, about, others: [other]);
+      other.updateProperties({'open': true}, python: false, notify: true);
+      await tester.pumpAndSettle();
+      expect(find.text('Other dialog'), findsOneWidget);
+
+      about.updateProperties({'open': false}, python: false, notify: true);
+      await tester.pumpAndSettle();
+      about.updateProperties({'data': 'rebuild'}, python: false, notify: true);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Other dialog'), findsOneWidget);
+      expect(find.text('Rides 1.4.0'), findsNothing);
+      expect(other.get('open'), isTrue);
+      expect(backend.controlEvents, ['1:dismiss']);
+
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      expect(find.text('Other dialog'), findsNothing);
+      expect(backend.controlEvents, ['1:dismiss', '20:dismiss']);
+      _expectCupertinoOnly(tester);
+    });
+
+    testWidgets('open: false closes its license pages, not a dialog above',
+        (tester) async {
+      final about = _about(backend);
+      final other = _otherDialog(backend);
+      await _show(tester, backend, about, others: [other]);
+      await tester.tap(find.text('View Licenses'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(_package));
+      await tester.pumpAndSettle();
+      expect(find.text('Ruflet test license.'), findsOneWidget);
+      other.updateProperties({'open': true}, python: false, notify: true);
+      await tester.pumpAndSettle();
+
+      about.updateProperties({'open': false}, python: false, notify: true);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Other dialog'), findsOneWidget);
+      expect(backend.controlEvents, ['1:dismiss']);
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      // The alert, the package list and the license text all went with it.
+      expect(find.text('Other dialog'), findsNothing);
+      expect(find.byType(CupertinoLicensePage), findsNothing);
+      expect(find.text('Ruflet test license.'), findsNothing);
+      expect(find.text('Rides 1.4.0'), findsNothing);
+      expect(backend.controlEvents, ['1:dismiss', '20:dismiss']);
+      _expectCupertinoOnly(tester);
+    });
   });
 
   group('Android AboutDialog', () {
@@ -292,6 +364,71 @@ void main() {
       expect(find.byType(material.AboutDialog), findsNothing);
       expect(find.byType(material.Scaffold), findsOneWidget);
       expect(backend.events, ['dismiss']);
+    });
+
+    testWidgets('open: false leaves another dialog above it alone',
+        (tester) async {
+      final about = _about(backend);
+      final other = _otherDialog(backend);
+      await _show(tester, backend, about, others: [other]);
+      other.updateProperties({'open': true}, python: false, notify: true);
+      await tester.pumpAndSettle();
+      expect(find.text('Other dialog'), findsOneWidget);
+
+      about.updateProperties({'open': false}, python: false, notify: true);
+      await tester.pumpAndSettle();
+      about.updateProperties({'data': 'rebuild'}, python: false, notify: true);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Other dialog'), findsOneWidget);
+      expect(find.byType(material.AboutDialog), findsNothing);
+      expect(other.get('open'), isTrue);
+      expect(backend.controlEvents, ['1:dismiss']);
+
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      expect(find.text('Other dialog'), findsNothing);
+      expect(backend.controlEvents, ['1:dismiss', '20:dismiss']);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('open: false closes its LicensePage, not a dialog above',
+        (tester) async {
+      final about = _about(backend);
+      final other = _otherDialog(backend);
+      await _show(tester, backend, about, others: [other]);
+      await tester.tap(find.text('View licenses'));
+      await tester.pumpAndSettle();
+      expect(find.byType(material.LicensePage), findsOneWidget);
+      other.updateProperties({'open': true}, python: false, notify: true);
+      await tester.pumpAndSettle();
+
+      about.updateProperties({'open': false}, python: false, notify: true);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Other dialog'), findsOneWidget);
+      expect(backend.controlEvents, ['1:dismiss']);
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      expect(find.text('Other dialog'), findsNothing);
+      expect(find.byType(material.LicensePage), findsNothing);
+      expect(find.byType(material.AboutDialog), findsNothing);
+      expect(backend.controlEvents, ['1:dismiss', '20:dismiss']);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('open: false closes the LicensePage it opened', (tester) async {
+      final about = _about(backend);
+      await _show(tester, backend, about);
+      await tester.tap(find.text('View licenses'));
+      await tester.pumpAndSettle();
+      about.updateProperties({'open': false}, python: false, notify: true);
+      await tester.pumpAndSettle();
+      expect(find.byType(material.LicensePage), findsNothing);
+      expect(find.byType(material.AboutDialog), findsNothing);
+      expect(find.byType(material.Scaffold), findsOneWidget);
+      expect(backend.events, ['dismiss']);
+      expect(tester.takeException(), isNull);
     });
   });
 }

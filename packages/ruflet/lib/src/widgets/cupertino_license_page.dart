@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
+import 'control_route.dart';
+
 /// iOS licenses page (D-7): Flutter only ships the Material [LicensePage].
 ///
 /// Lists the [LicenseRegistry] packages in an inset-grouped section (package
@@ -97,10 +99,14 @@ class _CupertinoLicensePageState extends State<CupertinoLicensePage> {
             title: Text(name),
             additionalInfo: Text("${entries.length}"),
             trailing: const CupertinoListTileChevron(),
-            onTap: () => Navigator.of(context).push(CupertinoPageRoute<void>(
-              builder: (_) =>
-                  _CupertinoPackageLicensePage(package: name, entries: entries),
-            )),
+            // Carries the page's themes (and a dialog's ControlRouteScope).
+            onTap: () => pushCarryingThemes(
+              context,
+              (wrap) => CupertinoPageRoute<void>(
+                builder: (_) => wrap(_CupertinoPackageLicensePage(
+                    package: name, entries: entries)),
+              ),
+            ),
           ),
       ],
     );
