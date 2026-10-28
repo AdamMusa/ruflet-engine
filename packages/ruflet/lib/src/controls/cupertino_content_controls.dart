@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 
 import '../extensions/control.dart';
 import '../models/control.dart';
+import '../utils/borders.dart';
 import '../utils/colors.dart';
+import '../utils/cupertino_theme.dart';
 import '../utils/edge_insets.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
@@ -161,7 +163,9 @@ class CupertinoDataTableControl extends StatelessWidget {
       child: Table(
         defaultColumnWidth: const IntrinsicColumnWidth(),
         border: TableBorder(
-          horizontalInside: BorderSide(color: borderColor, width: 0.5),
+          horizontalInside: control.getBorderSide(
+                  "horizontal_lines", cupertinoStyleTheme(context)) ??
+              BorderSide(color: borderColor, width: 0.5),
           bottom: control.getBool("show_bottom_border", false)!
               ? BorderSide(color: borderColor, width: 0.5)
               : BorderSide.none,
