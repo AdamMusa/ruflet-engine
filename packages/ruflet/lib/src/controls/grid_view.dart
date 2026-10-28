@@ -11,8 +11,8 @@ import '../widgets/error.dart';
 import 'adaptive_refresh_scroll_view.dart';
 import 'base_controls.dart';
 import 'end_reached_listener.dart';
+import 'grid_view_sliver.dart';
 import 'scroll_notification_control.dart';
-import 'scroll_slivers.dart';
 import 'scrollable_control.dart';
 
 class GridViewControl extends StatefulWidget {
