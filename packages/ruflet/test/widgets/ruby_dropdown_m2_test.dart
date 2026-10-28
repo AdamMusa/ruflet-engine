@@ -121,6 +121,38 @@ void main() {
       expect(find.text('Pick a color'), findsNothing);
     });
 
+    testWidgets('Material reads prefix_icon_size_constraints', (tester) async {
+      await _pump(tester, TargetPlatform.android, _dropdownM2());
+
+      // DropdownButton replaces suffixIconConstraints to align its select
+      // icon, so only the prefix constraint reaches the decoration.
+      expect(
+          tester
+              .widget<material.InputDecorator>(
+                  find.byType(material.InputDecorator))
+              .decoration
+              .prefixIconConstraints,
+          const BoxConstraints(minWidth: 48, minHeight: 40));
+    });
+
+    testWidgets('shared form field decoration reads both constraint keys',
+        (tester) async {
+      await _pump(tester, TargetPlatform.android, {
+        '_c': 'TextField',
+        '_i': 1,
+        'width': 300,
+        'prefix_icon_size_constraints': _constraints,
+        'suffix_icon_size_constraints': _constraints,
+      });
+
+      final decoration = tester
+          .widget<material.InputDecorator>(find.byType(material.InputDecorator))
+          .decoration;
+      const expected = BoxConstraints(minWidth: 48, minHeight: 40);
+      expect(decoration.prefixIconConstraints, expected);
+      expect(decoration.suffixIconConstraints, expected);
+    });
+
     testWidgets('Cupertino shows the hint placeholder and fires change',
         (tester) async {
       final (backend, control) =
