@@ -161,6 +161,18 @@ class Fixtures {
         props.addAll({'base_color': '#112233', 'highlight_color': '#445566'});
       case 'RotatedBox':
         props['quarter_turns'] = 1;
+      case 'Stepper':
+        props.addAll({
+          'current_step': 0,
+          'steps': [
+            node('Step', {
+              'title': text('One'),
+              'content': text('Body 1'),
+              'is_active': true
+            }),
+            node('Step', {'title': text('Two'), 'content': text('Body 2')})
+          ]
+        });
       case 'ActionSheet':
         props['actions'] = [
           node('ActionSheetAction', {'content': text('Action')})
