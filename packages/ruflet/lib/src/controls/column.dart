@@ -6,6 +6,7 @@ import '../utils/alignment.dart';
 import '../utils/misc.dart';
 import '../utils/numbers.dart';
 import 'adaptive_refresh_scroll_view.dart';
+import 'animated_children.dart';
 import 'base_controls.dart';
 import 'box_sliver.dart';
 import 'end_reached_listener.dart';
@@ -30,9 +31,7 @@ class ColumnControl extends StatelessWidget {
     var wrap = control.getBool("wrap", false)!;
     var horizontalAlignment = control.getString("horizontal_alignment");
     var intrinsicWidth = control.getBool("intrinsic_width", false)!;
-    var controls = control.buildWidgets("controls");
-
-    Widget child = wrap
+    Widget flex(List<Widget> controls) => wrap
         ? Wrap(
             direction: Axis.vertical,
             spacing: spacing,
@@ -53,6 +52,13 @@ class ColumnControl extends StatelessWidget {
                 horizontalAlignment, CrossAxisAlignment.start)!,
             children: controls,
           );
+
+    // `animate_changes` animates inserted/removed children (AnimatedList
+    // behavior) of a vertical Column.
+    Widget child = control.getBool("animate_changes", false)! && !wrap
+        ? AnimatedChildrenBuilder(
+            control: control, axis: Axis.vertical, builder: flex)
+        : flex(control.buildWidgets("controls"));
 
     if (intrinsicWidth) {
       child = IntrinsicWidth(child: child);
