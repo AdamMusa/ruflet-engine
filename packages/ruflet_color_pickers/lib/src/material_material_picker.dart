@@ -36,7 +36,7 @@ class _MaterialMaterialPickerControlState
 
     final controlColor =
         widget.control.getColor("color", context) ?? Colors.black;
-    if (controlColor.value != _pickerColor.value) {
+    if (controlColor.toARGB32() != _pickerColor.toARGB32()) {
       _pickerColor = controlColor;
     }
 
