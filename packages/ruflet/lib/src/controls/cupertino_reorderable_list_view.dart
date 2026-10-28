@@ -5,6 +5,7 @@ import '../models/control.dart';
 import '../utils/edge_insets.dart';
 import '../utils/misc.dart';
 import '../utils/numbers.dart';
+import '../widgets/list_spacing.dart';
 import '../widgets/reorderable_item_scope.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
@@ -58,11 +59,15 @@ class _CupertinoReorderableListViewControlState
   Widget _item(int index, bool defaultHandle) {
     final item = _controls[index];
     final key = ValueKey(item.get("key") ?? item.id);
-    Widget content = ReorderableItemScope(
-      key: key,
-      index: index,
-      child: ControlWidget(key: key, control: item),
-    );
+    Widget child = ControlWidget(key: key, control: item);
+    final spacing = widget.control.getDouble("spacing", 0)!;
+    if (spacing > 0 && index < _controls.length - 1) {
+      child = withListItemSeparator(child,
+          horizontal: widget.control.getBool("horizontal", false)!,
+          spacing: spacing,
+          dividerThickness: widget.control.getDouble("divider_thickness", 0)!);
+    }
+    Widget content = ReorderableItemScope(key: key, index: index, child: child);
     if (defaultHandle) {
       content = ReorderableDelayedDragStartListener(
         key: key,
@@ -80,6 +85,13 @@ class _CupertinoReorderableListViewControlState
     final direction = horizontal ? Axis.horizontal : Axis.vertical;
     final defaultHandles =
         widget.control.getBool("show_default_drag_handles", true)!;
+    // As in ListView, spacing replaces fixed item extents.
+    final spacing = widget.control.getDouble("spacing", 0)!;
+    final prototype = widget.control.buildWidget("prototype_item") ??
+        (widget.control.getBool("first_item_prototype", false)! &&
+                _controls.isNotEmpty
+            ? ControlWidget(control: _controls.first)
+            : null);
     Widget list = ReorderableList(
       controller: _controller,
       scrollDirection: direction,
@@ -90,7 +102,10 @@ class _CupertinoReorderableListViewControlState
       padding: widget.control.getPadding("padding"),
       clipBehavior:
           widget.control.getClipBehavior("clip_behavior", Clip.hardEdge)!,
-      itemExtent: widget.control.getDouble("item_extent"),
+      itemExtent: spacing > 0 ? null : widget.control.getDouble("item_extent"),
+      prototypeItem: spacing > 0 || prototype == null
+          ? null
+          : ReorderableItemScope(index: 0, child: prototype),
       autoScrollerVelocityScalar:
           widget.control.getDouble("auto_scroller_velocity_scalar"),
       itemCount: _controls.length,
