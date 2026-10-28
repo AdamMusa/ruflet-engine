@@ -197,7 +197,16 @@ class CupertinoMenuItemButtonControl extends StatelessWidget {
         ],
       ),
     );
-    return LayoutControl(control: control, child: button);
+    // Pointer hover (macOS, iPadOS with a pointer), as Material's onHover.
+    final onHover = control.getBool("on_hover", false)! && !control.disabled;
+    return LayoutControl(
+        control: control,
+        child: !onHover
+            ? button
+            : MouseRegion(
+                onEnter: (_) => control.triggerEvent("hover", true),
+                onExit: (_) => control.triggerEvent("hover", false),
+                child: button));
   }
 }
 
