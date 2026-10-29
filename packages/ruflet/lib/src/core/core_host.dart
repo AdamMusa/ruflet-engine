@@ -18,6 +18,24 @@ class CoreHost<C extends ControlCore> extends StatefulWidget {
     required this.builder,
   });
 
+  /// Hosts a [core] the registry entry created, from inside the skin it
+  /// handed that core to. Only for controls whose skin must be the outermost
+  /// widget: a scaffold reads an app bar's `PreferredSizeWidget` metrics
+  /// (and, on iOS, whether it fully obstructs the content) from the widget
+  /// it is handed, before building it, so the entry returns the skin itself
+  /// and the skin builds this host around its native widget. The host's
+  /// duties are those of [CoreHost]: it parses the props, applies the layout
+  /// wrapper and owns the one invoke listener.
+  ///
+  /// The entry creates a core each time it runs. The host keeps the first one
+  /// for its lifetime (a Control Ruby replaced in place rebinds it, as usual),
+  /// so a skin builds from the builder's `core` and uses the core it was
+  /// handed only for the values a parent reads before the build
+  /// ([ControlCore.peekBoolean] and friends).
+  CoreHost.adopt({super.key, required C core, required this.builder})
+      : control = core._control,
+        create = ((_) => core);
+
   final Control control;
   final C Function(Control control) create;
   final Widget Function(BuildContext context, C core) builder;

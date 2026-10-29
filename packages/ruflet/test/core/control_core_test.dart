@@ -150,6 +150,84 @@ void main() {
     });
   });
 
+  group('CoreHost.adopt (sized entries)', () {
+    Map<String, dynamic> sized(Map<String, dynamic> props) => {
+          '_c': 'Column',
+          '_i': 330,
+          'controls': [
+            {'_c': 'CoreSized', '_i': 331, ...props}
+          ],
+        };
+    Finder sizedHost() =>
+        find.byWidgetPredicate((w) => w is CoreHost && w.control.id == 331);
+
+    setUp(() {
+      _SizedCore.created.clear();
+      _SizedCore.hosted.clear();
+    });
+
+    testWidgets('a skin hosts the core its entry created', (tester) async {
+      final mount = await mountWire(
+          tester, HarnessDesign.android, sized({'height': 80.0}),
+          extensions: [_SizedExtension()]);
+      final control = mount.control(331);
+      expect(sizedHost(), findsOneWidget);
+      expect(find.text('sized 80.0'), findsOneWidget);
+      expect(CoreHost.debugListenerCount(control), 1);
+      expect(tester.widget<_SizedSkin>(find.byType(_SizedSkin)).preferredSize,
+          const Size.fromHeight(80));
+
+      // Each entry run creates a core; the host keeps the first one.
+      final hosted = _SizedCore.created.single;
+      control.update({'height': 90.0}, shouldNotify: true);
+      await tester.pump();
+      expect(_SizedCore.created, hasLength(2));
+      expect(_SizedCore.hosted, [hosted]);
+      expect(find.text('sized 90.0'), findsOneWidget);
+      expect(tester.widget<_SizedSkin>(find.byType(_SizedSkin)).preferredSize,
+          const Size.fromHeight(90));
+      expect(CoreHost.debugListenerCount(control), 1);
+    });
+
+    testWidgets('an in-place replacement rebinds the adopted core',
+        (tester) async {
+      final mount = await mountWire(
+          tester, HarnessDesign.ios, sized({'height': 80.0}),
+          extensions: [_SizedExtension()]);
+      final old = mount.control(331);
+      final state = tester.state(sizedHost());
+      final replacementRoot =
+          Control.fromMap(copyWire(sized({'height': 60.0})), mount.backend);
+      await tester.pumpWidget(harnessApp(mount.backend, HarnessDesign.ios,
+          ControlWidget(control: replacementRoot)));
+      final replacement = mount.control(331);
+      expect(identical(tester.state(sizedHost()), state), isTrue);
+      expect(CoreHost.debugListenerCount(old), 0);
+      expect(CoreHost.debugListenerCount(replacement), 1);
+      expect(find.text('sized 60.0'), findsOneWidget);
+
+      await tester.pumpWidget(
+          harnessApp(mount.backend, HarnessDesign.ios, const SizedBox()));
+      expect(CoreHost.debugListenerCount(replacement), 0);
+      expect(_SizedCore.hosted.single.disposals, 1);
+    });
+
+    testWidgets('peeks read declared keys before any build', (tester) async {
+      final backend = HarnessBackend(HarnessDesign.android);
+      final core = _SizedCore(Control.fromMap(
+          {'_c': 'CoreSized', '_i': 340, 'tall': true, 'tint': '#ff0000'},
+          backend));
+      expect(core.tall, isTrue);
+      expect(core.height, isNull);
+      await tester.pumpWidget(Builder(builder: (context) {
+        expect(core.tintIn(context), const Color(0xffff0000));
+        return const SizedBox();
+      }));
+      expect(() => core.undeclared, throwsA(isA<AssertionError>()));
+      expect(() => core.wrongType, throwsA(isA<AssertionError>()));
+    });
+  });
+
   group('invoke methods', () {
     testWidgets('a declared method is answered by the one listener',
         (tester) async {
@@ -607,4 +685,67 @@ class _AllTypesCore extends ControlCore<Map<String, Object?>> {
           for (final child in r.children('items')) child.string('label')
         ],
       };
+}
+
+class _SizedCore extends ControlCore<(double?,)> {
+  _SizedCore(super.control) {
+    created.add(this);
+  }
+
+  static final List<_SizedCore> created = [];
+  static final List<_SizedCore> hosted = [];
+  int disposals = 0;
+
+  @override
+  ControlSpec get spec => const ControlSpec(wireType: 'CoreSized', props: [
+        PropSpec('height', PropType.number, 'height'),
+        PropSpec('tall', PropType.boolean, 'tall'),
+        PropSpec('tint', PropType.color, 'tint'),
+      ]);
+
+  @override
+  (double?,) parse(PropReader r) {
+    r.boolean('tall');
+    r.color('tint');
+    return (r.number('height'),);
+  }
+
+  @override
+  void initCore() {
+    hosted.add(this);
+    super.initCore();
+  }
+
+  @override
+  void disposeCore() {
+    disposals++;
+    super.disposeCore();
+  }
+
+  bool get tall => peekBoolean('tall');
+  double? get height => peekNumber('height');
+  Color? tintIn(BuildContext context) => peekColor('tint', context);
+  bool get undeclared => peekBoolean('nope');
+  double? get wrongType => peekNumber('tall');
+}
+
+/// A skin that is the outermost widget (a scaffold reads its size before
+/// building it) and hosts its entry's core.
+class _SizedSkin extends StatelessWidget implements PreferredSizeWidget {
+  const _SizedSkin({required this.core});
+  final _SizedCore core;
+
+  @override
+  Size get preferredSize => Size.fromHeight(core.height ?? 0);
+
+  @override
+  Widget build(BuildContext context) => CoreHost<_SizedCore>.adopt(
+      core: core, builder: (context, core) => Text('sized ${core.props.$1}'));
+}
+
+class _SizedExtension extends RufletExtension {
+  @override
+  Widget? createWidget(Key? key, Control control) => control.type == 'CoreSized'
+      ? _SizedSkin(core: _SizedCore(control))
+      : null;
 }

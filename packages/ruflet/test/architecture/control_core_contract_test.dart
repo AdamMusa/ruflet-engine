@@ -15,7 +15,11 @@
 //    `create:` is a plain constructor tear-off, whose PlatformControlRenderer
 //    closures build skins with only `core:` and `key:` (choosing between
 //    skins only on the core), and it uses `control` only as
-//    CoreHost(control:), inside the host key and inside debugPrint.
+//    CoreHost(control:), inside the host key and inside debugPrint. A sized
+//    entry (the AppBar: a scaffold reads its PreferredSizeWidget before
+//    building it) instead creates its core in a static `resolve` that
+//    switches on PageDesign to a skin built with only `core:`, and that skin
+//    hosts the core with CoreHost.adopt.
 // C2 core purity: lib/src/core/** and every manifest core import no design
 //    and reach neither design through the platform dependency graph.
 // C2b core isolation: every manifest core and non-kernel lib/src/core library
@@ -336,6 +340,91 @@ class AdaptiveRadioControl extends StatelessWidget {
           shape(canonical.replaceFirst('    return CoreHost<SwitchCore>(',
               '    final type = control.type;\n    return CoreHost<SwitchCore>(')),
           contains(contains('uses control outside CoreHost(control:)')));
+    });
+
+    // A sized entry: a scaffold sizes the AppBar before building it, so the
+    // skin is the outermost widget and hosts the core (CoreHost.adopt).
+    const sized = r'''
+import 'package:flutter/widgets.dart';
+
+import '../models/control.dart';
+import '../models/page_design.dart';
+import '../widgets/platform_design.dart';
+import 'app_bar.dart';
+import 'app_bar_core.dart';
+import 'cupertino_app_bar.dart';
+
+class AdaptiveAppBarControl extends StatelessWidget {
+  final Control control;
+
+  const AdaptiveAppBarControl({super.key, required this.control});
+
+  static PreferredSizeWidget resolve({
+    required Control control,
+    required PageDesign design,
+  }) {
+    final core = AppBarCore(control);
+    return switch (design) {
+      PageDesign.cupertino => CupertinoAppBarSkin(core: core),
+      PageDesign.material => MaterialAppBarSkin(core: core),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    debugPrint("AdaptiveAppBarControl build: ${control.id}");
+
+    return resolve(control: control, design: effectivePageDesign(context));
+  }
+}
+''';
+
+    test('a sized entry (the AppBar shape) passes',
+        () => expect(shape(sized), isEmpty));
+
+    test('N1 on a sized entry: wire data injected into the core (C1e)', () {
+      final problems = shape(sized.replaceFirst(
+          'final core = AppBarCore(control);',
+          'final core = AppBarCore(control)..qaLeak = control.properties;'));
+      expect(
+          problems.join('\n'),
+          allOf(
+            contains('resolve must be `final core = XCore(control);`'),
+            contains('uses control outside CoreHost(control:)'),
+          ));
+    });
+
+    test('N4 on a sized entry: a raw wire value passed to a skin (C1e)', () {
+      final problems = shape(sized.replaceFirst(
+          'PageDesign.material => MaterialAppBarSkin(core: core),',
+          'PageDesign.material => MaterialAppBarSkin(core: core, '
+              "qaExtra: control.properties['tooltip']),"));
+      expect(
+          problems.join('\n'),
+          allOf(
+            contains('the PageDesign.material arm must build its skin'),
+            contains('uses control outside CoreHost(control:)'),
+          ));
+    });
+
+    test('a sized entry switches exhaustively on PageDesign (C1e)', () {
+      expect(
+          shape(sized.replaceFirst(
+              RegExp(r'return switch \(design\) \{[^}]*\};', dotAll: true),
+              'return design == PageDesign.cupertino '
+              '? CupertinoAppBarSkin(core: core) '
+              ': MaterialAppBarSkin(core: core);')),
+          contains(contains('resolve must return an exhaustive switch')));
+      expect(
+          shape(sized.replaceFirst('final core = AppBarCore(control);',
+              'final core = AppBarCore(control);\n    final type = control.type;')),
+          contains(contains('resolve must be `final core = XCore(control);`')));
+    });
+
+    test('an entry with neither a CoreHost nor a sized resolve fails (C1e)',
+        () {
+      expect(shape(sized.replaceAll('resolve', 'pick')),
+          contains(contains('builds no CoreHost')));
     });
 
     test('a skin must get the builder\'s core, nothing else (C1e)', () {
