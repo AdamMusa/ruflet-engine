@@ -12,8 +12,8 @@ import 'adaptive_refresh_scroll_view.dart';
 import 'base_controls.dart';
 import 'end_reached_listener.dart';
 import 'control_widget.dart';
+import 'list_view_sliver.dart';
 import 'scroll_notification_control.dart';
-import 'scroll_slivers.dart';
 import 'scrollable_control.dart';
 
 class ListViewControl extends StatefulWidget {
