@@ -21,6 +21,7 @@ class AdaptiveRefreshScrollView extends StatefulWidget {
   final double? cacheExtent;
   final Clip clipBehavior;
   final int? semanticChildCount;
+  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
 
   const AdaptiveRefreshScrollView({
     super.key,
@@ -31,6 +32,7 @@ class AdaptiveRefreshScrollView extends StatefulWidget {
     this.cacheExtent,
     this.clipBehavior = Clip.hardEdge,
     this.semanticChildCount,
+    this.keyboardDismissBehavior,
   });
 
   @override
@@ -70,6 +72,7 @@ class _AdaptiveRefreshScrollViewState extends State<AdaptiveRefreshScrollView> {
         cacheExtent: widget.cacheExtent,
         clipBehavior: widget.clipBehavior,
         semanticChildCount: widget.semanticChildCount,
+        keyboardDismissBehavior: widget.keyboardDismissBehavior,
         onRefresh: _coordinator.refresh,
       ),
       cupertino: (_) => CupertinoRefreshScrollView(
@@ -80,6 +83,7 @@ class _AdaptiveRefreshScrollViewState extends State<AdaptiveRefreshScrollView> {
         cacheExtent: widget.cacheExtent,
         clipBehavior: widget.clipBehavior,
         semanticChildCount: widget.semanticChildCount,
+        keyboardDismissBehavior: widget.keyboardDismissBehavior,
         onRefresh: _coordinator.refresh,
       ),
     );

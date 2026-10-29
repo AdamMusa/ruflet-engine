@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../extensions/control.dart';
 import '../models/control.dart';
 import '../utils/alignment.dart';
+import '../utils/misc.dart';
 import '../utils/numbers.dart';
 import 'adaptive_refresh_scroll_view.dart';
 import 'base_controls.dart';
@@ -118,6 +119,8 @@ class _RefreshableColumnState extends State<_RefreshableColumn> {
           control: widget.control,
           controller: _controller,
           shrinkWrap: constraints.maxHeight == double.infinity,
+          keyboardDismissBehavior: widget.control
+              .getKeyboardDismissBehavior("keyboard_dismiss_behavior"),
           slivers: [
             boxSliver(widget.child,
                 fillViewport: hasExpandedChild(widget.control))

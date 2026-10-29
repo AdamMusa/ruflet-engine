@@ -84,6 +84,8 @@ class _CupertinoReorderableListViewControlState
     Widget list = ReorderableList(
       controller: _controller,
       scrollDirection: direction,
+      keyboardDismissBehavior: widget.control
+          .getKeyboardDismissBehavior("keyboard_dismiss_behavior"),
       reverse: widget.control.getBool("reverse", false)!,
       shrinkWrap: true,
       anchor: widget.control.getDouble("anchor", 0)!,

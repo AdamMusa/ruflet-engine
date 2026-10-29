@@ -54,6 +54,8 @@ class _ListViewControlState extends State<ListViewControl> {
     var reverse = widget.control.getBool("reverse", false)!;
     var clipBehavior =
         parseClip(widget.control.getString("clip_behavior"), Clip.hardEdge)!;
+    final keyboardDismissBehavior =
+        widget.control.getKeyboardDismissBehavior("keyboard_dismiss_behavior");
     var scrollDirection = horizontal ? Axis.horizontal : Axis.vertical;
     var buildControlsOnDemand =
         widget.control.getBool("build_controls_on_demand", true)!;
@@ -93,6 +95,7 @@ class _ListViewControlState extends State<ListViewControl> {
                 shrinkWrap: shrinkWrap,
                 cacheExtent: cacheExtent,
                 clipBehavior: clipBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior,
                 semanticChildCount: semanticChildCount ?? controls.length,
                 slivers: [
                   listViewSliver(
@@ -107,6 +110,7 @@ class _ListViewControlState extends State<ListViewControl> {
                 cacheExtent: cacheExtent,
                 reverse: reverse,
                 clipBehavior: clipBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior,
                 scrollDirection: scrollDirection,
                 shrinkWrap: shrinkWrap,
                 padding: padding,
@@ -134,6 +138,7 @@ class _ListViewControlState extends State<ListViewControl> {
                     cacheExtent: cacheExtent,
                     reverse: reverse,
                     clipBehavior: clipBehavior,
+                    keyboardDismissBehavior: keyboardDismissBehavior,
                     scrollDirection: scrollDirection,
                     shrinkWrap: shrinkWrap,
                     padding: padding,
@@ -152,6 +157,7 @@ class _ListViewControlState extends State<ListViewControl> {
                 : ListView.builder(
                     controller: _controller,
                     clipBehavior: clipBehavior,
+                    keyboardDismissBehavior: keyboardDismissBehavior,
                     semanticChildCount: semanticChildCount,
                     reverse: reverse,
                     cacheExtent: cacheExtent,
