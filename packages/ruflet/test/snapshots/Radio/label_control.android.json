@@ -1,0 +1,72 @@
+{
+  "fixture": "label_control",
+  "design": "android",
+  "geometry": {
+    "size": {
+      "w": 800.0,
+      "h": 48.0
+    },
+    "elements": [
+      {
+        "text": "{value: Custom}",
+        "rect": {
+          "l": 48.0,
+          "t": 14.0,
+          "w": 213.8,
+          "h": 20.0
+        }
+      }
+    ]
+  },
+  "semantics": [
+    {
+      "label": "{value: Custom}",
+      "flags": [
+        "hasCheckedState",
+        "hasEnabledState",
+        "isEnabled",
+        "isInMutuallyExclusiveGroup",
+        "isFocusable"
+      ],
+      "actions": [
+        "tap",
+        "focus"
+      ],
+      "rect": {
+        "l": 0.0,
+        "t": 58.0,
+        "w": 800.0,
+        "h": 48.0
+      }
+    }
+  ],
+  "steps": [
+    {
+      "step": "tap text \"Custom\"",
+      "note": "text not rendered",
+      "sent": [],
+      "semantics": [
+        {
+          "label": "{value: Custom}",
+          "flags": [
+            "hasCheckedState",
+            "hasEnabledState",
+            "isEnabled",
+            "isInMutuallyExclusiveGroup",
+            "isFocusable"
+          ],
+          "actions": [
+            "tap",
+            "focus"
+          ],
+          "rect": {
+            "l": 0.0,
+            "t": 58.0,
+            "w": 800.0,
+            "h": 48.0
+          }
+        }
+      ]
+    }
+  ]
+}
