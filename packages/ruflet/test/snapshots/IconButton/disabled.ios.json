@@ -22,7 +22,8 @@
     {
       "label": "",
       "flags": [
-        "isButton"
+        "isButton",
+        "hasEnabledState"
       ],
       "actions": [
         "tap"
@@ -43,7 +44,8 @@
         {
           "label": "",
           "flags": [
-            "isButton"
+            "isButton",
+            "hasEnabledState"
           ],
           "actions": [
             "tap"
@@ -64,7 +66,8 @@
         {
           "label": "",
           "flags": [
-            "isButton"
+            "isButton",
+            "hasEnabledState"
           ],
           "actions": [
             "tap"

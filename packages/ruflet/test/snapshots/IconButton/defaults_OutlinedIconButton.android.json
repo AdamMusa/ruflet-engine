@@ -239,17 +239,21 @@
     },
     {
       "step": "invoke blur",
-      "sent": [],
+      "sent": [
+        {
+          "id": 1801,
+          "event": "blur",
+          "data": null
+        }
+      ],
       "outcome": {
-        "error": "_Exception",
-        "message": "Exception: Unknown IconButton method: blur"
+        "result": null
       },
       "semantics": [
         {
           "label": "",
           "flags": [
             "isButton",
-            "isFocused",
             "hasEnabledState",
             "isEnabled",
             "isFocusable"

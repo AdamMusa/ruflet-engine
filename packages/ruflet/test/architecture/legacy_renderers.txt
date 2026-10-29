@@ -14,7 +14,6 @@ lib/src/controls/cupertino_alert_dialog.dart
 lib/src/controls/cupertino_app_bar.dart
 lib/src/controls/cupertino_banner.dart
 lib/src/controls/cupertino_bottom_sheet.dart
-lib/src/controls/cupertino_button.dart
 lib/src/controls/cupertino_checkbox.dart
 lib/src/controls/cupertino_container.dart
 lib/src/controls/cupertino_content_controls.dart
@@ -61,7 +60,6 @@ lib/src/controls/material_dropdown_m2.dart
 lib/src/controls/material_expansion_panel.dart
 lib/src/controls/material_expansion_tile.dart
 lib/src/controls/material_floating_action_button.dart
-lib/src/controls/material_icon_button.dart
 lib/src/controls/material_markdown.dart
 lib/src/controls/material_menu_bar.dart
 lib/src/controls/material_menu_item_button.dart

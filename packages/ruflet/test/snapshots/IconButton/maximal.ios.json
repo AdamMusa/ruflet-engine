@@ -23,6 +23,8 @@
       "label": "",
       "flags": [
         "isButton",
+        "hasEnabledState",
+        "isEnabled",
         "isFocusable"
       ],
       "actions": [
@@ -53,6 +55,8 @@
           "label": "",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -83,6 +87,8 @@
           "label": "",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [

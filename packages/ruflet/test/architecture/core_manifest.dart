@@ -2,12 +2,14 @@
 // migration PR; control_core_contract_test.dart checks every entry against
 // rules C1–C7 (see test/architecture/README.md).
 import 'package:flutter/cupertino.dart' show CupertinoButton;
+import 'package:flutter/material.dart' as material show IconButton;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart'
     show ElevatedButton, FilledButton, Offset, OutlinedButton, TextButton;
 import 'package:flutter_test/flutter_test.dart' show find;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
 import 'package:ruflet/src/controls/button_core.dart';
+import 'package:ruflet/src/controls/icon_button_core.dart';
 import 'package:ruflet/src/core/control_spec.dart';
 
 import '../support/control_snapshot.dart' show SnapshotStep;
@@ -121,7 +123,52 @@ final List<MigratedControl> migratedControls = [
         SnapshotStep.unfocus(),
       ],
     ),
+  for (final (index, spec) in [
+    (0, iconButtonSpec),
+    (1, filledIconButtonSpec),
+    (2, filledTonalIconButtonSpec),
+    (3, outlinedIconButtonSpec),
+  ])
+    MigratedControl(
+      spec: spec,
+      entry: 'lib/src/controls/icon_button.dart',
+      core: 'lib/src/controls/icon_button_core.dart',
+      propsClass: 'IconButtonProps',
+      skins: {
+        Skin.material: 'lib/src/controls/material_icon_button.dart',
+        Skin.cupertino: 'lib/src/controls/cupertino_button.dart',
+      },
+      fixture: () => {
+        '_c': 'Column',
+        '_i': 650 + index * 2,
+        'controls': [
+          {'_c': spec.wireType, '_i': 651 + index * 2, 'icon': 0x10000},
+        ],
+      },
+      nativeWidgets: {
+        Skin.material: material.IconButton,
+        Skin.cupertino: CupertinoButton,
+      },
+      samples: {
+        'style': {'bgcolor': '#eeeeee'},
+        'size_constraints': {'min_width': 40.0, 'min_height': 40.0},
+        'visual_density': 'compact',
+        'selected': false,
+      },
+      parityScript: [
+        SnapshotStep.tapNative(),
+        _longPressCenter(),
+        _hover(),
+        SnapshotStep.tab(),
+        SnapshotStep.unfocus(),
+      ],
+    ),
 ];
+
+SnapshotStep _longPressCenter() => SnapshotStep('long press', (c) async {
+      await c.tester.longPress(c.finder.first);
+      await c.tester.pumpAndSettle();
+    });
 
 SnapshotStep _longPress(String text) =>
     SnapshotStep('long press "$text"', (c) async {
