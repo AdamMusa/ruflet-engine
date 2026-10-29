@@ -5,6 +5,7 @@ import 'controls/adaptive_app_bar.dart';
 import 'controls/adaptive_action_sheet.dart';
 import 'controls/adaptive_bottom_sheet.dart';
 import 'controls/adaptive_button.dart';
+import 'controls/adaptive_carousel_view.dart';
 import 'controls/adaptive_checkbox.dart';
 import 'controls/adaptive_context_menu.dart';
 import 'controls/adaptive_context_menu_action.dart';
@@ -155,6 +156,8 @@ class RufletCoreExtension extends RufletExtension {
         return CanvasControl(key: key, control: control);
       case "Card":
         return CardControl(key: key, control: control);
+      case "CarouselView":
+        return AdaptiveCarouselViewControl(key: key, control: control);
       case "Checkbox":
         return AdaptiveCheckboxControl(key: key, control: control);
       case "Chip":
