@@ -36,7 +36,7 @@ Future<void> _pump(WidgetTester tester, TargetPlatform platform,
 void main() {
   for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
     final ios = platform == TargetPlatform.iOS;
-    final tileType = ios ? CupertinoListTileControl : ListTileControl;
+    final tileType = ios ? CupertinoListTileSkin : MaterialListTileSkin;
     final chevron = ios
         ? find.byType(RufletCupertinoListTileChevron)
         : find.byIcon(material.Icons.chevron_right);
