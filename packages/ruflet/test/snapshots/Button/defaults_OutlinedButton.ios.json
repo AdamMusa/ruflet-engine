@@ -23,6 +23,8 @@
       "label": "Go",
       "flags": [
         "isButton",
+        "hasEnabledState",
+        "isEnabled",
         "isFocusable"
       ],
       "actions": [
@@ -31,10 +33,10 @@
         "focus"
       ],
       "rect": {
-        "l": 1.0,
-        "t": 1.0,
-        "w": 73.2,
-        "h": 49.0
+        "l": 0.0,
+        "t": 0.0,
+        "w": 75.2,
+        "h": 51.0
       }
     }
   ],
@@ -53,6 +55,8 @@
           "label": "Go",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -61,10 +65,10 @@
             "focus"
           ],
           "rect": {
-            "l": 1.0,
-            "t": 1.0,
-            "w": 73.2,
-            "h": 49.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 75.2,
+            "h": 51.0
           }
         }
       ]
@@ -83,6 +87,8 @@
           "label": "Go",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -91,10 +97,10 @@
             "focus"
           ],
           "rect": {
-            "l": 1.0,
-            "t": 1.0,
-            "w": 73.2,
-            "h": 49.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 75.2,
+            "h": 51.0
           }
         }
       ]
@@ -113,6 +119,8 @@
           "label": "Go",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -121,10 +129,10 @@
             "focus"
           ],
           "rect": {
-            "l": 1.0,
-            "t": 1.0,
-            "w": 73.2,
-            "h": 49.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 75.2,
+            "h": 51.0
           }
         }
       ]
@@ -148,6 +156,8 @@
           "label": "Go",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -156,10 +166,10 @@
             "focus"
           ],
           "rect": {
-            "l": 1.0,
-            "t": 1.0,
-            "w": 73.2,
-            "h": 49.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 75.2,
+            "h": 51.0
           }
         }
       ]
@@ -179,6 +189,8 @@
           "flags": [
             "isButton",
             "isFocused",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -187,10 +199,10 @@
             "focus"
           ],
           "rect": {
-            "l": 1.0,
-            "t": 1.0,
-            "w": 73.2,
-            "h": 49.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 75.2,
+            "h": 51.0
           }
         }
       ]
@@ -207,6 +219,8 @@
           "flags": [
             "isButton",
             "isFocused",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -215,27 +229,33 @@
             "focus"
           ],
           "rect": {
-            "l": 1.0,
-            "t": 1.0,
-            "w": 73.2,
-            "h": 49.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 75.2,
+            "h": 51.0
           }
         }
       ]
     },
     {
       "step": "invoke blur",
-      "sent": [],
+      "sent": [
+        {
+          "id": 1601,
+          "event": "blur",
+          "data": null
+        }
+      ],
       "outcome": {
-        "error": "_Exception",
-        "message": "Exception: Unknown CupertinoButton method: blur"
+        "result": null
       },
       "semantics": [
         {
           "label": "Go",
           "flags": [
             "isButton",
-            "isFocused",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -244,10 +264,10 @@
             "focus"
           ],
           "rect": {
-            "l": 1.0,
-            "t": 1.0,
-            "w": 73.2,
-            "h": 49.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 75.2,
+            "h": 51.0
           }
         }
       ]

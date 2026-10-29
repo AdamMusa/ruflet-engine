@@ -32,6 +32,8 @@
       "label": "Add",
       "flags": [
         "isButton",
+        "hasEnabledState",
+        "isEnabled",
         "isFocusable"
       ],
       "actions": [
@@ -62,6 +64,8 @@
           "label": "Add",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [

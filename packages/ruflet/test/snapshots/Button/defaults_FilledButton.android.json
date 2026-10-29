@@ -239,17 +239,21 @@
     },
     {
       "step": "invoke blur",
-      "sent": [],
+      "sent": [
+        {
+          "id": 1601,
+          "event": "blur",
+          "data": null
+        }
+      ],
       "outcome": {
-        "error": "_Exception",
-        "message": "Exception: Unknown Button method: blur"
+        "result": null
       },
       "semantics": [
         {
           "label": "Go",
           "flags": [
             "isButton",
-            "isFocused",
             "hasEnabledState",
             "isEnabled",
             "isFocusable"

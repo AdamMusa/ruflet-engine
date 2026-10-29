@@ -32,6 +32,8 @@
       "label": "Add",
       "flags": [
         "isButton",
+        "hasEnabledState",
+        "isEnabled",
         "isFocusable"
       ],
       "actions": [
@@ -40,10 +42,10 @@
         "focus"
       ],
       "rect": {
-        "l": 1.0,
-        "t": 1.0,
-        "w": 118.2,
-        "h": 52.4
+        "l": 0.0,
+        "t": 0.0,
+        "w": 120.2,
+        "h": 54.4
       }
     }
   ],
@@ -62,6 +64,8 @@
           "label": "Add",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -70,10 +74,10 @@
             "focus"
           ],
           "rect": {
-            "l": 1.0,
-            "t": 1.0,
-            "w": 118.2,
-            "h": 52.4
+            "l": 0.0,
+            "t": 0.0,
+            "w": 120.2,
+            "h": 54.4
           }
         }
       ]
@@ -97,6 +101,8 @@
           "label": "Add",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -105,10 +111,10 @@
             "focus"
           ],
           "rect": {
-            "l": 1.0,
-            "t": 1.0,
-            "w": 118.2,
-            "h": 52.4
+            "l": 0.0,
+            "t": 0.0,
+            "w": 120.2,
+            "h": 54.4
           }
         }
       ]

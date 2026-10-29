@@ -32,6 +32,8 @@
       "label": "Maximal",
       "flags": [
         "isButton",
+        "hasEnabledState",
+        "isEnabled",
         "isFocusable"
       ],
       "actions": [
@@ -40,10 +42,10 @@
         "focus"
       ],
       "rect": {
-        "l": 2.0,
-        "t": 2.0,
-        "w": 196.5,
-        "h": 50.0
+        "l": 0.0,
+        "t": 0.0,
+        "w": 200.5,
+        "h": 54.0
       }
     }
   ],
@@ -62,6 +64,8 @@
           "label": "Maximal",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -70,10 +74,10 @@
             "focus"
           ],
           "rect": {
-            "l": 2.0,
-            "t": 2.0,
-            "w": 196.5,
-            "h": 50.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 200.5,
+            "h": 54.0
           }
         }
       ]
@@ -92,6 +96,8 @@
           "label": "Maximal",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -100,10 +106,10 @@
             "focus"
           ],
           "rect": {
-            "l": 2.0,
-            "t": 2.0,
-            "w": 196.5,
-            "h": 50.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 200.5,
+            "h": 54.0
           }
         }
       ]

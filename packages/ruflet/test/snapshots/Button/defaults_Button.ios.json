@@ -23,6 +23,8 @@
       "label": "Go",
       "flags": [
         "isButton",
+        "hasEnabledState",
+        "isEnabled",
         "isFocusable"
       ],
       "actions": [
@@ -53,6 +55,8 @@
           "label": "Go",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -83,6 +87,8 @@
           "label": "Go",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -113,6 +119,8 @@
           "label": "Go",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -148,6 +156,8 @@
           "label": "Go",
           "flags": [
             "isButton",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -179,6 +189,8 @@
           "flags": [
             "isButton",
             "isFocused",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -207,6 +219,8 @@
           "flags": [
             "isButton",
             "isFocused",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [
@@ -225,17 +239,23 @@
     },
     {
       "step": "invoke blur",
-      "sent": [],
+      "sent": [
+        {
+          "id": 1601,
+          "event": "blur",
+          "data": null
+        }
+      ],
       "outcome": {
-        "error": "_Exception",
-        "message": "Exception: Unknown CupertinoButton method: blur"
+        "result": null
       },
       "semantics": [
         {
           "label": "Go",
           "flags": [
             "isButton",
-            "isFocused",
+            "hasEnabledState",
+            "isEnabled",
             "isFocusable"
           ],
           "actions": [

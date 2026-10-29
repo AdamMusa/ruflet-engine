@@ -5,7 +5,6 @@
 lib/src/controls/alert_dialog.dart
 lib/src/controls/app_bar.dart
 lib/src/controls/bottom_sheet.dart
-lib/src/controls/button.dart
 lib/src/controls/checkbox.dart
 lib/src/controls/context_menu.dart
 lib/src/controls/cupertino_action_sheet.dart
@@ -25,7 +24,6 @@ lib/src/controls/cupertino_control_chrome.dart
 lib/src/controls/cupertino_control_theme.dart
 lib/src/controls/cupertino_date_picker.dart
 lib/src/controls/cupertino_date_picker_dialog.dart
-lib/src/controls/cupertino_dialog_action.dart
 lib/src/controls/cupertino_input_controls.dart
 lib/src/controls/cupertino_list_tile.dart
 lib/src/controls/cupertino_markdown.dart

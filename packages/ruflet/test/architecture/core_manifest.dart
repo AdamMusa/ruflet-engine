@@ -1,7 +1,13 @@
 // The controls migrated onto the shared control core. One entry per
 // migration PR; control_core_contract_test.dart checks every entry against
 // rules C1–C7 (see test/architecture/README.md).
+import 'package:flutter/cupertino.dart' show CupertinoButton;
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
+import 'package:flutter/material.dart'
+    show ElevatedButton, FilledButton, Offset, OutlinedButton, TextButton;
+import 'package:flutter_test/flutter_test.dart' show find;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
+import 'package:ruflet/src/controls/button_core.dart';
 import 'package:ruflet/src/core/control_spec.dart';
 
 import '../support/control_snapshot.dart' show SnapshotStep;
@@ -70,4 +76,68 @@ class MigratedControl {
 List<RufletExtension> _noExtensions() => const [];
 
 /// One line per migration, in migration order.
-final List<MigratedControl> migratedControls = [];
+final List<MigratedControl> migratedControls = [
+  for (final (index, spec, material) in [
+    (0, buttonSpec, ElevatedButton),
+    (1, filledButtonSpec, FilledButton),
+    (2, filledTonalButtonSpec, FilledButton),
+    (3, outlinedButtonSpec, OutlinedButton),
+    (4, textButtonSpec, TextButton),
+  ])
+    MigratedControl(
+      spec: spec,
+      entry: 'lib/src/controls/adaptive_button.dart',
+      core: 'lib/src/controls/button_core.dart',
+      propsClass: 'ButtonProps',
+      skins: {
+        Skin.material: 'lib/src/controls/button.dart',
+        Skin.cupertino: 'lib/src/controls/cupertino_button_skin.dart',
+      },
+      // A Button inside an AlertDialog renders as an iOS dialog action.
+      helpers: {
+        Skin.cupertino: ['lib/src/controls/cupertino_dialog_action.dart'],
+      },
+      fixture: () => {
+        '_c': 'Column',
+        '_i': 630 + index * 2,
+        'controls': [
+          {'_c': spec.wireType, '_i': 631 + index * 2, 'content': 'Press'},
+        ],
+      },
+      nativeWidgets: {Skin.material: material, Skin.cupertino: CupertinoButton},
+      samples: {
+        'clip_behavior': 'antiAlias',
+        'size': 'medium',
+        'min_size': {'width': 40.0, 'height': 40.0},
+        'style': {'bgcolor': '#eeeeee'},
+        'opacity_on_click': 0.5,
+      },
+      parityScript: [
+        SnapshotStep.tapNative(),
+        SnapshotStep.tapText('Press'),
+        _longPress('Press'),
+        _hover(),
+        SnapshotStep.tab(),
+        SnapshotStep.unfocus(),
+      ],
+    ),
+];
+
+SnapshotStep _longPress(String text) =>
+    SnapshotStep('long press "$text"', (c) async {
+      await c.tester.longPress(find.text(text));
+      await c.tester.pumpAndSettle();
+    });
+
+/// A mouse pointer enters the control and leaves it again.
+SnapshotStep _hover() => SnapshotStep('hover in and out', (c) async {
+      final mouse = await c.tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: const Offset(790, 590));
+      await c.tester.pump();
+      await mouse.moveTo(c.tester.getCenter(c.finder.first));
+      await c.tester.pumpAndSettle();
+      await mouse.moveTo(const Offset(790, 590));
+      await c.tester.pumpAndSettle();
+      await mouse.removePointer();
+      await c.tester.pump();
+    });
