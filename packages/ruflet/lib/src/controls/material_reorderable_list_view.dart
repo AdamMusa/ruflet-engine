@@ -89,6 +89,8 @@ class _ListViewControlState extends State<MaterialReorderableListViewControl> {
     var anchor = widget.control.getDouble("anchor", 0.0)!;
     var clipBehavior =
         widget.control.getClipBehavior("clip_behavior", Clip.hardEdge)!;
+    final keyboardDismissBehavior =
+        widget.control.getKeyboardDismissBehavior("keyboard_dismiss_behavior");
     var scrollDirection = horizontal ? Axis.horizontal : Axis.vertical;
     var header = widget.control.buildWidget("header");
     var footer = widget.control.buildWidget("footer");
@@ -129,6 +131,7 @@ class _ListViewControlState extends State<MaterialReorderableListViewControl> {
             ? ReorderableListView.builder(
                 scrollController: _controller,
                 clipBehavior: clipBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior,
                 reverse: reverse,
                 cacheExtent: cacheExtent,
                 buildDefaultDragHandles: showDefaultDragHandles,
@@ -155,6 +158,7 @@ class _ListViewControlState extends State<MaterialReorderableListViewControl> {
                 cacheExtent: cacheExtent,
                 reverse: reverse,
                 clipBehavior: clipBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior,
                 buildDefaultDragHandles: showDefaultDragHandles,
                 scrollDirection: scrollDirection,
                 shrinkWrap: shrinkWrap,
