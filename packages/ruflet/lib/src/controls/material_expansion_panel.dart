@@ -30,7 +30,7 @@ class MaterialExpansionPanelListControl extends StatelessWidget {
         elevation: control.getDouble("elevation", 2)!,
         materialGapSize: control.getDouble("spacing", 16)!,
         dividerColor: control.getColor("divider_color", context),
-        expandIconColor: control.getColor("expanded_icon_color", context),
+        expandIconColor: control.getColor("expand_icon_color", context),
         expandedHeaderPadding: control.getEdgeInsets("expanded_header_padding",
             const EdgeInsets.symmetric(vertical: 16))!,
         expansionCallback: !control.disabled
