@@ -180,22 +180,29 @@ class CupertinoMenuItemButtonControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final leading = control.buildWidget("leading");
-    final trailing = control.buildWidget("trailing_icon");
+    final trailing = control.buildWidget("trailing");
     final content = control.buildTextOrWidget("content");
+    final semanticLabel = control.getString("semantic_label");
+    Widget label = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (leading != null) ...[leading, const SizedBox(width: 8)],
+        if (content != null) Flexible(child: content),
+        if (trailing != null) ...[const SizedBox(width: 8), trailing],
+      ],
+    );
+    if (semanticLabel != null) {
+      // Same as Material MenuItemButton: the label replaces the child's text.
+      label =
+          Semantics(label: semanticLabel, excludeSemantics: true, child: label);
+    }
     final button = CupertinoButton(
       alignment: AlignmentDirectional.centerStart,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       onPressed: control.disabled || !control.getBool("on_click", false)!
           ? null
           : () => control.triggerEvent("click"),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (leading != null) ...[leading, const SizedBox(width: 8)],
-          if (content != null) Flexible(child: content),
-          if (trailing != null) ...[const SizedBox(width: 8), trailing],
-        ],
-      ),
+      child: label,
     );
     return LayoutControl(control: control, child: button);
   }

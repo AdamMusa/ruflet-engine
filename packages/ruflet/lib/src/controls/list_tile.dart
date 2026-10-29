@@ -31,6 +31,17 @@ class ListTileControl extends StatelessWidget with RufletStoreMixin {
     var title = control.buildTextOrWidget("title");
     var subtitle = control.buildTextOrWidget("subtitle");
     var trailing = control.buildIconOrWidget("trailing");
+    if (control.getBool("chevron", false)!) {
+      // Uncolored, so the tile's icon color and states apply to it.
+      const chevron = Icon(Icons.chevron_right);
+      trailing = trailing == null
+          ? chevron
+          : Row(mainAxisSize: MainAxisSize.min, children: [
+              trailing,
+              const SizedBox(width: 6),
+              chevron,
+            ]);
+    }
     var onClick = control.getBool("on_click", false)!;
     var toggleInputs = control.getBool("toggle_inputs", false)!;
     var url = control.getUrl("url");
