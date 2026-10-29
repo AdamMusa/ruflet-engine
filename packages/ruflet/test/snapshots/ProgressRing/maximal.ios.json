@@ -8,7 +8,20 @@
     },
     "elements": []
   },
-  "semantics": [],
+  "semantics": [
+    {
+      "label": "Uploading",
+      "value": "50",
+      "flags": [],
+      "actions": [],
+      "rect": {
+        "l": 0.0,
+        "t": 0.0,
+        "w": 32.0,
+        "h": 32.0
+      }
+    }
+  ],
   "steps": [],
   "native": {
     "type": "CupertinoActivityIndicator",

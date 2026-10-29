@@ -11,7 +11,7 @@
   "semantics": [
     {
       "label": "",
-      "value": "20",
+      "value": "80",
       "flags": [],
       "actions": [],
       "rect": {
@@ -25,6 +25,6 @@
   "steps": [],
   "native": {
     "type": "CircularProgressIndicator",
-    "value": 0.2
+    "value": 0.8
   }
 }

@@ -1,15 +1,23 @@
 // The controls migrated onto the shared control core. One entry per
 // migration PR; control_core_contract_test.dart checks every entry against
 // rules C1–C7 (see test/architecture/README.md).
-import 'package:flutter/cupertino.dart' show CupertinoButton;
+import 'package:flutter/cupertino.dart'
+    show CupertinoActivityIndicator, CupertinoButton;
 import 'package:flutter/material.dart' as material show IconButton;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart'
-    show ElevatedButton, FilledButton, Offset, OutlinedButton, TextButton;
+    show
+        CircularProgressIndicator,
+        ElevatedButton,
+        FilledButton,
+        Offset,
+        OutlinedButton,
+        TextButton;
 import 'package:flutter_test/flutter_test.dart' show find;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
 import 'package:ruflet/src/controls/button_core.dart';
 import 'package:ruflet/src/controls/icon_button_core.dart';
+import 'package:ruflet/src/controls/progress_ring_core.dart';
 import 'package:ruflet/src/core/control_spec.dart';
 
 import '../support/control_snapshot.dart' show SnapshotStep;
@@ -163,6 +171,42 @@ final List<MigratedControl> migratedControls = [
         SnapshotStep.unfocus(),
       ],
     ),
+  MigratedControl(
+    spec: progressRingSpec,
+    entry: 'lib/src/controls/adaptive_progress_ring.dart',
+    core: 'lib/src/controls/progress_ring_core.dart',
+    propsClass: 'ProgressRingProps',
+    skins: {
+      Skin.material: 'lib/src/controls/progress_ring.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_activity_indicator.dart',
+    },
+    // Determinate, so the harness can settle it; labelled, so C7 compares
+    // what both designs announce.
+    fixture: () => {
+      '_c': 'Column',
+      '_i': 670,
+      'controls': [
+        {
+          '_c': 'ProgressRing',
+          '_i': 671,
+          'value': 0.5,
+          'semantics_label': 'Loading',
+        },
+      ],
+    },
+    nativeWidgets: {
+      Skin.material: CircularProgressIndicator,
+      Skin.cupertino: CupertinoActivityIndicator,
+    },
+    samples: {
+      'stroke_cap': 'round',
+      'size_constraints': {'min_width': 40.0, 'min_height': 40.0},
+    },
+    parityScript: [
+      SnapshotStep.tapNative(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
 ];
 
 SnapshotStep _longPressCenter() => SnapshotStep('long press', (c) async {

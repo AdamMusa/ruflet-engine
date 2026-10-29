@@ -9,7 +9,6 @@ lib/src/controls/checkbox.dart
 lib/src/controls/context_menu.dart
 lib/src/controls/cupertino_action_sheet.dart
 lib/src/controls/cupertino_action_sheet_action.dart
-lib/src/controls/cupertino_activity_indicator.dart
 lib/src/controls/cupertino_alert_dialog.dart
 lib/src/controls/cupertino_app_bar.dart
 lib/src/controls/cupertino_banner.dart
@@ -80,7 +79,6 @@ lib/src/controls/material_tabs.dart
 lib/src/controls/material_text.dart
 lib/src/controls/material_time_picker.dart
 lib/src/controls/material_vertical_divider.dart
-lib/src/controls/progress_ring.dart
 lib/src/controls/radio.dart
 lib/src/controls/segmented_button.dart
 lib/src/controls/slider.dart
