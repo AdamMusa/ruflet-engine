@@ -48,6 +48,17 @@ const Map<String, String> _controlTypeAliases = {
 
 String canonicalControlType(String type) => _controlTypeAliases[type] ?? type;
 
+/// Properties a legacy wire alias implies. Clients from before ruflet
+/// b9e52ff7 send a Cupertino wire name where the canonical type now takes a
+/// declared property, so renderers branch on the property, never on the
+/// wire name.
+const Map<String, Map<String, Object?>> _controlTypeAliasProperties = {
+  "CupertinoSlidingSegmentedButton": {"sliding": true},
+};
+
+Map<String, Object?> controlTypeAliasProperties(String type) =>
+    _controlTypeAliasProperties[type] ?? const {};
+
 extension CanonicalControlType on Control {
   String get canonicalType => canonicalControlType(type);
 }
