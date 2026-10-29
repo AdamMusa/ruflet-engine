@@ -259,6 +259,8 @@ class CupertinoSubmenuButtonControl extends StatelessWidget {
     final content = control.buildTextOrWidget("content") ??
         const ErrorControl("SubmenuButton.content must be provided");
     final button = CupertinoButton(
+      onFocusChange: (focused) =>
+          control.triggerEvent(focused ? "focus" : "blur"),
       onPressed: control.disabled
           ? null
           : () => _showCupertinoMenu(
