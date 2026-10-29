@@ -11,7 +11,9 @@ class CupertinoDatePickerRenderer extends StatelessWidget {
   const CupertinoDatePickerRenderer({super.key, required this.control});
 
   @override
-  Widget build(BuildContext context) => control.type == "CupertinoDatePicker"
+  // `inline` (Ruby's cupertino_date_picker, or the legacy CupertinoDatePicker
+  // wire name) renders the picker in place; otherwise it is a dialog.
+  Widget build(BuildContext context) => control.getBool("inline", false)!
       ? CupertinoDatePickerControl(control: control)
       : CupertinoDatePickerDialogControl(control: control);
 }

@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 import '../ruflet_backend.dart';
+import 'control_type.dart';
 
 typedef InvokeControlMethodCallback = Future<dynamic> Function(
     String name, dynamic args);
@@ -207,6 +208,10 @@ class Control extends ChangeNotifier {
       if (key == "_i" || key == "_c") return;
       props[key] = _transformIfControl(value, newControl, backend);
     });
+    // A legacy alias (e.g. CupertinoSlidingSegmentedButton) carries the
+    // property its canonical type declares; an explicit value wins.
+    controlTypeAliasProperties(type).forEach(
+        (key, value) => props.putIfAbsent(key, () => value));
     if (newControl.type == componentType) {
       // components always notify their parent on changes
       newControl.notifyParent = true;
