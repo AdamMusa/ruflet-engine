@@ -9,6 +9,7 @@ import '../widgets/reorderable_item_scope.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
 import 'scroll_notification_control.dart';
+import 'scrollable_control.dart';
 
 class CupertinoReorderableListViewControl extends StatefulWidget {
   final Control control;
@@ -83,6 +84,8 @@ class _CupertinoReorderableListViewControlState
     Widget list = ReorderableList(
       controller: _controller,
       scrollDirection: direction,
+      keyboardDismissBehavior: widget.control
+          .getKeyboardDismissBehavior("keyboard_dismiss_behavior"),
       reverse: widget.control.getBool("reverse", false)!,
       shrinkWrap: true,
       anchor: widget.control.getDouble("anchor", 0)!,
@@ -105,6 +108,13 @@ class _CupertinoReorderableListViewControlState
           : (index) =>
               widget.control.triggerEvent("reorder_end", {"new_index": index}),
     );
+    // Same wrapper as the Material renderer, so Ruby `scroll_to`,
+    // `auto_scroll` and `scroll` work on iOS/macOS too.
+    list = ScrollableControl(
+        control: widget.control,
+        scrollDirection: direction,
+        scrollController: _controller,
+        child: list);
     if (widget.control.getBool("on_scroll", false)!) {
       list = ScrollNotificationControl(control: widget.control, child: list);
     }
