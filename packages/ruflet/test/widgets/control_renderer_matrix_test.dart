@@ -50,6 +50,8 @@ class Fixtures {
         props['tag'] = 'hero';
       case 'Chip':
         props['label'] = text('Chip');
+      case 'FormRow':
+        props['prefix'] = text('Label');
       case 'GestureDetector':
         props['on_tap'] = true;
       case 'ContextMenu':
