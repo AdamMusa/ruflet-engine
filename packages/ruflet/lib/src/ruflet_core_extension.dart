@@ -5,11 +5,14 @@ import 'controls/adaptive_app_bar.dart';
 import 'controls/adaptive_action_sheet.dart';
 import 'controls/adaptive_bottom_sheet.dart';
 import 'controls/adaptive_button.dart';
+import 'controls/adaptive_carousel_view.dart';
 import 'controls/adaptive_checkbox.dart';
 import 'controls/adaptive_context_menu.dart';
 import 'controls/adaptive_context_menu_action.dart';
 import 'controls/adaptive_date_picker.dart';
 import 'controls/adaptive_draggable_scrollable_sheet.dart';
+import 'controls/adaptive_form_row.dart';
+import 'controls/adaptive_list_section.dart';
 import 'controls/adaptive_list_tile.dart';
 import 'controls/adaptive_picker.dart';
 import 'controls/adaptive_progress_ring.dart';
@@ -39,6 +42,7 @@ import 'controls/draggable.dart';
 import 'controls/dropdown.dart';
 import 'controls/expansion_panel.dart';
 import 'controls/expansion_tile.dart';
+import 'controls/fitted_box.dart';
 import 'controls/ruflet_app_control.dart';
 import 'controls/floating_action_button.dart';
 import 'controls/gesture_detector.dart';
@@ -47,6 +51,7 @@ import 'controls/hero.dart';
 import 'controls/icon.dart';
 import 'controls/icon_button.dart';
 import 'controls/image.dart';
+import 'controls/indexed_stack.dart';
 import 'controls/interactive_viewer.dart';
 import 'controls/keyboard_listener.dart';
 import 'controls/list_view.dart';
@@ -81,6 +86,7 @@ import 'controls/shimmer.dart';
 import 'controls/snack_bar.dart';
 import 'controls/stack.dart';
 import 'controls/submenu_button.dart';
+import 'controls/table.dart';
 import 'controls/tabs.dart';
 import 'controls/text.dart';
 import 'controls/time_picker.dart';
@@ -151,6 +157,8 @@ class RufletCoreExtension extends RufletExtension {
         return CanvasControl(key: key, control: control);
       case "Card":
         return CardControl(key: key, control: control);
+      case "CarouselView":
+        return AdaptiveCarouselViewControl(key: key, control: control);
       case "Checkbox":
         return AdaptiveCheckboxControl(key: key, control: control);
       case "Chip":
@@ -187,10 +195,14 @@ class RufletCoreExtension extends RufletExtension {
         return ExpansionPanelListControl(key: key, control: control);
       case "ExpansionTile":
         return ExpansionTileControl(key: key, control: control);
+      case "FittedBox":
+        return FittedBoxControl(key: key, control: control);
       case "RufletApp":
         return RufletAppControl(key: key, control: control);
       case "FloatingActionButton":
         return FloatingActionButtonControl(key: key, control: control);
+      case "FormRow":
+        return AdaptiveFormRowControl(key: key, control: control);
       case "GestureDetector":
         return GestureDetectorControl(key: key, control: control);
       case "GridView":
@@ -206,10 +218,14 @@ class RufletCoreExtension extends RufletExtension {
         return IconButtonControl(key: key, control: control);
       case "Image":
         return ImageControl(key: key, control: control);
+      case "IndexedStack":
+        return IndexedStackControl(key: key, control: control);
       case "InteractiveViewer":
         return InteractiveViewerControl(key: key, control: control);
       case "KeyboardListener":
         return KeyboardListenerControl(key: key, control: control);
+      case "ListSection":
+        return AdaptiveListSectionControl(key: key, control: control);
       case "ListTile":
         return AdaptiveListTileControl(key: key, control: control);
       case "ListView":
@@ -294,6 +310,8 @@ class RufletCoreExtension extends RufletExtension {
         return TabBarControl(key: key, control: control);
       case "TabBarView":
         return TabBarViewControl(key: key, control: control);
+      case "Table":
+        return TableControl(key: key, control: control);
       case "Tabs":
         return TabsControl(key: key, control: control);
       case "Text":
