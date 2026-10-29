@@ -6,6 +6,7 @@ import '../utils/alignment.dart';
 import '../utils/numbers.dart';
 import 'adaptive_refresh_scroll_view.dart';
 import 'base_controls.dart';
+import 'end_reached_listener.dart';
 import 'scroll_notification_control.dart';
 import 'scroll_slivers.dart';
 import 'scrollable_control.dart';
@@ -74,6 +75,10 @@ class ColumnControl extends StatelessWidget {
 
     if (control.getBool("on_scroll", false)!) {
       child = ScrollNotificationControl(control: control, child: child);
+    }
+
+    if (control.getBool("on_end_reached", false)!) {
+      child = EndReachedListener(control: control, child: child);
     }
 
     return LayoutControl(control: control, child: child);
