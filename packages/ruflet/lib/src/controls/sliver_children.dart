@@ -8,7 +8,9 @@ import '../utils/edge_insets.dart';
 import '../utils/keys.dart';
 import '../utils/numbers.dart';
 import '../widgets/control_inherited_notifier.dart';
+import 'adaptive_sliver_app_bar.dart';
 import 'control_widget.dart';
+import 'sliver_app_bar_spec.dart';
 
 /// Wire types a CustomScrollView builds as slivers itself.
 ///
@@ -20,6 +22,7 @@ const Set<String> sliverChildTypes = {
   "SliverGrid",
   "SliverList",
   "SliverToBoxAdapter",
+  sliverAppBarType,
 };
 
 /// Layout facts a sliver needs from the CustomScrollView that hosts it.
@@ -36,16 +39,23 @@ class SliverHost {
 Key _keyOf(Control control) =>
     ValueKey(control.getKey("key")?.value ?? control.id);
 
-/// Builds one entry of a CustomScrollView's `slivers`.
+/// Builds the slivers for one entry of a CustomScrollView's `slivers`.
 ///
 /// Sliver child types become slivers that rebuild on their own Ruby patches;
 /// any other control is a box and scrolls as a single [SliverToBoxAdapter].
-Widget buildSliverChild(Control child, SliverHost host) {
+/// A SliverAppBar is followed by its (iOS only) flexible space sliver, which
+/// must be a sibling so the navigation bar stays pinned past it.
+Iterable<Widget> buildSlivers(Control child, SliverHost host) sync* {
   if (!sliverChildTypes.contains(child.canonicalType)) {
-    return SliverToBoxAdapter(
+    yield SliverToBoxAdapter(
         key: _keyOf(child), child: ControlWidget(control: child));
+    return;
   }
-  return SliverChildControl(key: _keyOf(child), control: child, host: host);
+  yield SliverChildControl(key: _keyOf(child), control: child, host: host);
+  if (child.canonicalType == sliverAppBarType) {
+    yield SliverAppBarFlexibleSpace(
+        key: ValueKey("flexible_space_${child.id}"), control: child);
+  }
 }
 
 class SliverChildControl extends StatelessWidget {
@@ -68,6 +78,8 @@ class SliverChildControl extends StatelessWidget {
           return _section(context, control, _grid(control));
         case "SliverFillRemaining":
           return _fillRemaining(control, host);
+        case sliverAppBarType:
+          return AdaptiveSliverAppBarControl(control: control);
         default:
           return _boxAdapter(control);
       }
