@@ -48,6 +48,7 @@ import 'controls/hero.dart';
 import 'controls/icon.dart';
 import 'controls/icon_button.dart';
 import 'controls/image.dart';
+import 'controls/indexed_stack.dart';
 import 'controls/interactive_viewer.dart';
 import 'controls/keyboard_listener.dart';
 import 'controls/list_view.dart';
@@ -207,6 +208,8 @@ class RufletCoreExtension extends RufletExtension {
         return IconButtonControl(key: key, control: control);
       case "Image":
         return ImageControl(key: key, control: control);
+      case "IndexedStack":
+        return IndexedStackControl(key: key, control: control);
       case "InteractiveViewer":
         return InteractiveViewerControl(key: key, control: control);
       case "KeyboardListener":
