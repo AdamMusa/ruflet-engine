@@ -7,6 +7,10 @@ import '../utils/numbers.dart';
 /// route the control does not own.
 final _presented = Expando<Route<dynamic>>('Ruflet control route');
 
+/// Routes opened from inside a control's route (e.g. a licenses page), in
+/// push order. They belong to that control and close with it.
+final _adopted = Expando<List<Route<dynamic>>>('Ruflet control child routes');
+
 /// Presents the route of a dialog-like control (`open: true`).
 ///
 /// Call from `build` when `open` turns true. The route is pushed onto the
@@ -24,31 +28,47 @@ void presentControlRoute(
     }
     final route = createRoute();
     _presented[control] = route;
+    _adopted[control] = null;
     Navigator.of(context).push(route).then((_) {
-      if (identical(_presented[control], route)) _presented[control] = null;
+      if (identical(_presented[control], route)) {
+        _presented[control] = null;
+        _adopted[control] = null;
+      }
       debugPrint("Dismissing ${control.type}(${control.id})");
       _didDismiss(control);
     });
   });
 }
 
-/// Closes the route a control presented (`open: false`).
+/// Closes the route a control presented (`open: false`), together with the
+/// routes it adopted through [ControlRouteScope].
 ///
-/// Call from `build` when `open` turns false. After the frame, only that
-/// control's route is closed: popped when it is on top, removed when another
-/// route covers it. A close that arrives before the route was pushed is
-/// completed by [presentControlRoute]; repeated calls are no-ops.
+/// Call from `build` when `open` turns false. After the frame, only the
+/// control's own routes are closed: each is popped when it is on top and
+/// removed when another route (e.g. another control's dialog) covers it. A
+/// close that arrives before the route was pushed is completed by
+/// [presentControlRoute]; repeated calls are no-ops.
 void closeControlRoute(Control control) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     final route = _presented[control];
-    final navigator = route?.navigator;
-    if (route == null || navigator == null || !route.isActive) return;
-    if (route.isCurrent) {
-      navigator.pop();
-    } else {
-      navigator.removeRoute(route);
+    if (route == null || !route.isActive) return;
+    final adopted = _adopted[control] ?? const [];
+    _adopted[control] = null;
+    for (final child in adopted.reversed) {
+      _closeRoute(child);
     }
+    _closeRoute(route);
   });
+}
+
+void _closeRoute(Route<dynamic> route) {
+  final navigator = route.navigator;
+  if (navigator == null || !route.isActive) return;
+  if (route.isCurrent) {
+    navigator.pop();
+  } else {
+    navigator.removeRoute(route);
+  }
 }
 
 /// Exactly one `dismiss` per presentation; `open` is reset for Ruby.
@@ -56,4 +76,65 @@ void _didDismiss(Control control) {
   control.updateProperties({"_open": false}, python: false);
   control.updateProperties({"open": false});
   control.triggerEvent("dismiss");
+}
+
+/// Wrap the content of a control's route so that routes opened from inside
+/// it become part of the control's presentation and close with it.
+///
+/// Routes pushed the way Flutter's own `showLicensePage`, `showDialog` and
+/// `showModalBottomSheet` push (capturing the pusher's [InheritedTheme]s and
+/// re-applying them in the new route) carry this scope along; it records the
+/// new route as adopted. Use [pushCarryingThemes] to push that way.
+class ControlRouteScope extends InheritedTheme {
+  final Control control;
+
+  const ControlRouteScope(
+      {super.key, required this.control, required super.child});
+
+  @override
+  Widget wrap(BuildContext context, Widget child) => ControlRouteScope(
+      control: control, child: _AdoptRoute(control: control, child: child));
+
+  @override
+  bool updateShouldNotify(ControlRouteScope oldWidget) =>
+      control != oldWidget.control;
+}
+
+/// Wraps a page with the themes captured from the pushing context.
+typedef CapturedThemesWrapper = Widget Function(Widget child);
+
+/// Pushes the route built by [createRoute] the way Flutter's `showLicensePage`
+/// does: the new page is wrapped with the [InheritedTheme]s of [context], so
+/// it keeps the pusher's theme and a [ControlRouteScope] above [context]
+/// adopts the route.
+Future<T?> pushCarryingThemes<T>(BuildContext context,
+    Route<T> Function(CapturedThemesWrapper wrap) createRoute) {
+  final navigator = Navigator.of(context);
+  final themes = InheritedTheme.capture(from: context, to: navigator.context);
+  return navigator.push(createRoute(themes.wrap));
+}
+
+class _AdoptRoute extends StatefulWidget {
+  final Control control;
+  final Widget child;
+
+  const _AdoptRoute({required this.control, required this.child});
+
+  @override
+  State<_AdoptRoute> createState() => _AdoptRouteState();
+}
+
+class _AdoptRouteState extends State<_AdoptRoute> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    final owner = _presented[widget.control];
+    if (route == null || owner == null || identical(route, owner)) return;
+    final adopted = _adopted[widget.control] ??= [];
+    if (!adopted.contains(route)) adopted.add(route);
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
