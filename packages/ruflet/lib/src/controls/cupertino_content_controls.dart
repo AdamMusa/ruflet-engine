@@ -169,6 +169,9 @@ class CupertinoDataTableControl extends StatelessWidget {
           bottom: control.getBool("show_bottom_border", false)!
               ? BorderSide(color: borderColor, width: 0.5)
               : BorderSide.none,
+          verticalInside: control.getBorderSide(
+                  "vertical_lines", cupertinoStyleTheme(context)) ??
+              BorderSide.none,
         ),
         children: tableRows,
       ),
