@@ -290,7 +290,8 @@ List<String> _controlIsolationProblems(
 /// no extension-on-Control library without a `show` list naming only other
 /// declarations, and none of the tokens that read keys, fire events, register
 /// invoke listeners or wrap layout.
-List<String> skinIsolationProblems(PlatformDependencyGraph graph, String skin) =>
+List<String> skinIsolationProblems(
+        PlatformDependencyGraph graph, String skin) =>
     _controlIsolationProblems(graph, skin);
 
 /// The kernel library (control_core.dart and its parts) is the only code
@@ -309,12 +310,46 @@ List<String> coreIsolationProblems(PlatformDependencyGraph graph, String core) {
   final problems = _controlIsolationProblems(graph, core);
   final unit = graph.units[core];
   if (unit == null) return problems;
-  for (final declaration in unit.declarations.whereType<ClassDeclaration>()) {
-    final superclass = declaration.extendsClause?.superclass.name.lexeme;
+  for (final declaration in unit.declarations) {
+    final (name, superclass, members) = switch (declaration) {
+      ClassDeclaration c => (
+          c.name.lexeme,
+          c.extendsClause?.superclass.name.lexeme,
+          c.members
+        ),
+      MixinDeclaration m => (
+          m.name.lexeme,
+          m.onClause?.superclassConstraints.firstOrNull?.name.lexeme,
+          m.members
+        ),
+      _ => ('', null, const <ClassMember>[]),
+    };
     if (superclass == null || !superclass.endsWith('Core')) continue;
+    // Nothing outside the core may write into it (an entry could otherwise
+    // inject wire data after construction).
+    for (final member in members) {
+      if (member is FieldDeclaration &&
+          !member.isStatic &&
+          !member.fields.isFinal &&
+          !member.fields.isConst) {
+        for (final variable in member.fields.variables) {
+          if (!variable.name.lexeme.startsWith('_')) {
+            problems.add('$core: $name has a public mutable field '
+                '"${variable.name.lexeme}"');
+          }
+        }
+      }
+      if (member is MethodDeclaration &&
+          member.isSetter &&
+          !member.name.lexeme.startsWith('_')) {
+        problems
+            .add('$core: $name has a public setter "${member.name.lexeme}"');
+      }
+    }
+    if (declaration is! ClassDeclaration) continue;
     for (final constructor
         in declaration.members.whereType<ConstructorDeclaration>()) {
-      final where = '$core: ${declaration.name.lexeme} constructor';
+      final where = '$core: $name constructor';
       if (constructor.factoryKeyword != null) {
         problems.add('$where must not be a factory');
       }
@@ -343,6 +378,170 @@ List<String> coreIsolationProblems(PlatformDependencyGraph graph, String core) {
     }
   }
   return problems;
+}
+
+// ------------------------------------------------------------------ C1e
+
+/// A constructor or widget call `Name(...)` / `Name<T>(...)` /
+/// `new Name(...)`, as [name] plus its argument list.
+(String, ArgumentList)? _construction(Expression expression) =>
+    switch (expression) {
+      MethodInvocation(target: null) => (
+          expression.methodName.name,
+          expression.argumentList
+        ),
+      InstanceCreationExpression() => (
+          expression.constructorName.type.name.lexeme,
+          expression.argumentList
+        ),
+      _ => null,
+    };
+
+Map<String, Expression> _namedArguments(ArgumentList arguments) => {
+      for (final argument in arguments.arguments.whereType<NamedExpression>())
+        argument.name.label.name: argument.expression,
+    };
+
+Expression? _closureResult(Expression expression) {
+  if (expression is! FunctionExpression) return null;
+  final body = expression.body;
+  if (body is ExpressionFunctionBody) return body.expression;
+  if (body is BlockFunctionBody &&
+      body.block.statements.length == 1 &&
+      body.block.statements.single is ReturnStatement) {
+    return (body.block.statements.single as ReturnStatement).expression;
+  }
+  return null;
+}
+
+/// C1e: the registry entry (`adaptive_*.dart`), the only place outside the
+/// kernel that holds the Control, has the canonical shape: `CoreHost(create:)`
+/// is a plain constructor tear-off, each `PlatformControlRenderer` closure
+/// builds its skin with only `core:` (the builder's core) and `key:`
+/// (choosing between skins only on the core), and `control` appears only as
+/// `CoreHost(control:)`, inside the host's `key:` and inside `debugPrint`.
+List<String> entryShapeProblems(PlatformDependencyGraph graph, String entry) {
+  final unit = graph.units[entry];
+  if (unit == null) return ['$entry: no such library'];
+  final problems = <String>[];
+  final allowed = <(int, int)>[];
+  final hosts = <ArgumentList>[];
+  final debugPrints = <ArgumentList>[];
+  unit.accept(_Calls((name, arguments) {
+    if (name == 'CoreHost') hosts.add(arguments);
+    if (name == 'debugPrint') debugPrints.add(arguments);
+  }));
+  for (final arguments in debugPrints) {
+    allowed.add((arguments.offset, arguments.end));
+  }
+  if (hosts.isEmpty) problems.add('$entry: builds no CoreHost');
+
+  bool isSkin(Expression expression, String core) {
+    final construction = _construction(expression);
+    if (construction == null) return false;
+    final (_, arguments) = construction;
+    final named = _namedArguments(arguments);
+    final coreArgument = named['core'];
+    return arguments.arguments.every((a) => a is NamedExpression) &&
+        named.keys.every((name) => name == 'core' || name == 'key') &&
+        coreArgument is SimpleIdentifier &&
+        coreArgument.name == core;
+  }
+
+  bool isSkinChoice(Expression expression, String core) {
+    if (expression is ParenthesizedExpression) {
+      return isSkinChoice(expression.expression, core);
+    }
+    if (expression is ConditionalExpression) {
+      return isSkinChoice(expression.thenExpression, core) &&
+          isSkinChoice(expression.elseExpression, core);
+    }
+    return isSkin(expression, core);
+  }
+
+  for (final arguments in hosts) {
+    final named = _namedArguments(arguments);
+    final create = named['create'];
+    final isTearOff = create is PrefixedIdentifier &&
+        create.prefix.name.startsWith(RegExp('[A-Z]'));
+    if (!isTearOff) {
+      problems.add('$entry: CoreHost(create:) must be a constructor '
+          'tear-off like XCore.new, not "$create"');
+    }
+    final control = named['control'];
+    if (control is SimpleIdentifier && control.name == 'control') {
+      allowed.add((control.offset, control.end));
+    } else {
+      problems.add('$entry: CoreHost(control:) must be the entry\'s control');
+    }
+    final key = named['key'];
+    if (key != null) allowed.add((key.offset, key.end));
+    final builder = named['builder'];
+    final parameters = builder is FunctionExpression
+        ? builder.parameters?.parameters ?? const <FormalParameter>[]
+        : const <FormalParameter>[];
+    final renderer = builder == null ? null : _closureResult(builder);
+    final construction = renderer == null ? null : _construction(renderer);
+    if (parameters.length != 2 ||
+        construction == null ||
+        construction.$1 != 'PlatformControlRenderer') {
+      problems.add('$entry: CoreHost(builder:) must be '
+          '(context, core) => PlatformControlRenderer(...)');
+      continue;
+    }
+    final core = parameters[1].name!.lexeme;
+    final closures = _namedArguments(construction.$2);
+    for (final design in ['material', 'cupertino']) {
+      final result =
+          closures[design] == null ? null : _closureResult(closures[design]!);
+      if (result == null || !isSkinChoice(result, core)) {
+        problems.add('$entry: the $design closure must build its skin with '
+            'only core: $core and key:, choosing between skins only on the '
+            'core');
+      }
+    }
+  }
+
+  final controlRefs = _ControlRefs();
+  unit.accept(controlRefs);
+  for (final offset in controlRefs.offsets) {
+    if (!allowed.any((range) => offset >= range.$1 && offset < range.$2)) {
+      final line = unit.lineInfo.getLocation(offset).lineNumber;
+      problems.add('$entry:$line uses control outside CoreHost(control:), '
+          'the host key and debugPrint');
+    }
+  }
+  return problems;
+}
+
+class _Calls extends RecursiveAstVisitor<void> {
+  _Calls(this.onCall);
+  final void Function(String name, ArgumentList arguments) onCall;
+
+  @override
+  void visitMethodInvocation(MethodInvocation node) {
+    if (node.target == null) onCall(node.methodName.name, node.argumentList);
+    super.visitMethodInvocation(node);
+  }
+
+  @override
+  void visitInstanceCreationExpression(InstanceCreationExpression node) {
+    onCall(node.constructorName.type.name.lexeme, node.argumentList);
+    super.visitInstanceCreationExpression(node);
+  }
+}
+
+/// References to `control` (not declarations or named-argument labels).
+class _ControlRefs extends RecursiveAstVisitor<void> {
+  final List<int> offsets = [];
+
+  @override
+  void visitSimpleIdentifier(SimpleIdentifier node) {
+    if (node.name == 'control' && node.parent is! Label) {
+      offsets.add(node.offset);
+    }
+    super.visitSimpleIdentifier(node);
+  }
 }
 
 // ------------------------------------------------------------------ C4
@@ -623,8 +822,8 @@ const _undeclaredMethod = '__ruflet_contract_undeclared__';
 /// C5: exactly one invoke listener (all listeners counted, not only hosts),
 /// declared methods answer, undeclared ones fail fast, an in-place
 /// replacement moves the listener, unmount removes it. Returns the problems.
-Future<List<String>> lifecycleProblems(WidgetTester tester,
-    MigratedControl entry, HarnessDesign design) async {
+Future<List<String>> lifecycleProblems(
+    WidgetTester tester, MigratedControl entry, HarnessDesign design) async {
   final problems = <String>[];
   final wire = entry.fixture();
   final id = targetIdOf(entry, wire);
@@ -655,8 +854,8 @@ Future<List<String>> lifecycleProblems(WidgetTester tester,
 
   final state = tester.state(host);
   final replacement = Control.fromMap(copyWire(wire), mount.backend);
-  await tester.pumpWidget(harnessApp(
-      mount.backend, design, ControlWidget(control: replacement)));
+  await tester.pumpWidget(
+      harnessApp(mount.backend, design, ControlWidget(control: replacement)));
   await tester.pumpAndSettle();
   final replaced = mount.control(id);
   if (identical(replaced, control)) {
@@ -685,8 +884,8 @@ Future<List<String>> lifecycleProblems(WidgetTester tester,
 
 /// C6: rendering every declared key reads every declared key. Returns the
 /// problems.
-Future<List<String>> completenessProblems(WidgetTester tester,
-    MigratedControl entry, HarnessDesign design) async {
+Future<List<String>> completenessProblems(
+    WidgetTester tester, MigratedControl entry, HarnessDesign design) async {
   final wire = entry.fixture();
   final node = findWireNode(wire, entry.wireType)!;
   var nextId = 90000;
@@ -743,8 +942,8 @@ List<Map<String, Object?>> paritySemantics(
 /// C7 record: semantics, then each script step's messages to Ruby (from any
 /// control, except the target's single-skin events) and the semantics after
 /// it. The script's `tap native` step taps [MigratedControl.nativeWidgets].
-Future<Map<String, Object?>> parityRecord(WidgetTester tester,
-    MigratedControl entry, HarnessDesign design) async {
+Future<Map<String, Object?>> parityRecord(
+    WidgetTester tester, MigratedControl entry, HarnessDesign design) async {
   final semantics = tester.ensureSemantics();
   try {
     final wire = entry.fixture();

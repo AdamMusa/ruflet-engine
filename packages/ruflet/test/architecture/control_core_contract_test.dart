@@ -9,12 +9,20 @@
 //    of other declarations, and never names Control, dynamic, triggerEvent,
 //    updateProperties, invoke listeners, LayoutControl or BaseControl.
 //    `flutter analyze` (fatal warnings) covers the @protected core members.
+//    Helper skin libraries are held to the same rule.
+// C1e entry shape: the registry entry (adaptive_*.dart), the only place
+//    outside the kernel that holds the Control, builds a CoreHost whose
+//    `create:` is a plain constructor tear-off, whose PlatformControlRenderer
+//    closures build skins with only `core:` and `key:` (choosing between
+//    skins only on the core), and it uses `control` only as
+//    CoreHost(control:), inside the host key and inside debugPrint.
 // C2 core purity: lib/src/core/** and every manifest core import no design
 //    and reach neither design through the platform dependency graph.
 // C2b core isolation: every manifest core and non-kernel lib/src/core library
 //    follows C1, and core constructors only forward `super.` parameters, so
 //    no core can keep the Control and hand it to a skin. Only the kernel
-//    library (control_core.dart and its parts) holds a Control.
+//    library (control_core.dart and its parts) holds a Control. Cores have
+//    no public mutable fields or setters, so nothing can write into them.
 // C3 spec == Ruby: each ControlSpec declares exactly the keywords Ruby can
 //    send for its wire type (test/contract/ruflet_control_surface.json, from
 //    the ruflet repo's tools/control_surface.rb; refresh with
@@ -117,6 +125,12 @@ void main() {
       for (final skin in entry.skins.entries) {
         test('${entry.wireType} ${skin.key.name} skin never touches Control',
             () => expect(skinIsolationProblems(graph, skin.value), isEmpty));
+        for (final helper in entry.helpers[skin.key] ?? const <String>[]) {
+          test(
+              '${entry.wireType} ${skin.key.name} helper $helper never '
+              'touches Control',
+              () => expect(skinIsolationProblems(graph, helper), isEmpty));
+        }
       }
     }
 
@@ -157,6 +171,184 @@ class GoodSkin { final s = "updateProperties in a string is fine"; }
           ));
       expect(skinIsolationProblems(fixture, 'lib/src/controls/good_skin.dart'),
           isEmpty);
+    });
+  });
+
+  group('C1e entry shape', () {
+    for (final entry in {for (final e in migratedControls) e.entry}) {
+      test('$entry has the canonical registry-entry shape',
+          () => expect(entryShapeProblems(graph, entry), isEmpty));
+    }
+
+    PlatformDependencyGraph entryFixture(String source) =>
+        PlatformDependencyGraph({'lib/src/controls/adaptive_x.dart': source});
+    List<String> shape(String source) => entryShapeProblems(
+        entryFixture(source), 'lib/src/controls/adaptive_x.dart');
+
+    // The three approved entries (#84, #86, #87), verbatim.
+    const approved = {
+      'Switch': r'''
+import 'package:flutter/widgets.dart';
+
+import '../core/control_core.dart';
+import '../models/control.dart';
+import '../widgets/platform_control_renderer.dart';
+import 'cupertino_switch.dart';
+import 'switch.dart';
+import 'switch_core.dart';
+
+class AdaptiveSwitchControl extends StatelessWidget {
+  final Control control;
+
+  const AdaptiveSwitchControl({super.key, required this.control});
+
+  @override
+  Widget build(BuildContext context) {
+    debugPrint("AdaptiveSwitch build: ${control.id}");
+
+    return CoreHost<SwitchCore>(
+      // The key the legacy skins used, so state survives parent rebuilds.
+      key: ValueKey("control_${control.id}"),
+      control: control,
+      create: SwitchCore.new,
+      builder: (context, core) => PlatformControlRenderer(
+        material: (_) => MaterialSwitchSkin(core: core),
+        cupertino: (_) => CupertinoSwitchSkin(core: core),
+      ),
+    );
+  }
+}
+''',
+      'Checkbox': r'''
+import 'package:flutter/widgets.dart';
+
+import '../core/control_core.dart';
+import '../models/control.dart';
+import '../widgets/platform_control_renderer.dart';
+import 'checkbox.dart';
+import 'checkbox_core.dart';
+import 'cupertino_checkbox.dart';
+
+class AdaptiveCheckboxControl extends StatelessWidget {
+  final Control control;
+
+  const AdaptiveCheckboxControl({super.key, required this.control});
+
+  @override
+  Widget build(BuildContext context) {
+    debugPrint("AdaptiveCheckboxControl build: ${control.id}");
+
+    return CoreHost<CheckboxCore>(
+      // The key the legacy skins used, so state survives parent rebuilds.
+      key: ValueKey("control_${control.id}"),
+      control: control,
+      create: CheckboxCore.new,
+      builder: (context, core) => PlatformControlRenderer(
+        material: (_) => MaterialCheckboxSkin(core: core),
+        cupertino: (_) => CupertinoCheckboxSkin(core: core),
+      ),
+    );
+  }
+}
+''',
+      'Radio': r'''
+import 'package:flutter/widgets.dart';
+
+import '../core/control_core.dart';
+import '../models/control.dart';
+import '../widgets/platform_control_renderer.dart';
+import 'cupertino_radio.dart';
+import 'radio.dart';
+import 'radio_core.dart';
+
+class AdaptiveRadioControl extends StatelessWidget {
+  final Control control;
+
+  const AdaptiveRadioControl({super.key, required this.control});
+
+  @override
+  Widget build(BuildContext context) {
+    debugPrint("AdaptiveRadioControl build: ${control.id}");
+
+    return CoreHost<RadioCore>(
+      // The key the legacy skins used, so state survives parent rebuilds.
+      key: ValueKey("control_${control.id}"),
+      control: control,
+      create: RadioCore.new,
+      builder: (context, core) => PlatformControlRenderer(
+        material: (_) => MaterialRadioSkin(core: core),
+        cupertino: (_) => CupertinoRadioSkin(core: core),
+      ),
+    );
+  }
+}
+''',
+    };
+    for (final MapEntry(key: name, value: source) in approved.entries) {
+      test('the approved $name entry passes',
+          () => expect(shape(source), isEmpty));
+    }
+
+    final canonical = approved['Switch']!;
+
+    test('a skin chosen on the core passes', () {
+      expect(
+          shape(canonical.replaceFirst(
+              'cupertino: (_) => CupertinoSwitchSkin(core: core),',
+              'cupertino: (_) => core.inAlertDialog '
+                  '? CupertinoDialogSkin(core: core) '
+                  ': CupertinoSwitchSkin(core: core, key: const ValueKey(1)),')),
+          isEmpty);
+    });
+
+    test('N1: an entry injects wire data into the core (C1e)', () {
+      final problems = shape(canonical.replaceFirst('create: SwitchCore.new,',
+          'create: (c) => SwitchCore(c)..qaLeak = c.properties,'));
+      expect(
+          problems,
+          contains(
+              contains('CoreHost(create:) must be a constructor tear-off')));
+    });
+
+    test('N4: an entry passes a raw wire value to a skin (C1e)', () {
+      final problems = shape(canonical.replaceFirst(
+          'material: (_) => MaterialSwitchSkin(core: core),',
+          'material: (_) => MaterialSwitchSkin(core: core, '
+              "qaExtra: control.properties['tooltip']),"));
+      expect(
+          problems.join('\n'),
+          allOf(
+            contains(
+                'the material closure must build its skin with only core:'),
+            contains('uses control outside CoreHost(control:)'),
+          ));
+    });
+
+    test('an entry may not choose skins or cores on the Control (C1e)', () {
+      expect(
+          shape(canonical.replaceFirst(
+              'cupertino: (_) => CupertinoSwitchSkin(core: core),',
+              'cupertino: (_) => control.parent == null '
+                  '? CupertinoSwitchSkin(core: core) '
+                  ': CupertinoOtherSkin(core: core),')),
+          contains(contains('uses control outside CoreHost(control:)')));
+      expect(
+          shape(canonical.replaceFirst('    return CoreHost<SwitchCore>(',
+              '    final type = control.type;\n    return CoreHost<SwitchCore>(')),
+          contains(contains('uses control outside CoreHost(control:)')));
+    });
+
+    test('a skin must get the builder\'s core, nothing else (C1e)', () {
+      expect(
+          shape(canonical.replaceFirst(
+              'material: (_) => MaterialSwitchSkin(core: core),',
+              'material: (_) => MaterialSwitchSkin(core: other),')),
+          contains(contains('the material closure must build its skin')));
+      expect(
+          shape(canonical.replaceFirst(
+              'material: (_) => MaterialSwitchSkin(core: core),',
+              'material: (_) => MaterialSwitchSkin(core: core, extra: 1),')),
+          contains(contains('the material closure must build its skin')));
     });
   });
 
@@ -723,6 +915,19 @@ class CupertinoToggleSkin {
               'ToggleCore(super.control) { qa = control; }\n  Object? qa;'));
       expect(coreIsolationProblems(body, corePath),
           contains(contains('uses [control] in its body')));
+    });
+
+    test('N1: a core accepts data written in from outside (C2b)', () {
+      final field = toggle(
+          onCore: (s) => s.replaceFirst('ToggleCore(super.control);',
+              'ToggleCore(super.control);\n  Map<String, Object?>? qaLeak;'));
+      expect(coreIsolationProblems(field, corePath),
+          contains(contains('public mutable field "qaLeak"')));
+      final setter = toggle(
+          onCore: (s) => s.replaceFirst('ToggleCore(super.control);',
+              'ToggleCore(super.control);\n  set qaLeak(Object? v) {}'));
+      expect(coreIsolationProblems(setter, corePath),
+          contains(contains('public setter "qaLeak"')));
     });
 
     test('M9: a skin does not wire a skin-sourced event (C4)', () {

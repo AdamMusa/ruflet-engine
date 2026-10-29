@@ -166,7 +166,10 @@ class ProbeNative extends StatelessWidget {
 
 class ProbeSkin extends StatelessWidget {
   const ProbeSkin(
-      {super.key, required this.core, required this.design, this.invert = false});
+      {super.key,
+      required this.core,
+      required this.design,
+      this.invert = false});
 
   final ProbeCore core;
   final String design;
