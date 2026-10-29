@@ -8,11 +8,11 @@
     },
     "elements": [
       {
-        "text": "{value: Custom}",
+        "text": "Custom",
         "rect": {
           "l": 48.0,
           "t": 14.0,
-          "w": 213.8,
+          "w": 85.5,
           "h": 20.0
         }
       }
@@ -20,7 +20,7 @@
   },
   "semantics": [
     {
-      "label": "{value: Custom}",
+      "label": "Custom",
       "flags": [
         "hasCheckedState",
         "hasEnabledState",
@@ -43,13 +43,25 @@
   "steps": [
     {
       "step": "tap text \"Custom\"",
-      "note": "text not rendered",
-      "sent": [],
+      "sent": [
+        {
+          "id": 1400,
+          "update": {
+            "value": "b"
+          }
+        },
+        {
+          "id": 1400,
+          "event": "change",
+          "data": "b"
+        }
+      ],
       "semantics": [
         {
-          "label": "{value: Custom}",
+          "label": "Custom",
           "flags": [
             "hasCheckedState",
+            "isChecked",
             "hasEnabledState",
             "isEnabled",
             "isInMutuallyExclusiveGroup",

@@ -14,14 +14,9 @@
       "flags": [
         "hasCheckedState",
         "hasEnabledState",
-        "isEnabled",
-        "isInMutuallyExclusiveGroup",
-        "isFocusable"
+        "isInMutuallyExclusiveGroup"
       ],
-      "actions": [
-        "tap",
-        "focus"
-      ],
+      "actions": [],
       "rect": {
         "l": 728.0,
         "t": 4.0,
@@ -40,14 +35,9 @@
           "flags": [
             "hasCheckedState",
             "hasEnabledState",
-            "isEnabled",
-            "isInMutuallyExclusiveGroup",
-            "isFocusable"
+            "isInMutuallyExclusiveGroup"
           ],
-          "actions": [
-            "tap",
-            "focus"
-          ],
+          "actions": [],
           "rect": {
             "l": 728.0,
             "t": 4.0,

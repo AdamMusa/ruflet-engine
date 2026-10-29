@@ -1,11 +1,11 @@
 import 'package:ruflet/ruflet.dart';
+import 'package:ruflet/src/controls/adaptive_radio.dart';
 import 'package:ruflet/src/controls/cupertino_alert_dialog.dart';
 import 'package:ruflet/src/controls/cupertino_app_bar.dart';
 import 'package:ruflet/src/controls/cupertino_button.dart';
 import 'package:ruflet/src/controls/cupertino_checkbox.dart';
 import 'package:ruflet/src/controls/cupertino_container.dart';
 import 'package:ruflet/src/controls/cupertino_dialog_action.dart';
-import 'package:ruflet/src/controls/cupertino_radio.dart';
 import 'package:ruflet/src/controls/cupertino_switch.dart';
 import 'package:ruflet/src/controls/cupertino_textfield.dart';
 import 'package:ruflet/src/utils/cupertino_theme.dart';
@@ -85,7 +85,7 @@ void main() {
       RadioGroup<String>(
           groupValue: 'a',
           onChanged: (_) => changedRadio = true,
-          child: CupertinoRadioControl(control: radio)),
+          child: AdaptiveRadioControl(control: radio)),
       CupertinoSwitchControl(control: toggle),
     ])));
     expect(

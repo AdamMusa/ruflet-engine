@@ -32,7 +32,6 @@ lib/src/controls/cupertino_markdown.dart
 lib/src/controls/cupertino_navigation_bar.dart
 lib/src/controls/cupertino_navigation_controls.dart
 lib/src/controls/cupertino_picker.dart
-lib/src/controls/cupertino_radio.dart
 lib/src/controls/cupertino_reorderable_list_view.dart
 lib/src/controls/cupertino_segmented_button.dart
 lib/src/controls/cupertino_selection_area.dart
@@ -85,7 +84,6 @@ lib/src/controls/material_text.dart
 lib/src/controls/material_time_picker.dart
 lib/src/controls/material_vertical_divider.dart
 lib/src/controls/progress_ring.dart
-lib/src/controls/radio.dart
 lib/src/controls/segmented_button.dart
 lib/src/controls/slider.dart
 lib/src/controls/switch.dart

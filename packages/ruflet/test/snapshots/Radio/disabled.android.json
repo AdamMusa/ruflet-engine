@@ -24,14 +24,9 @@
       "flags": [
         "hasCheckedState",
         "hasEnabledState",
-        "isEnabled",
-        "isInMutuallyExclusiveGroup",
-        "isFocusable"
+        "isInMutuallyExclusiveGroup"
       ],
-      "actions": [
-        "tap",
-        "focus"
-      ],
+      "actions": [],
       "rect": {
         "l": 0.0,
         "t": 58.0,
@@ -43,34 +38,17 @@
   "steps": [
     {
       "step": "semantics tap",
-      "sent": [
-        {
-          "id": 1400,
-          "update": {
-            "value": "b"
-          }
-        },
-        {
-          "id": 1400,
-          "event": "change",
-          "data": "b"
-        }
-      ],
+      "note": "no tappable semantics node",
+      "sent": [],
       "semantics": [
         {
           "label": "Off",
           "flags": [
             "hasCheckedState",
-            "isChecked",
             "hasEnabledState",
-            "isEnabled",
-            "isInMutuallyExclusiveGroup",
-            "isFocusable"
+            "isInMutuallyExclusiveGroup"
           ],
-          "actions": [
-            "tap",
-            "focus"
-          ],
+          "actions": [],
           "rect": {
             "l": 0.0,
             "t": 58.0,
@@ -88,16 +66,10 @@
           "label": "Off",
           "flags": [
             "hasCheckedState",
-            "isChecked",
             "hasEnabledState",
-            "isEnabled",
-            "isInMutuallyExclusiveGroup",
-            "isFocusable"
+            "isInMutuallyExclusiveGroup"
           ],
-          "actions": [
-            "tap",
-            "focus"
-          ],
+          "actions": [],
           "rect": {
             "l": 0.0,
             "t": 58.0,

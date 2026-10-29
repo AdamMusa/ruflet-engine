@@ -1,7 +1,10 @@
 // The controls migrated onto the shared control core. One entry per
 // migration PR; control_core_contract_test.dart checks every entry against
 // rules C1–C7 (see test/architecture/README.md).
+import 'package:flutter/cupertino.dart' show CupertinoRadio;
+import 'package:flutter/material.dart' show Radio;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
+import 'package:ruflet/src/controls/radio_core.dart';
 import 'package:ruflet/src/core/control_spec.dart';
 
 import '../support/control_snapshot.dart' show SnapshotStep;
@@ -70,4 +73,45 @@ class MigratedControl {
 List<RufletExtension> _noExtensions() => const [];
 
 /// One line per migration, in migration order.
-final List<MigratedControl> migratedControls = [];
+final List<MigratedControl> migratedControls = [
+  MigratedControl(
+    spec: radioSpec,
+    entry: 'lib/src/controls/adaptive_radio.dart',
+    core: 'lib/src/controls/radio_core.dart',
+    propsClass: 'RadioProps',
+    skins: {
+      Skin.material: 'lib/src/controls/radio.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_radio.dart',
+    },
+    fixture: () => {
+      '_c': 'RadioGroup',
+      '_i': 620,
+      'value': 'a',
+      'on_change': true,
+      'content': {
+        '_c': 'Column',
+        '_i': 621,
+        'controls': [
+          {'_c': 'Radio', '_i': 622, 'value': 'b', 'label': 'Bee'},
+        ],
+      },
+    },
+    samples: {
+      'label_position': 'left',
+      'visual_density': 'compact',
+      'value': 'b',
+      'toggleable': false,
+    },
+    nativeWidgets: {
+      Skin.material: Radio<String>,
+      Skin.cupertino: CupertinoRadio<String>,
+    },
+    parityScript: [
+      SnapshotStep.tapNative(),
+      SnapshotStep.tapText('Bee'),
+      SnapshotStep.semanticsTap(),
+      SnapshotStep.tab(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
+];
