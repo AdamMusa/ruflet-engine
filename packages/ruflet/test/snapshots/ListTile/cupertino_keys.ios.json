@@ -39,7 +39,12 @@
   "semantics": [
     {
       "label": "Cupertino\nKeys",
-      "flags": [],
+      "flags": [
+        "isButton",
+        "hasEnabledState",
+        "isEnabled",
+        "hasSelectedState"
+      ],
       "actions": [
         "tap",
         "longPress"
@@ -65,7 +70,12 @@
       "semantics": [
         {
           "label": "Cupertino\nKeys",
-          "flags": [],
+          "flags": [
+            "isButton",
+            "hasEnabledState",
+            "isEnabled",
+            "hasSelectedState"
+          ],
           "actions": [
             "tap",
             "longPress"

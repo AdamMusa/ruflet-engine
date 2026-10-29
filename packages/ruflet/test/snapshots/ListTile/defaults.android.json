@@ -173,8 +173,8 @@
       "step": "invoke focus",
       "sent": [],
       "outcome": {
-        "error": "TimeoutException",
-        "message": "Timeout waiting for invoke method listener for ListTile(2201).focus"
+        "error": "UnsupportedError",
+        "message": "ListTile(2201).focus is not supported on android: no handler for \"focus\" is registered for this control"
       },
       "semantics": [
         {

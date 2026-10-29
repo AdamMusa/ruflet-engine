@@ -21,7 +21,12 @@
   "semantics": [
     {
       "label": "Wi-Fi",
-      "flags": [],
+      "flags": [
+        "isButton",
+        "hasEnabledState",
+        "isEnabled",
+        "hasSelectedState"
+      ],
       "actions": [
         "tap",
         "longPress"
@@ -77,7 +82,12 @@
       "semantics": [
         {
           "label": "Wi-Fi",
-          "flags": [],
+          "flags": [
+            "isButton",
+            "hasEnabledState",
+            "isEnabled",
+            "hasSelectedState"
+          ],
           "actions": [
             "tap",
             "longPress"
@@ -134,7 +144,12 @@
       "semantics": [
         {
           "label": "Wi-Fi",
-          "flags": [],
+          "flags": [
+            "isButton",
+            "hasEnabledState",
+            "isEnabled",
+            "hasSelectedState"
+          ],
           "actions": [
             "tap",
             "longPress"

@@ -30,7 +30,13 @@
   "semantics": [
     {
       "label": "Selected",
-      "flags": [],
+      "flags": [
+        "isSelected",
+        "isButton",
+        "hasEnabledState",
+        "isEnabled",
+        "hasSelectedState"
+      ],
       "actions": [
         "tap",
         "longPress"

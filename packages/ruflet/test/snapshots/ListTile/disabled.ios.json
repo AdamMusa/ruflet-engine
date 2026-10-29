@@ -21,13 +21,16 @@
   "semantics": [
     {
       "label": "Tile",
-      "flags": [],
+      "flags": [
+        "hasEnabledState",
+        "hasSelectedState"
+      ],
       "actions": [],
       "rect": {
-        "l": 20.0,
-        "t": 13.5,
-        "w": 66.4,
-        "h": 17.0
+        "l": 0.0,
+        "t": 0.0,
+        "w": 800.0,
+        "h": 44.0
       }
     }
   ],
@@ -38,13 +41,16 @@
       "semantics": [
         {
           "label": "Tile",
-          "flags": [],
+          "flags": [
+            "hasEnabledState",
+            "hasSelectedState"
+          ],
           "actions": [],
           "rect": {
-            "l": 20.0,
-            "t": 13.5,
-            "w": 66.4,
-            "h": 17.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 800.0,
+            "h": 44.0
           }
         }
       ]
@@ -55,13 +61,16 @@
       "semantics": [
         {
           "label": "Tile",
-          "flags": [],
+          "flags": [
+            "hasEnabledState",
+            "hasSelectedState"
+          ],
           "actions": [],
           "rect": {
-            "l": 20.0,
-            "t": 13.5,
-            "w": 66.4,
-            "h": 17.0
+            "l": 0.0,
+            "t": 0.0,
+            "w": 800.0,
+            "h": 44.0
           }
         }
       ]

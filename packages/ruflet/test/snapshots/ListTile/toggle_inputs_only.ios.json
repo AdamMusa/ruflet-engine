@@ -21,7 +21,12 @@
   "semantics": [
     {
       "label": "Agree",
-      "flags": [],
+      "flags": [
+        "isButton",
+        "hasEnabledState",
+        "isEnabled",
+        "hasSelectedState"
+      ],
       "actions": [
         "tap"
       ],
@@ -71,7 +76,12 @@
       "semantics": [
         {
           "label": "Agree",
-          "flags": [],
+          "flags": [
+            "isButton",
+            "hasEnabledState",
+            "isEnabled",
+            "hasSelectedState"
+          ],
           "actions": [
             "tap"
           ],

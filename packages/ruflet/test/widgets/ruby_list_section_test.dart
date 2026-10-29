@@ -34,8 +34,8 @@ Future<RufletBackend> _pump(WidgetTester tester, TargetPlatform platform,
 
 Finder _rows(TargetPlatform platform) =>
     find.byType(platform == TargetPlatform.iOS
-        ? CupertinoListTileControl
-        : ListTileControl);
+        ? CupertinoListTileSkin
+        : MaterialListTileSkin);
 
 Finder get _card => find.byWidgetPredicate(
     (w) => w is material.Material && w.type == material.MaterialType.card);

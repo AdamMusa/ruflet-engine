@@ -48,7 +48,12 @@
   "semantics": [
     {
       "label": "Child title\nChild subtitle\nChild trailing",
-      "flags": [],
+      "flags": [
+        "isButton",
+        "hasEnabledState",
+        "isEnabled",
+        "hasSelectedState"
+      ],
       "actions": [
         "tap",
         "longPress"
@@ -74,7 +79,12 @@
       "semantics": [
         {
           "label": "Child title\nChild subtitle\nChild trailing",
-          "flags": [],
+          "flags": [
+            "isButton",
+            "hasEnabledState",
+            "isEnabled",
+            "hasSelectedState"
+          ],
           "actions": [
             "tap",
             "longPress"

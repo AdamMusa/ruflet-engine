@@ -23,7 +23,6 @@ lib/src/controls/cupertino_control_theme.dart
 lib/src/controls/cupertino_date_picker.dart
 lib/src/controls/cupertino_date_picker_dialog.dart
 lib/src/controls/cupertino_input_controls.dart
-lib/src/controls/cupertino_list_tile.dart
 lib/src/controls/cupertino_markdown.dart
 lib/src/controls/cupertino_navigation_bar.dart
 lib/src/controls/cupertino_navigation_controls.dart
@@ -41,7 +40,6 @@ lib/src/controls/cupertino_text.dart
 lib/src/controls/cupertino_textfield.dart
 lib/src/controls/cupertino_timer_picker.dart
 lib/src/controls/date_picker.dart
-lib/src/controls/list_tile.dart
 lib/src/controls/material_auto_complete.dart
 lib/src/controls/material_banner.dart
 lib/src/controls/material_bottom_app_bar.dart

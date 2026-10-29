@@ -21,13 +21,17 @@
   "semantics": [
     {
       "label": "Padded",
-      "flags": [],
+      "flags": [
+        "hasEnabledState",
+        "isEnabled",
+        "hasSelectedState"
+      ],
       "actions": [],
       "rect": {
-        "l": 30.0,
-        "t": 35.5,
-        "w": 99.5,
-        "h": 17.0
+        "l": 0.0,
+        "t": 0.0,
+        "w": 800.0,
+        "h": 88.0
       }
     }
   ],

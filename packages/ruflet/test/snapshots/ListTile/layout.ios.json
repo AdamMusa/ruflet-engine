@@ -21,13 +21,17 @@
   "semantics": [
     {
       "label": "Layout",
-      "flags": [],
+      "flags": [
+        "hasEnabledState",
+        "isEnabled",
+        "hasSelectedState"
+      ],
       "actions": [],
       "rect": {
-        "l": 30.0,
-        "t": 23.5,
-        "w": 99.5,
-        "h": 17.0
+        "l": 10.0,
+        "t": 10.0,
+        "w": 300.0,
+        "h": 44.0
       }
     }
   ],

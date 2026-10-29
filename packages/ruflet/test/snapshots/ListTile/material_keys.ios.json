@@ -48,7 +48,12 @@
   "semantics": [
     {
       "label": "Material\nKeys",
-      "flags": [],
+      "flags": [
+        "isButton",
+        "hasEnabledState",
+        "isEnabled",
+        "hasSelectedState"
+      ],
       "actions": [
         "tap",
         "longPress"
