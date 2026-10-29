@@ -52,6 +52,7 @@ class WindowService extends RufletService with WindowListener {
   double? _progressBar;
   bool? _ignoreMouseEvents;
   bool _listenersAttached = false;
+  bool _windowStateFailed = false;
 
   WindowService({required super.control});
 
@@ -101,6 +102,14 @@ class WindowService extends RufletService with WindowListener {
       _scheduleWindowUpdate();
     } catch (e) {
       debugPrint("Error initializing window state: $e");
+      // Fail pending and later Window calls now, instead of leaving Ruby
+      // waiting for a reply that can never come.
+      _windowStateFailed = true;
+      if (!_initWindowStateCompleter.isCompleted) {
+        _initWindowStateCompleter.future.ignore();
+        _initWindowStateCompleter
+            .completeError(StateError("Window state could not be read: $e"));
+      }
     }
   }
 
@@ -124,11 +133,14 @@ class WindowService extends RufletService with WindowListener {
 
   void _scheduleWindowUpdate() {
     _pendingWindowUpdate = _pendingWindowUpdate.catchError((_) {}).then((_) {
+      // Without the window state there is nothing to diff against.
+      if (_windowStateFailed) return null;
       if (_initWindowStateCompleter.isCompleted) {
         return _updateWindow(control.backend);
       }
-      return _initWindowStateCompleter.future
-          .then((_) => _updateWindow(control.backend));
+      return _initWindowStateCompleter.future.then(
+          (_) => _updateWindow(control.backend),
+          onError: (Object _) {});
     });
   }
 

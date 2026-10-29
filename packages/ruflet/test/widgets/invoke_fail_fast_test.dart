@@ -177,6 +177,66 @@ void main() {
     }
   });
 
+  testWidgets('desktop Window calls fail at once when the state read fails',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+    final calls = <String>[];
+    const channel = MethodChannel('window_manager');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel,
+        (call) async {
+      calls.add(call.method);
+      await Future<void>.delayed(const Duration(milliseconds: 2));
+      if (call.method == 'getBounds') {
+        throw PlatformException(code: 'unavailable', message: 'no window');
+      }
+      if (call.method.startsWith('is')) return false;
+      return null;
+    });
+    try {
+      final backend = _Backend(TargetPlatform.macOS);
+      final window =
+          Control(id: 32, type: 'Window', properties: {}, backend: backend);
+      final binding = ServiceBinding(control: window, backend: backend);
+
+      // A call made while the state is being read is still pending...
+      Object? pendingError;
+      var pendingSettled = false;
+      unawaited(window
+          .invokeMethod('center', const {}, _rubyTimeout)
+          .then((_) {}, onError: (Object e) {
+        pendingError = e;
+      }).whenComplete(() => pendingSettled = true));
+      await tester.pump();
+      expect(pendingSettled, isFalse);
+
+      // ...and fails as soon as the read fails, with the reason.
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(pendingSettled, isTrue);
+      expect(
+          pendingError,
+          isA<StateError>().having((e) => e.message, 'message',
+              allOf(contains('Window state could not be read'),
+                  contains('no window'))));
+
+      // Later calls fail immediately too, within one frame.
+      final later = await _invokeNow(tester, window, 'close');
+      expect(later.settled, isTrue);
+      expect(later.error, isA<StateError>());
+
+      // Property changes after the failure apply nothing to the window.
+      window.update({'width': 500.0}, shouldNotify: true);
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(calls, isNot(contains('center')));
+      expect(calls, isNot(contains('close')));
+      expect(calls, isNot(contains('setBounds')));
+      binding.dispose();
+    } finally {
+      tester.binding.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null);
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
   testWidgets('an invoke that arrives before the control mounts still waits',
       (tester) async {
     final backend = _Backend(TargetPlatform.android);
