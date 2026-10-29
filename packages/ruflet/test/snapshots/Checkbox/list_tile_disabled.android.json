@@ -27,25 +27,12 @@
   "steps": [
     {
       "step": "tap text \"Tile\"",
-      "sent": [
-        {
-          "id": 1201,
-          "update": {
-            "value": true
-          }
-        },
-        {
-          "id": 1201,
-          "event": "change",
-          "data": true
-        }
-      ],
+      "sent": [],
       "semantics": [
         {
           "label": "",
           "flags": [
             "hasCheckedState",
-            "isChecked",
             "hasEnabledState"
           ],
           "actions": [],
