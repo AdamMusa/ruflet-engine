@@ -1,0 +1,54 @@
+{
+  "fixture": "no_title",
+  "design": "ios",
+  "geometry": {
+    "size": {
+      "w": 612.7,
+      "h": 22.0
+    },
+    "elements": [
+      {
+        "text": "CupertinoListTile.title must be provided and visible",
+        "rect": {
+          "l": 5.0,
+          "t": 5.0,
+          "w": 602.7,
+          "h": 12.0
+        }
+      }
+    ]
+  },
+  "semantics": [
+    {
+      "label": "CupertinoListTile.title must be provided and visible",
+      "flags": [],
+      "actions": [],
+      "rect": {
+        "l": 5.0,
+        "t": 5.0,
+        "w": 602.7,
+        "h": 12.0
+      }
+    }
+  ],
+  "steps": [
+    {
+      "step": "tap text \"Only a subtitle\"",
+      "note": "text not rendered",
+      "sent": [],
+      "semantics": [
+        {
+          "label": "CupertinoListTile.title must be provided and visible",
+          "flags": [],
+          "actions": [],
+          "rect": {
+            "l": 5.0,
+            "t": 5.0,
+            "w": 602.7,
+            "h": 12.0
+          }
+        }
+      ]
+    }
+  ]
+}
