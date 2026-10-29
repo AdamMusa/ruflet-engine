@@ -289,6 +289,8 @@ class _CupertinoTextFieldControlState extends State<CupertinoTextFieldControl> {
     var textVerticalAlign = widget.control.getDouble("text_vertical_align");
     var rtl = widget.control.getBool("rtl", false)!;
     var autocorrect = widget.control.getBool("autocorrect", true)!;
+    var textInputAction =
+        widget.control.getTextInputAction("text_input_action");
     FocusNode focusNode = shiftEnter ? _shiftEnterfocusNode : _focusNode;
 
     var focusValue = widget.control.getString("focus");
@@ -348,7 +350,9 @@ class _CupertinoTextFieldControlState extends State<CupertinoTextFieldControl> {
         // label_style for adaptive TextField
         autofocus: autofocus,
         enabled: !widget.control.disabled,
-        onSubmitted: !multiline
+        textInputAction: textInputAction,
+        onSubmitted: !multiline ||
+                textInputActionEndsMultilineEditing(textInputAction)
             ? (String value) {
                 widget.control.triggerEvent("submit", value);
               }
