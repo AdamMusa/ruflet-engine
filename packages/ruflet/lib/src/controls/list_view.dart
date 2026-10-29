@@ -8,9 +8,11 @@ import '../utils/layout.dart';
 import '../utils/misc.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
+import 'adaptive_refresh_scroll_view.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
 import 'scroll_notification_control.dart';
+import 'scroll_slivers.dart';
 import 'scrollable_control.dart';
 
 class ListViewControl extends StatefulWidget {
@@ -62,23 +64,16 @@ class _ListViewControlState extends State<ListViewControl> {
             ? ControlWidget(control: controls.first)
             : null);
 
-    Widget separator() {
-      if (dividerThickness == 0) {
-        return SizedBox(
-            width: horizontal ? spacing : null,
-            height: horizontal ? null : spacing);
-      }
-      return SizedBox(
-        width: horizontal ? spacing : dividerThickness,
-        height: horizontal ? dividerThickness : spacing,
-        child: Center(
-          child: SizedBox(
-            width: horizontal ? dividerThickness : double.infinity,
-            height: horizontal ? double.infinity : dividerThickness,
-            child: const ColoredBox(color: Color(0x1F000000)),
-          ),
-        ),
-      );
+    Widget separator() => listSeparator(
+        horizontal: horizontal,
+        spacing: spacing,
+        dividerThickness: dividerThickness);
+
+    final onRefresh = widget.control.getBool("on_refresh", false)!;
+    final refreshable = onRefresh && !horizontal && !reverse;
+    if (onRefresh && !refreshable) {
+      debugPrint("ListView ${widget.control.id}: on_refresh is ignored on "
+          "horizontal or reversed lists");
     }
 
     Widget listView = LayoutBuilder(
@@ -89,6 +84,22 @@ class _ListViewControlState extends State<ListViewControl> {
         var shrinkWrap =
             (!horizontal && constraints.maxHeight == double.infinity) ||
                 (horizontal && constraints.maxWidth == double.infinity);
+        if (refreshable) {
+          return _scrollable(
+              AdaptiveRefreshScrollView(
+                control: widget.control,
+                controller: _controller,
+                shrinkWrap: shrinkWrap,
+                cacheExtent: cacheExtent,
+                clipBehavior: clipBehavior,
+                semanticChildCount: semanticChildCount ?? controls.length,
+                slivers: [
+                  listViewSliver(
+                      context, widget.control, controls, prototypeItem)
+                ],
+              ),
+              scrollDirection);
+        }
         Widget child = !buildControlsOnDemand
             ? ListView(
                 controller: _controller,
@@ -169,21 +180,26 @@ class _ListViewControlState extends State<ListViewControl> {
                   "a control with bounded height.");
         }
 
-        child = ScrollableControl(
-            control: widget.control,
-            scrollDirection: horizontal ? Axis.horizontal : Axis.vertical,
-            scrollController: _controller,
-            child: child);
-
-        if (widget.control.getBool("on_scroll", false)!) {
-          child =
-              ScrollNotificationControl(control: widget.control, child: child);
-        }
-
-        return child;
+        return _scrollable(child, scrollDirection);
       },
     );
 
     return LayoutControl(control: widget.control, child: listView);
+  }
+
+  /// Ruby scroll features shared by the box list and the refreshable list:
+  /// `scroll`/`auto_scroll`/`scroll_to` (same controller) and `on_scroll`.
+  Widget _scrollable(Widget child, Axis scrollDirection) {
+    child = ScrollableControl(
+        control: widget.control,
+        scrollDirection: scrollDirection,
+        scrollController: _controller,
+        child: child);
+
+    if (widget.control.getBool("on_scroll", false)!) {
+      child = ScrollNotificationControl(control: widget.control, child: child);
+    }
+
+    return child;
   }
 }
