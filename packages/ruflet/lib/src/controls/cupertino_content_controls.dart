@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 
 import '../extensions/control.dart';
 import '../models/control.dart';
+import '../utils/borders.dart';
 import '../utils/colors.dart';
+import '../utils/cupertino_theme.dart';
 import '../utils/edge_insets.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
@@ -45,6 +47,9 @@ class CupertinoChipControl extends StatelessWidget {
           CupertinoButton(
             padding: control.getPadding(
                 "padding", const EdgeInsets.symmetric(horizontal: 12)),
+            autofocus: control.getBool("autofocus", false)!,
+            onFocusChange: (focused) =>
+                control.triggerEvent(focused ? "focus" : "blur"),
             onPressed: control.disabled || (!onSelect && !onClick)
                 ? null
                 : () {
@@ -66,13 +71,16 @@ class CupertinoChipControl extends StatelessWidget {
             ]),
           ),
           if (control.getBool("on_delete", false)!)
-            CupertinoButton(
-              padding: const EdgeInsetsDirectional.only(end: 8),
-              minimumSize: const Size.square(30),
-              onPressed: control.disabled
-                  ? null
-                  : () => control.triggerEvent("delete"),
-              child: deleteIcon,
+            Semantics(
+              tooltip: control.getString("delete_icon_tooltip"),
+              child: CupertinoButton(
+                padding: const EdgeInsetsDirectional.only(end: 8),
+                minimumSize: const Size.square(30),
+                onPressed: control.disabled
+                    ? null
+                    : () => control.triggerEvent("delete"),
+                child: deleteIcon,
+              ),
             ),
         ],
       ),
@@ -111,13 +119,44 @@ class CupertinoDataTableControl extends StatelessWidget {
       return const ErrorControl("DataTable.columns must not be empty");
     }
     final borderColor = CupertinoColors.separator.resolveFrom(context);
+    // Row selection, as Flutter's DataTable: a checkbox column when enabled
+    // and any row is selectable, with a tri-state select-all header.
+    final selectable =
+        rows.where((row) => row.getBool("on_select_change", false)!).toList();
+    final showCheckboxes = control.getBool("show_checkbox_column", false)! &&
+        selectable.isNotEmpty;
+    final checkedCount =
+        selectable.where((row) => row.getBool("selected", false)!).length;
+    final allChecked = checkedCount == selectable.length;
+    final someChecked = checkedCount > 0 && !allChecked;
+    void selectAll(bool? _) {
+      final checked = someChecked || !allChecked;
+      if (control.getBool("on_select_all", false)!) {
+        control.triggerEvent("select_all", checked);
+      } else {
+        for (final row in selectable) {
+          if (row.getBool("selected", false)! != checked) {
+            row.triggerEvent("select_change", checked);
+          }
+        }
+      }
+    }
+
+    Widget checkbox(bool? value, ValueChanged<bool?>? onChanged,
+            {bool tristate = false}) =>
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: CupertinoCheckbox(
+              value: value, tristate: tristate, onChanged: onChanged),
+        );
+
     final tableRows = <TableRow>[
       TableRow(
         decoration: BoxDecoration(
           color: control.getColor("heading_row_color", context) ??
               CupertinoColors.secondarySystemBackground.resolveFrom(context),
         ),
-        children: columns.indexed.map((entry) {
+        children: columns.indexed.map<Widget>((entry) {
           final (index, column) = entry;
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -136,7 +175,13 @@ class CupertinoDataTableControl extends StatelessWidget {
               ),
             ),
           );
-        }).toList(),
+        }).toList()
+          ..insertAll(0, [
+            if (showCheckboxes)
+              checkbox(someChecked ? null : allChecked,
+                  control.disabled ? null : selectAll,
+                  tristate: true),
+          ]),
       ),
       ...rows.map((row) => TableRow(
             decoration: BoxDecoration(
@@ -146,6 +191,12 @@ class CupertinoDataTableControl extends StatelessWidget {
                       : null),
             ),
             children: [
+              if (showCheckboxes)
+                checkbox(
+                    row.getBool("selected", false)!,
+                    control.disabled || !row.getBool("on_select_change", false)!
+                        ? null
+                        : (value) => row.triggerEvent("select_change", value)),
               for (var i = 0; i < columns.length; i++)
                 i < row.children("cells").length
                     ? _cell(row.children("cells")[i])
@@ -156,12 +207,20 @@ class CupertinoDataTableControl extends StatelessWidget {
     final table = SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Table(
+        defaultVerticalAlignment: showCheckboxes
+            ? TableCellVerticalAlignment.middle
+            : TableCellVerticalAlignment.top,
         defaultColumnWidth: const IntrinsicColumnWidth(),
         border: TableBorder(
-          horizontalInside: BorderSide(color: borderColor, width: 0.5),
+          horizontalInside: control.getBorderSide(
+                  "horizontal_lines", cupertinoStyleTheme(context)) ??
+              BorderSide(color: borderColor, width: 0.5),
           bottom: control.getBool("show_bottom_border", false)!
               ? BorderSide(color: borderColor, width: 0.5)
               : BorderSide.none,
+          verticalInside: control.getBorderSide(
+                  "vertical_lines", cupertinoStyleTheme(context)) ??
+              BorderSide.none,
         ),
         children: tableRows,
       ),
@@ -207,9 +266,11 @@ class CupertinoExpansionPanelListControl extends StatelessWidget {
               child: Row(children: [
                 Expanded(
                     child: panel.buildWidget("header") ?? const Text("Header")),
-                Icon(expanded
-                    ? CupertinoIcons.chevron_up
-                    : CupertinoIcons.chevron_down),
+                Icon(
+                    expanded
+                        ? CupertinoIcons.chevron_up
+                        : CupertinoIcons.chevron_down,
+                    color: control.getColor("expand_icon_color", context)),
               ]),
             ),
             if (expanded)
@@ -360,11 +421,24 @@ class CupertinoTabBarControl extends StatelessWidget {
     if (tabControls.isEmpty) {
       return const ErrorControl("TabBar.tabs must not be empty");
     }
+    // Pointer hover (macOS, iPadOS with a pointer), reported per tab like
+    // Material's TabBar.onHover.
+    final onHover = control.getBool("on_hover", false)!;
+    Widget hoverable(int index, Widget tab) => !onHover
+        ? tab
+        : MouseRegion(
+            onEnter: (_) => control
+                .triggerEvent("hover", {"hovering": true, "index": index}),
+            onExit: (_) => control
+                .triggerEvent("hover", {"hovering": false, "index": index}),
+            child: tab);
     final segments = <int, Widget>{
       for (final (index, tab) in tabControls.indexed)
-        index: tab.type == "Tab"
-            ? CupertinoTabControl(control: tab)
-            : ControlWidget(control: tab),
+        index: hoverable(
+            index,
+            tab.type == "Tab"
+                ? CupertinoTabControl(control: tab)
+                : ControlWidget(control: tab)),
     };
     final bar = CupertinoSlidingSegmentedControl<int>(
       groupValue: tabs.selectedIndex.clamp(0, segments.length - 1),
