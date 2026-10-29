@@ -53,6 +53,7 @@ String canonicalControlType(String type) => _controlTypeAliases[type] ?? type;
 /// declared property, so renderers branch on the property, never on the
 /// wire name.
 const Map<String, Map<String, Object?>> _controlTypeAliasProperties = {
+  "CupertinoDatePicker": {"inline": true},
   "CupertinoSlidingSegmentedButton": {"sliding": true},
 };
 
