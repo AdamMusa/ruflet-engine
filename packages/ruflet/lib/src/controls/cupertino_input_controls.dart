@@ -140,6 +140,8 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
       enabled: !control.disabled,
       readOnly: !editable,
       autofocus: control.getBool("autofocus", false)!,
+      // Cupertino placeholders are text only; hint_content and
+      // disabled_hint_content are rendered by the Material 2 renderer.
       placeholder: control.getString("hint_text"),
       padding: control.getPadding("content_padding", const EdgeInsets.all(10))!,
       prefix: control.buildIconOrWidget("leading_icon"),
@@ -246,16 +248,25 @@ class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
           children: [
             if (leading != null) ...[leading, const SizedBox(width: 8)],
             Expanded(
-              child: CupertinoSearchTextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                enabled: !control.disabled,
-                autofocus: control.getBool("autofocus", false)!,
-                placeholder: control.getString("bar_hint_text"),
-                backgroundColor: control.getColor("bar_bgcolor", context),
-                onTap: () => control.triggerEvent("tap"),
-                onChanged: _changed,
-                onSubmitted: (value) => control.triggerEvent("submit", value),
+              // CupertinoSearchTextField has no onTapOutside; like the
+              // Material SearchBar's text field, report outside taps while
+              // the bar has focus.
+              child: TextFieldTapRegion(
+                onTapOutside: _focusNode.hasFocus &&
+                        control.getBool("on_tap_outside_bar", false)!
+                    ? (event) => control.triggerEvent("tap_outside_bar")
+                    : null,
+                child: CupertinoSearchTextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  enabled: !control.disabled,
+                  autofocus: control.getBool("autofocus", false)!,
+                  placeholder: control.getString("bar_hint_text"),
+                  backgroundColor: control.getColor("bar_bgcolor", context),
+                  onTap: () => control.triggerEvent("tap"),
+                  onChanged: _changed,
+                  onSubmitted: (value) => control.triggerEvent("submit", value),
+                ),
               ),
             ),
             if (trailing.isNotEmpty) ...[
