@@ -48,13 +48,34 @@ class Fixtures {
         props['value'] = 'Content';
       case 'Hero':
         props['tag'] = 'hero';
+      case 'CarouselView':
+        props['item_extent'] = 200.0;
       case 'Chip':
         props['label'] = text('Chip');
+      case 'FormRow':
+        props['prefix'] = text('Label');
       case 'GestureDetector':
         props['on_tap'] = true;
       case 'ContextMenu':
         props['actions'] = [
           node('ContextMenuAction', {'content': text('Action')})
+        ];
+      case 'CustomScrollView':
+        props['slivers'] = [
+          node('SliverAppBar',
+              {'title': text('Title'), 'variant': 'large', 'pinned': true}),
+          node('SliverList', {
+            'header': text('H'),
+            'sticky_header': true,
+            'controls': [text('A'), text('B')]
+          }),
+          node('SliverGrid', {
+            'runs_count': 2,
+            'controls': [text('G1'), text('G2')]
+          }),
+          node('SliverToBoxAdapter', {'content': text('Box')}),
+          text('Auto-wrapped'),
+          node('SliverFillRemaining', {'content': text('Fill')}),
         ];
       case 'Image':
         props['src'] =
@@ -80,6 +101,15 @@ class Fixtures {
             })
           ]
         });
+      case 'Table':
+        props['rows'] = [
+          node('TableRow', {
+            'controls': [text('A'), text('B')]
+          }),
+          node('TableRow', {
+            'controls': [text('C')]
+          })
+        ];
       case 'NavigationBar':
       case 'NavigationRail':
         props['destinations'] = [
@@ -108,6 +138,8 @@ class Fixtures {
             })
           ]
         });
+      case 'ListSection':
+        props['header'] = text('Header');
       case 'ExpansionTile':
       case 'ListTile':
       case 'AppBar':
@@ -165,6 +197,7 @@ class Fixtures {
         props['actions'] = [
           node('ActionSheetAction', {'content': text('Action')})
         ];
+      case 'AboutDialog':
       case 'AlertDialog':
       case 'BottomSheet':
       case 'SnackBar':

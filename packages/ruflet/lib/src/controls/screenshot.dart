@@ -4,6 +4,7 @@ import 'package:screenshot/screenshot.dart';
 import '../extensions/control.dart';
 import '../models/control.dart';
 import '../utils/time.dart';
+import '../widgets/platform_badge.dart';
 import 'base_controls.dart';
 
 class ScreenshotControl extends StatefulWidget {
@@ -52,6 +53,10 @@ class _InteractiveViewerControlState extends State<ScreenshotControl> {
         controller: _screenshotController,
         child: widget.control.buildWidget("content"));
 
-    return BaseControl(control: widget.control, child: screenshot);
+    // The badge is chrome around the captured content, not part of it.
+    return BaseControl(
+        control: widget.control,
+        child:
+            PlatformControlBadge(control: widget.control, child: screenshot));
   }
 }

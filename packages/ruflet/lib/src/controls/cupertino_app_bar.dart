@@ -36,7 +36,7 @@ class CupertinoAppBarControl extends StatelessWidget
     var automaticBackgroundVisibility =
         control.getBool("automatic_background_visibility", true)!;
     var enableBackgroundFilterBlur =
-        control.getBool("background_filter_blur", true)!;
+        control.getBool("enable_background_filter_blur", true)!;
     var brightness = control.getBrightness("brightness");
 
     // "actions" if coming from material AppBar
