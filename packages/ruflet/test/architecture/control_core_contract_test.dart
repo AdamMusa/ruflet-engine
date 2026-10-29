@@ -15,14 +15,21 @@
 //    `create:` is a plain constructor tear-off, whose PlatformControlRenderer
 //    closures build skins with only `core:` and `key:` (choosing between
 //    skins only on the core), and it uses `control` only as
-//    CoreHost(control:), inside the host key and inside debugPrint.
+//    CoreHost(control:), inside the host key (a ValueKey built only from
+//    control.id and control.canonicalType) and inside debugPrint. A sized
+//    entry (the AppBar: a scaffold reads its PreferredSizeWidget before
+//    building it) instead creates its core in a static `resolve` that
+//    switches on PageDesign to a skin built with only `core:`, and that skin
+//    hosts the core with CoreHost.adopt.
 // C2 core purity: lib/src/core/** and every manifest core import no design
 //    and reach neither design through the platform dependency graph.
 // C2b core isolation: every manifest core and non-kernel lib/src/core library
 //    follows C1, and core constructors only forward `super.` parameters, so
 //    no core can keep the Control and hand it to a skin. Only the kernel
-//    library (control_core.dart and its parts) holds a Control. Cores have
-//    no public mutable fields or setters, so nothing can write into them.
+//    library (control_core.dart and its parts) holds a Control, and no
+//    member of a kernel class hands one out (a skin can find its ancestor
+//    CoreHost or build one with CoreHost.adopt). Cores have no public
+//    mutable fields or setters, so nothing can write into them.
 // C3 spec == Ruby: each ControlSpec declares exactly the keywords Ruby can
 //    send for its wire type (test/contract/ruflet_control_surface.json, from
 //    the ruflet repo's tools/control_surface.rb; refresh with
@@ -324,6 +331,23 @@ class AdaptiveRadioControl extends StatelessWidget {
           ));
     });
 
+    test('N7: an entry puts wire data in the host key (C1e)', () {
+      final problems = shape(canonical.replaceFirst(
+          r'key: ValueKey("control_${control.id}"),',
+          "key: ValueKey(control.properties['label']),"));
+      expect(
+          problems.join('\n'),
+          allOf(
+            contains('CoreHost(key:) may only be a ValueKey of a string'),
+            contains('uses control outside CoreHost(control:)'),
+          ));
+      expect(
+          shape(canonical.replaceFirst(
+              r'key: ValueKey("control_${control.id}"),',
+              r'key: ValueKey("control_${control.canonicalType}_${control.id}"),')),
+          isEmpty);
+    });
+
     test('an entry may not choose skins or cores on the Control (C1e)', () {
       expect(
           shape(canonical.replaceFirst(
@@ -336,6 +360,91 @@ class AdaptiveRadioControl extends StatelessWidget {
           shape(canonical.replaceFirst('    return CoreHost<SwitchCore>(',
               '    final type = control.type;\n    return CoreHost<SwitchCore>(')),
           contains(contains('uses control outside CoreHost(control:)')));
+    });
+
+    // A sized entry: a scaffold sizes the AppBar before building it, so the
+    // skin is the outermost widget and hosts the core (CoreHost.adopt).
+    const sized = r'''
+import 'package:flutter/widgets.dart';
+
+import '../models/control.dart';
+import '../models/page_design.dart';
+import '../widgets/platform_design.dart';
+import 'app_bar.dart';
+import 'app_bar_core.dart';
+import 'cupertino_app_bar.dart';
+
+class AdaptiveAppBarControl extends StatelessWidget {
+  final Control control;
+
+  const AdaptiveAppBarControl({super.key, required this.control});
+
+  static PreferredSizeWidget resolve({
+    required Control control,
+    required PageDesign design,
+  }) {
+    final core = AppBarCore(control);
+    return switch (design) {
+      PageDesign.cupertino => CupertinoAppBarSkin(core: core),
+      PageDesign.material => MaterialAppBarSkin(core: core),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    debugPrint("AdaptiveAppBarControl build: ${control.id}");
+
+    return resolve(control: control, design: effectivePageDesign(context));
+  }
+}
+''';
+
+    test('a sized entry (the AppBar shape) passes',
+        () => expect(shape(sized), isEmpty));
+
+    test('N1 on a sized entry: wire data injected into the core (C1e)', () {
+      final problems = shape(sized.replaceFirst(
+          'final core = AppBarCore(control);',
+          'final core = AppBarCore(control)..qaLeak = control.properties;'));
+      expect(
+          problems.join('\n'),
+          allOf(
+            contains('resolve must be `final core = XCore(control);`'),
+            contains('uses control outside CoreHost(control:)'),
+          ));
+    });
+
+    test('N4 on a sized entry: a raw wire value passed to a skin (C1e)', () {
+      final problems = shape(sized.replaceFirst(
+          'PageDesign.material => MaterialAppBarSkin(core: core),',
+          'PageDesign.material => MaterialAppBarSkin(core: core, '
+              "qaExtra: control.properties['tooltip']),"));
+      expect(
+          problems.join('\n'),
+          allOf(
+            contains('the PageDesign.material arm must build its skin'),
+            contains('uses control outside CoreHost(control:)'),
+          ));
+    });
+
+    test('a sized entry switches exhaustively on PageDesign (C1e)', () {
+      expect(
+          shape(sized.replaceFirst(
+              RegExp(r'return switch \(design\) \{[^}]*\};', dotAll: true),
+              'return design == PageDesign.cupertino '
+              '? CupertinoAppBarSkin(core: core) '
+              ': MaterialAppBarSkin(core: core);')),
+          contains(contains('resolve must return an exhaustive switch')));
+      expect(
+          shape(sized.replaceFirst('final core = AppBarCore(control);',
+              'final core = AppBarCore(control);\n    final type = control.type;')),
+          contains(contains('resolve must be `final core = XCore(control);`')));
+    });
+
+    test('an entry with neither a CoreHost nor a sized resolve fails (C1e)',
+        () {
+      expect(shape(sized.replaceAll('resolve', 'pick')),
+          contains(contains('builds no CoreHost')));
     });
 
     test('a skin must get the builder\'s core, nothing else (C1e)', () {
@@ -391,6 +500,34 @@ class AdaptiveRadioControl extends StatelessWidget {
             'lib/src/core/control_events.dart',
             'lib/src/core/core_host.dart',
             'lib/src/core/prop_reader.dart',
+          ]));
+    });
+
+    test('N5/N6: no kernel member hands out the Control',
+        () => expect(kernelExposureProblems(graph), isEmpty));
+
+    test('N5/N6: a public Control field or getter on a kernel class fails', () {
+      final leaky = PlatformDependencyGraph({
+        'lib/src/core/control_core.dart': '''
+class Control {}
+class CoreHost {
+  CoreHost({required Control control}) : _control = control, owner = control;
+  final Control _control;
+  final Control owner;
+  final Object? Function(Control control) create = _make;
+  Control get control => _control;
+  int get debugControlId => 1;
+  static int count(Control control) => 0;
+}
+Object? _make(Control c) => null;
+''',
+      });
+      expect(
+          kernelExposureProblems(leaky),
+          unorderedEquals([
+            contains('CoreHost.owner exposes a Control'),
+            contains('CoreHost.create exposes a Control'),
+            contains('CoreHost.control exposes a Control'),
           ]));
     });
 

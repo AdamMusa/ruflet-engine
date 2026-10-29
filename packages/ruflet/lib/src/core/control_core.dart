@@ -138,6 +138,38 @@ abstract class ControlCore<P extends Object> {
   @protected
   Map<String, InvokeHandler> get methods => const {};
 
+  /// Reads a declared key before this control builds, for the few values a
+  /// parent needs first: a scaffold reads an app bar's preferred size (and,
+  /// on iOS, whether it fully obstructs the content) from the widget it is
+  /// handed, before building it. Works on any core of the Control, hosted or
+  /// not. Checked against the spec like [PropReader] reads, and not a parse:
+  /// [parse] must still read the key (contract rule C6).
+  @protected
+  bool peekBoolean(String key, [bool fallback = false]) {
+    assert(_declares(key, PropType.boolean));
+    return _control.getBool(key, fallback)!;
+  }
+
+  /// Like [peekBoolean] for a number.
+  @protected
+  double? peekNumber(String key, [double? fallback]) {
+    assert(_declares(key, PropType.number));
+    return _control.getDouble(key, fallback);
+  }
+
+  /// Like [peekBoolean] for a color, resolved in the parent's [context].
+  @protected
+  Color? peekColor(String key, BuildContext context) {
+    assert(_declares(key, PropType.color));
+    return _control.getColor(key, context);
+  }
+
+  bool _declares(String key, PropType type) {
+    if (spec.props.any((p) => p.key == key && p.type == type)) return true;
+    throw AssertionError('${spec.wireType} peeks "$key" as ${type.name} but '
+        'its ControlSpec does not declare it');
+  }
+
   /// Client-owned state written back to Ruby (value, selected index...).
   @protected
   void writeBack(Map<String, Object?> values) =>
