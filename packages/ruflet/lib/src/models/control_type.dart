@@ -26,6 +26,9 @@ const Map<String, String> _controlTypeAliases = {
   "AdaptiveTextField": "TextField",
   "CupertinoTextField": "TextField",
   "CupertinoActivityIndicator": "ProgressRing",
+  "CupertinoFormRow": "FormRow",
+  "CupertinoFormSection": "ListSection",
+  "CupertinoListSection": "ListSection",
   "CupertinoListTile": "ListTile",
   "CupertinoNavigationBar": "NavigationBar",
   "CupertinoSegmentedButton": "SegmentedButton",
@@ -40,6 +43,7 @@ const Map<String, String> _controlTypeAliases = {
   "CupertinoDialogAction": "Button",
   "CupertinoPicker": "Picker",
   "CupertinoTimerPicker": "TimerPicker",
+  "CupertinoSliverNavigationBar": "SliverAppBar",
   "DropdownM2": "Dropdown",
 };
 
