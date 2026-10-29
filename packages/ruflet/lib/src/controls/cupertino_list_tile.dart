@@ -30,6 +30,16 @@ class CupertinoListTileControl extends StatelessWidget {
     var additionalInfo = control.buildTextOrWidget("additional_info");
     var subtitle = control.buildTextOrWidget("subtitle");
     var trailing = control.buildIconOrWidget("trailing");
+    if (control.getBool("chevron", false)!) {
+      const chevron = RufletCupertinoListTileChevron();
+      trailing = trailing == null
+          ? chevron
+          : Row(mainAxisSize: MainAxisSize.min, children: [
+              trailing,
+              const SizedBox(width: 6),
+              chevron,
+            ]);
+    }
     var backgroundColor = control.getColor("bgcolor", context);
     var bgcolorActivated = control.getColor("bgcolor_activated", context);
     var padding = control.getPadding("content_padding");
@@ -56,10 +66,18 @@ class CupertinoListTileControl extends StatelessWidget {
               }
             : null;
 
+    VoidCallback? onLongPress =
+        control.getBool("on_long_press", false)! && !control.disabled
+            ? () {
+                control.triggerEvent("long_press");
+              }
+            : null;
+
     Widget tile;
     notched
         ? tile = RufletCupertinoListTile.notched(
             onTap: onPressed,
+            onLongPress: onLongPress,
             additionalInfo: additionalInfo,
             backgroundColor: backgroundColor,
             backgroundColorActivated: bgcolorActivated,
@@ -73,6 +91,7 @@ class CupertinoListTileControl extends StatelessWidget {
           )
         : tile = RufletCupertinoListTile(
             onTap: onPressed,
+            onLongPress: onLongPress,
             additionalInfo: additionalInfo,
             backgroundColor: backgroundColor,
             backgroundColorActivated: bgcolorActivated,
