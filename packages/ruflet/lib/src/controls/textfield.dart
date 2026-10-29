@@ -230,12 +230,16 @@ class _TextFieldControlState extends State<TextFieldControl> {
 
     var fitParentSize = widget.control.getBool("fit_parent_size", false)!;
     var maxLength = widget.control.getInt("max_length");
+    var textInputAction =
+        widget.control.getTextInputAction("text_input_action");
 
     Widget textField = TextFormField(
         style: textStyle,
         autofocus: autofocus,
         enabled: !widget.control.disabled,
-        onFieldSubmitted: !multiline
+        textInputAction: textInputAction,
+        onFieldSubmitted: !multiline ||
+                textInputActionEndsMultilineEditing(textInputAction)
             ? (value) {
                 widget.control.triggerEvent("submit", value);
               }
