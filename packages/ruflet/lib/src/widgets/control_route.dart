@@ -11,6 +11,12 @@ final _presented = Expando<Route<dynamic>>('Ruflet control route');
 /// push order. They belong to that control and close with it.
 final _adopted = Expando<List<Route<dynamic>>>('Ruflet control child routes');
 
+/// The routes [control] currently owns besides its own (see
+/// [ControlRouteScope]), top-most last.
+@visibleForTesting
+List<Route<dynamic>> adoptedControlRoutes(Control control) =>
+    List.unmodifiable(_adopted[control] ?? const <Route<dynamic>>[]);
+
 /// Presents the route of a dialog-like control (`open: true`).
 ///
 /// Call from `build` when `open` turns true. The route is pushed onto the
@@ -130,9 +136,20 @@ class _AdoptRouteState extends State<_AdoptRoute> {
     super.didChangeDependencies();
     final route = ModalRoute.of(context);
     final owner = _presented[widget.control];
-    if (route == null || owner == null || identical(route, owner)) return;
+    // A route on its way out (dependencies also change while it animates
+    // away) is never adopted again.
+    if (route == null ||
+        owner == null ||
+        identical(route, owner) ||
+        !route.isActive) {
+      return;
+    }
     final adopted = _adopted[widget.control] ??= [];
-    if (!adopted.contains(route)) adopted.add(route);
+    if (adopted.contains(route)) return;
+    adopted.add(route);
+    // Forget it as soon as it is popped or removed, so the control only ever
+    // tracks live routes, however often the license pages are opened.
+    route.popped.whenComplete(() => adopted.remove(route));
   }
 
   @override

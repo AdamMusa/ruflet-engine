@@ -1,4 +1,5 @@
 import 'package:ruflet/ruflet.dart';
+import 'package:ruflet/src/widgets/control_route.dart';
 import 'package:ruflet/src/widgets/cupertino_license_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -429,6 +430,92 @@ void main() {
       expect(find.byType(material.Scaffold), findsOneWidget);
       expect(backend.events, ['dismiss']);
       expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('license route bookkeeping', () {
+    testWidgets('iOS: browsing licenses repeatedly leaves no stale routes',
+        (tester) async {
+      final backend = _Backend(TargetPlatform.iOS);
+      final about = _about(backend);
+      await _show(tester, backend, about);
+
+      for (var round = 0; round < 3; round++) {
+        await tester.tap(find.text('View Licenses'));
+        await tester.pumpAndSettle();
+        expect(adoptedControlRoutes(about), hasLength(1));
+        await tester.tap(find.text(_package));
+        await tester.pumpAndSettle();
+        expect(adoptedControlRoutes(about), hasLength(2));
+
+        // Back from the license text, then back to the alert.
+        Navigator.of(tester.element(find.text('Ruflet test license.'))).pop();
+        await tester.pumpAndSettle();
+        expect(adoptedControlRoutes(about), hasLength(1),
+            reason: 'round $round: the closed detail page is forgotten');
+        Navigator.of(tester.element(find.text(_package))).pop();
+        await tester.pumpAndSettle();
+        expect(adoptedControlRoutes(about), isEmpty,
+            reason: 'round $round: no stale license routes');
+        expect(find.byType(CupertinoAlertDialog), findsOneWidget);
+      }
+
+      // Close still removes the dialog and the license page it owns now.
+      await tester.tap(find.text('View Licenses'));
+      await tester.pumpAndSettle();
+      expect(adoptedControlRoutes(about), hasLength(1));
+      about.updateProperties({'open': false}, python: false, notify: true);
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoLicensePage), findsNothing);
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
+      expect(adoptedControlRoutes(about), isEmpty);
+      expect(backend.events, ['dismiss']);
+      _expectCupertinoOnly(tester);
+    });
+
+    testWidgets('Android: browsing licenses repeatedly leaves no stale routes',
+        (tester) async {
+      final backend = _Backend(TargetPlatform.android);
+      final about = _about(backend);
+      await _show(tester, backend, about);
+
+      for (var round = 0; round < 3; round++) {
+        await tester.tap(find.text('View licenses'));
+        await tester.pumpAndSettle();
+        expect(adoptedControlRoutes(about), hasLength(1));
+        Navigator.of(tester.element(find.byType(material.LicensePage))).pop();
+        await tester.pumpAndSettle();
+        expect(adoptedControlRoutes(about), isEmpty,
+            reason: 'round $round: no stale LicensePage routes');
+        expect(find.byType(material.AboutDialog), findsOneWidget);
+      }
+
+      await tester.tap(find.text('View licenses'));
+      await tester.pumpAndSettle();
+      about.updateProperties({'open': false}, python: false, notify: true);
+      await tester.pumpAndSettle();
+      expect(find.byType(material.LicensePage), findsNothing);
+      expect(find.byType(material.AboutDialog), findsNothing);
+      expect(adoptedControlRoutes(about), isEmpty);
+      expect(backend.events, ['dismiss']);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('reopening starts with no adopted routes', (tester) async {
+      final backend = _Backend(TargetPlatform.iOS);
+      final about = _about(backend);
+      await _show(tester, backend, about);
+      await tester.tap(find.text('View Licenses'));
+      await tester.pumpAndSettle();
+      // Dismiss the alert underneath via Ruby while the license page is up.
+      about.updateProperties({'open': false}, python: false, notify: true);
+      await tester.pumpAndSettle();
+      about.updateProperties({'open': true}, python: false, notify: true);
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
+      expect(adoptedControlRoutes(about), isEmpty);
+      expect(backend.events, ['dismiss']);
+      _expectCupertinoOnly(tester);
     });
   });
 }
