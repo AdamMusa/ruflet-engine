@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'controls/adaptive_about_dialog.dart';
 import 'controls/adaptive_alert_dialog.dart';
 import 'controls/adaptive_app_bar.dart';
 import 'controls/adaptive_action_sheet.dart';
@@ -124,6 +125,8 @@ class RufletCoreExtension extends RufletExtension {
       case "OutlinedButton":
       case "TextButton":
         return AdaptiveButtonControl(key: key, control: control);
+      case "AboutDialog":
+        return AdaptiveAboutDialogControl(key: key, control: control);
       case "AlertDialog":
         return AdaptiveAlertDialogControl(key: key, control: control);
       case "AnimatedSwitcher":

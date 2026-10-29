@@ -165,6 +165,7 @@ class Fixtures {
         props['actions'] = [
           node('ActionSheetAction', {'content': text('Action')})
         ];
+      case 'AboutDialog':
       case 'AlertDialog':
       case 'BottomSheet':
       case 'SnackBar':
