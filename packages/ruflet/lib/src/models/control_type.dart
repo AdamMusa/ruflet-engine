@@ -52,3 +52,14 @@ String canonicalControlType(String type) => _controlTypeAliases[type] ?? type;
 extension CanonicalControlType on Control {
   String get canonicalType => canonicalControlType(type);
 }
+
+/// Event names a legacy wire alias subscribes under. Renderers fire only the
+/// canonical event; the backend delivers it under the name the old client
+/// registered. Clients from before ruflet b9e52ff7 send `DropdownM2` with
+/// `on_change`, the Material 2 name for what Dropdown calls `select`.
+const Map<String, Map<String, String>> _controlTypeAliasEvents = {
+  "DropdownM2": {"select": "change"},
+};
+
+String controlTypeAliasEventName(String type, String eventName) =>
+    _controlTypeAliasEvents[type]?[eventName] ?? eventName;

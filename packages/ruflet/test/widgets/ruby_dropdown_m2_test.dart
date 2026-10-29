@@ -11,6 +11,9 @@ import 'package:ruflet/ruflet.dart';
 class _Backend extends RufletBackend {
   final events = <(String, dynamic)>[];
 
+  /// Every event a renderer fired, before the `on_<event>` gate.
+  final fired = <String>[];
+
   _Backend(TargetPlatform target)
       : super(
             pageUri: Uri.parse('inprocess://dropdown-m2-test'),
@@ -24,6 +27,13 @@ class _Backend extends RufletBackend {
   void updateControl(int id, Map<String, dynamic> props,
           {bool dart = true, bool python = true, bool notify = false}) =>
       super.updateControl(id, props, dart: dart, python: false, notify: notify);
+
+  @override
+  void triggerControlEvent(Control control, String eventName,
+      [dynamic eventData]) {
+    fired.add(eventName);
+    super.triggerControlEvent(control, eventName, eventData);
+  }
 
   @override
   void triggerControlEventById(int controlId, String eventName,
@@ -171,6 +181,22 @@ void main() {
       expect(control.getString('value'), 'blue');
       expect(tester.takeException(), isNull);
     });
+
+    // Clients from before ruflet b9e52ff7 still send this wire, so the
+    // Cupertino renderer keeps delivering `change` without branching on the
+    // wire name: it fires the canonical `select`, and the control_type.dart
+    // alias table delivers it under the name the old client subscribed to.
+    testWidgets('Cupertino fires select, delivered to the legacy on_change',
+        (tester) async {
+      final (backend, _) =
+          await _pump(tester, TargetPlatform.iOS, _dropdownM2());
+
+      await _pickBlueOnCupertino(tester);
+
+      expect(backend.fired, contains('select'));
+      expect(backend.fired, isNot(contains('change')));
+      expect(backend.events, [('change', 'blue')]);
+    });
   });
 
   // Ruby's dropdown, dropdown_m2 and dropdownm2 all emit the canonical
@@ -204,6 +230,21 @@ void main() {
       expect(backend.events, [('select', 'blue')]);
       expect(control.getString('value'), 'blue');
       expect(tester.takeException(), isNull);
+    });
+
+    // `canonical()` is exactly what ruflet main emits for
+    // `dropdown_m2(on_change:, max_menu_height: 200)`; Ruby dispatches the
+    // `select` event to that on_change handler
+    // (test_dropdown_m2_on_change_fires_on_the_canonical_select_event).
+    testWidgets('Cupertino delivers dropdown_m2(on_change:) once, as select',
+        (tester) async {
+      final (backend, _) =
+          await _pump(tester, TargetPlatform.iOS, canonical());
+
+      await _pickBlueOnCupertino(tester);
+
+      expect(backend.fired, isNot(contains('change')));
+      expect(backend.events, [('select', 'blue')]);
     });
 
     testWidgets('Cupertino fires select with the chosen value', (tester) async {
