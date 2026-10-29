@@ -66,10 +66,18 @@ class CupertinoListTileControl extends StatelessWidget {
               }
             : null;
 
+    VoidCallback? onLongPress =
+        control.getBool("on_long_press", false)! && !control.disabled
+            ? () {
+                control.triggerEvent("long_press");
+              }
+            : null;
+
     Widget tile;
     notched
         ? tile = RufletCupertinoListTile.notched(
             onTap: onPressed,
+            onLongPress: onLongPress,
             additionalInfo: additionalInfo,
             backgroundColor: backgroundColor,
             backgroundColorActivated: bgcolorActivated,
@@ -83,6 +91,7 @@ class CupertinoListTileControl extends StatelessWidget {
           )
         : tile = RufletCupertinoListTile(
             onTap: onPressed,
+            onLongPress: onLongPress,
             additionalInfo: additionalInfo,
             backgroundColor: backgroundColor,
             backgroundColorActivated: bgcolorActivated,
