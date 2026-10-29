@@ -324,7 +324,9 @@ class _CupertinoSwatchPickerState extends State<CupertinoSwatchPicker> {
                                       child: Align(
                                         alignment: Alignment.centerRight,
                                         child: Text(
-                                          '#${(shade.toString().replaceFirst('Color(0xff', '').replaceFirst(')', '')).toUpperCase()}  ',
+                                          // From the ARGB channels: Color.toString()
+                                          // changed format in Flutter 3.27.
+                                          '${colorToHex(shade, includeHashSign: true, enableAlpha: false)}  ',
                                           style: TextStyle(
                                             color: useWhiteForeground(shade)
                                                 ? PaletteColors.white
