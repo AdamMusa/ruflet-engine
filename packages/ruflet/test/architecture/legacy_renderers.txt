@@ -3,14 +3,12 @@
 # this list only shrinks. A migration PR removes its skins from it; a new
 # control is built on a core instead of being added here. One path per line.
 lib/src/controls/alert_dialog.dart
-lib/src/controls/app_bar.dart
 lib/src/controls/bottom_sheet.dart
 lib/src/controls/checkbox.dart
 lib/src/controls/context_menu.dart
 lib/src/controls/cupertino_action_sheet.dart
 lib/src/controls/cupertino_action_sheet_action.dart
 lib/src/controls/cupertino_alert_dialog.dart
-lib/src/controls/cupertino_app_bar.dart
 lib/src/controls/cupertino_banner.dart
 lib/src/controls/cupertino_bottom_sheet.dart
 lib/src/controls/cupertino_checkbox.dart

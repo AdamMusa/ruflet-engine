@@ -2,11 +2,12 @@
 // migration PR; control_core_contract_test.dart checks every entry against
 // rules C1–C7 (see test/architecture/README.md).
 import 'package:flutter/cupertino.dart'
-    show CupertinoActivityIndicator, CupertinoButton;
+    show CupertinoActivityIndicator, CupertinoButton, CupertinoNavigationBar;
 import 'package:flutter/material.dart' as material show IconButton;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart'
     show
+        AppBar,
         CircularProgressIndicator,
         ElevatedButton,
         FilledButton,
@@ -16,6 +17,7 @@ import 'package:flutter/material.dart'
         TextButton;
 import 'package:flutter_test/flutter_test.dart' show find;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
+import 'package:ruflet/src/controls/app_bar_core.dart';
 import 'package:ruflet/src/controls/button_core.dart';
 import 'package:ruflet/src/controls/icon_button_core.dart';
 import 'package:ruflet/src/controls/list_tile_core.dart';
@@ -90,6 +92,43 @@ List<RufletExtension> _noExtensions() => const [];
 
 /// One line per migration, in migration order.
 final List<MigratedControl> migratedControls = [
+  MigratedControl(
+    spec: appBarSpec,
+    entry: 'lib/src/controls/adaptive_app_bar.dart',
+    core: 'lib/src/controls/app_bar_core.dart',
+    propsClass: 'AppBarProps',
+    skins: {
+      Skin.material: 'lib/src/controls/app_bar.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_app_bar.dart',
+    },
+    // A standard bar through the registry; a large Material bar needs the
+    // bounded slot a scaffold gives it.
+    fixture: () => {
+      '_c': 'Column',
+      '_i': 610,
+      'controls': [
+        {'_c': 'AppBar', '_i': 611, 'title': 'Title'},
+      ],
+    },
+    nativeWidgets: {
+      Skin.material: AppBar,
+      Skin.cupertino: CupertinoNavigationBar,
+    },
+    samples: {
+      'large': false,
+      'clip_behavior': 'hardEdge',
+      'border': {
+        'bottom': {'color': '#336699', 'width': 1.0}
+      },
+      'padding': 4.0,
+      'brightness': 'dark',
+      'toolbar_opacity': 0.5,
+    },
+    parityScript: [
+      SnapshotStep.tapNative(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
   for (final (index, spec, material) in [
     (0, buttonSpec, ElevatedButton),
     (1, filledButtonSpec, FilledButton),

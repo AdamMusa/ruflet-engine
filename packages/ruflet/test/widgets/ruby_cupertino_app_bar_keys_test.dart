@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:ruflet/ruflet.dart';
+import 'package:ruflet/src/controls/app_bar_core.dart';
 import 'package:ruflet/src/controls/cupertino_app_bar.dart';
 
 Future<CupertinoNavigationBar> _pumpBar(
@@ -26,7 +27,7 @@ Future<CupertinoNavigationBar> _pumpBar(
       value: backend,
       child: CupertinoApp(
         home: CupertinoPageScaffold(
-          navigationBar: CupertinoAppBarControl(control: control),
+          navigationBar: CupertinoAppBarSkin(core: AppBarCore(control)),
           child: const SizedBox.expand(),
         ),
       ),

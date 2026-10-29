@@ -1,5 +1,6 @@
 import 'package:ruflet/ruflet.dart';
 import 'package:ruflet/src/controls/adaptive_button.dart';
+import 'package:ruflet/src/controls/app_bar_core.dart';
 import 'package:ruflet/src/controls/cupertino_alert_dialog.dart';
 import 'package:ruflet/src/controls/cupertino_app_bar.dart';
 import 'package:ruflet/src/controls/cupertino_button_skin.dart';
@@ -183,7 +184,7 @@ void main() {
           CupertinoContainerControl(control: box),
           AdaptiveButtonControl(control: action),
         ]),
-        navigationBar: CupertinoAppBarControl(control: bar)));
+        navigationBar: CupertinoAppBarSkin(core: AppBarCore(bar))));
     final nativeBar = tester
         .widget<CupertinoNavigationBar>(find.byType(CupertinoNavigationBar));
     expect(nativeBar.border?.bottom.color, const Color(0xff13579b));

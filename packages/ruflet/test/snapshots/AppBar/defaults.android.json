@@ -62,8 +62,8 @@
       "step": "invoke focus",
       "sent": [],
       "outcome": {
-        "error": "TimeoutException",
-        "message": "Timeout waiting for invoke method listener for AppBar(2301).focus"
+        "error": "UnsupportedError",
+        "message": "AppBar(2301).focus is not supported on android: no handler for \"focus\" is registered for this control"
       },
       "semantics": [
         {
