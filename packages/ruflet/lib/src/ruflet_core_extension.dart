@@ -10,6 +10,7 @@ import 'controls/adaptive_context_menu.dart';
 import 'controls/adaptive_context_menu_action.dart';
 import 'controls/adaptive_date_picker.dart';
 import 'controls/adaptive_form_row.dart';
+import 'controls/adaptive_list_section.dart';
 import 'controls/adaptive_list_tile.dart';
 import 'controls/adaptive_picker.dart';
 import 'controls/adaptive_progress_ring.dart';
@@ -210,6 +211,8 @@ class RufletCoreExtension extends RufletExtension {
         return InteractiveViewerControl(key: key, control: control);
       case "KeyboardListener":
         return KeyboardListenerControl(key: key, control: control);
+      case "ListSection":
+        return AdaptiveListSectionControl(key: key, control: control);
       case "ListTile":
         return AdaptiveListTileControl(key: key, control: control);
       case "ListView":
