@@ -1,0 +1,39 @@
+{
+  "fixture": "determinate",
+  "design": "ios",
+  "geometry": {
+    "size": {
+      "w": 20.0,
+      "h": 20.0
+    },
+    "elements": []
+  },
+  "semantics": [],
+  "steps": [
+    {
+      "step": "tap at 0.5,0.5",
+      "sent": [],
+      "semantics": []
+    },
+    {
+      "step": "invoke focus",
+      "sent": [],
+      "outcome": {
+        "error": "TimeoutException",
+        "message": "Timeout waiting for invoke method listener for ProgressRing(2001).focus"
+      },
+      "semantics": []
+    },
+    {
+      "step": "unfocus",
+      "sent": [],
+      "semantics": []
+    }
+  ],
+  "native": {
+    "type": "CupertinoActivityIndicator",
+    "animating": false,
+    "progress": 0.5,
+    "radius": 10.0
+  }
+}
