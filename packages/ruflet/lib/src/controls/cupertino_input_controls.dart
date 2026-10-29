@@ -140,6 +140,8 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
       enabled: !control.disabled,
       readOnly: !editable,
       autofocus: control.getBool("autofocus", false)!,
+      // Cupertino placeholders are text only; hint_content and
+      // disabled_hint_content are rendered by the Material 2 renderer.
       placeholder: control.getString("hint_text"),
       padding: control.getPadding("content_padding", const EdgeInsets.all(10))!,
       prefix: control.buildIconOrWidget("leading_icon"),

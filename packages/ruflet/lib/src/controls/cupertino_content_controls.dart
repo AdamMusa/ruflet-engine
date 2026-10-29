@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 
 import '../extensions/control.dart';
 import '../models/control.dart';
+import '../utils/borders.dart';
 import '../utils/colors.dart';
+import '../utils/cupertino_theme.dart';
 import '../utils/edge_insets.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
@@ -45,6 +47,9 @@ class CupertinoChipControl extends StatelessWidget {
           CupertinoButton(
             padding: control.getPadding(
                 "padding", const EdgeInsets.symmetric(horizontal: 12)),
+            autofocus: control.getBool("autofocus", false)!,
+            onFocusChange: (focused) =>
+                control.triggerEvent(focused ? "focus" : "blur"),
             onPressed: control.disabled || (!onSelect && !onClick)
                 ? null
                 : () {
@@ -66,13 +71,16 @@ class CupertinoChipControl extends StatelessWidget {
             ]),
           ),
           if (control.getBool("on_delete", false)!)
-            CupertinoButton(
-              padding: const EdgeInsetsDirectional.only(end: 8),
-              minimumSize: const Size.square(30),
-              onPressed: control.disabled
-                  ? null
-                  : () => control.triggerEvent("delete"),
-              child: deleteIcon,
+            Semantics(
+              tooltip: control.getString("delete_icon_tooltip"),
+              child: CupertinoButton(
+                padding: const EdgeInsetsDirectional.only(end: 8),
+                minimumSize: const Size.square(30),
+                onPressed: control.disabled
+                    ? null
+                    : () => control.triggerEvent("delete"),
+                child: deleteIcon,
+              ),
             ),
         ],
       ),
@@ -158,10 +166,15 @@ class CupertinoDataTableControl extends StatelessWidget {
       child: Table(
         defaultColumnWidth: const IntrinsicColumnWidth(),
         border: TableBorder(
-          horizontalInside: BorderSide(color: borderColor, width: 0.5),
+          horizontalInside: control.getBorderSide(
+                  "horizontal_lines", cupertinoStyleTheme(context)) ??
+              BorderSide(color: borderColor, width: 0.5),
           bottom: control.getBool("show_bottom_border", false)!
               ? BorderSide(color: borderColor, width: 0.5)
               : BorderSide.none,
+          verticalInside: control.getBorderSide(
+                  "vertical_lines", cupertinoStyleTheme(context)) ??
+              BorderSide.none,
         ),
         children: tableRows,
       ),
@@ -207,9 +220,11 @@ class CupertinoExpansionPanelListControl extends StatelessWidget {
               child: Row(children: [
                 Expanded(
                     child: panel.buildWidget("header") ?? const Text("Header")),
-                Icon(expanded
-                    ? CupertinoIcons.chevron_up
-                    : CupertinoIcons.chevron_down),
+                Icon(
+                    expanded
+                        ? CupertinoIcons.chevron_up
+                        : CupertinoIcons.chevron_down,
+                    color: control.getColor("expand_icon_color", context)),
               ]),
             ),
             if (expanded)
