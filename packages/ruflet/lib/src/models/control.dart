@@ -55,6 +55,7 @@ class Control extends ChangeNotifier {
   late final WeakReference<RufletBackend> _backend;
   Completer<void>? _listenerAddedCompleter;
   final List<InvokeControlMethodCallback> _invokeMethodListeners = [];
+  int _attachments = 0;
 
   Control({
     required this.id,
@@ -481,12 +482,33 @@ class Control extends ChangeNotifier {
     _invokeMethodListeners.remove(listener);
   }
 
+  /// Whether a mounted [ControlWidget] or a running service renders this
+  /// control. Renderers register their invoke-method listeners while they
+  /// build, so an attached control without listeners handles no methods.
+  bool get isAttached => _attachments > 0;
+
+  /// Records that a widget or service started rendering this control.
+  void attach() => _attachments++;
+
+  /// Records that a widget or service stopped rendering this control.
+  void detach() {
+    if (_attachments > 0) _attachments--;
+  }
+
   Future<dynamic> invokeMethod(
       String name, dynamic args, Duration timeout) async {
     debugPrint("$type($id).$name($args)");
 
     // If no listeners, wait until one is added or timeout occurs
     if (_invokeMethodListeners.isEmpty) {
+      // Already rendered, so no listener is coming: reply now instead of
+      // leaving the caller waiting for its timeout. Only an invoke that races
+      // ahead of the control's first build waits below.
+      if (isAttached) {
+        throw UnsupportedError(
+            "$type($id).$name is not supported on ${backend.platform.name}: "
+            "no handler for \"$name\" is registered for this control");
+      }
       _listenerAddedCompleter ??= Completer<void>();
       await _listenerAddedCompleter!.future.timeout(timeout, onTimeout: () {
         throw TimeoutException(
