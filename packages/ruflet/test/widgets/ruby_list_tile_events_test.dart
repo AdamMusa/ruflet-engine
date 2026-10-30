@@ -59,8 +59,8 @@ void main() {
     TargetPlatform.android,
   ]) {
     final rendererType = platform == TargetPlatform.android
-        ? ListTileControl
-        : CupertinoListTileControl;
+        ? MaterialListTileSkin
+        : CupertinoListTileSkin;
 
     for (final notched in [false, true]) {
       testWidgets(
