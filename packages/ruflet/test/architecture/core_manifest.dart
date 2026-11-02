@@ -15,6 +15,7 @@ import 'package:flutter/material.dart'
         CircularProgressIndicator,
         ElevatedButton,
         FilledButton,
+        ListTile,
         Offset,
         OutlinedButton,
         Radio,
@@ -26,10 +27,12 @@ import 'package:ruflet/ruflet.dart' show RufletExtension;
 import 'package:ruflet/src/controls/button_core.dart';
 import 'package:ruflet/src/controls/checkbox_core.dart';
 import 'package:ruflet/src/controls/icon_button_core.dart';
+import 'package:ruflet/src/controls/list_tile_core.dart';
 import 'package:ruflet/src/controls/progress_ring_core.dart';
 import 'package:ruflet/src/controls/radio_core.dart';
 import 'package:ruflet/src/controls/switch_core.dart';
 import 'package:ruflet/src/core/control_spec.dart';
+import 'package:ruflet/src/widgets/ruflet_cupertino_list_tile.dart';
 
 import '../support/control_snapshot.dart' show SnapshotStep;
 
@@ -275,6 +278,43 @@ final List<MigratedControl> migratedControls = [
         SnapshotStep.unfocus(),
       ],
     ),
+  MigratedControl(
+    spec: listTileSpec,
+    entry: 'lib/src/controls/adaptive_list_tile.dart',
+    core: 'lib/src/controls/list_tile_core.dart',
+    propsClass: 'ListTileProps',
+    skins: {
+      Skin.material: 'lib/src/controls/list_tile.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_list_tile.dart',
+    },
+    fixture: () => {
+      '_c': 'Column',
+      '_i': 690,
+      'controls': [
+        {
+          '_c': 'ListTile',
+          '_i': 691,
+          'title': 'Tile',
+          'subtitle': 'Details',
+          'leading': 0x10000,
+        },
+      ],
+    },
+    nativeWidgets: {
+      Skin.material: ListTile,
+      Skin.cupertino: RufletCupertinoListTile,
+    },
+    samples: {
+      'visual_density': 'compact',
+      'style': 'list',
+      'title_alignment': 'center',
+    },
+    parityScript: [
+      SnapshotStep.tapNative(),
+      _longPressCenter(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
   MigratedControl(
     spec: progressRingSpec,
     entry: 'lib/src/controls/adaptive_progress_ring.dart',
