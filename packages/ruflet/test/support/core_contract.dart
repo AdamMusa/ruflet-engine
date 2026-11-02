@@ -414,12 +414,182 @@ Expression? _closureResult(Expression expression) {
   return null;
 }
 
+/// A skin construction with only `core:` (the [core] variable) and `key:`.
+bool _isSkin(Expression expression, String core) {
+  final construction = _construction(expression);
+  if (construction == null) return false;
+  final (_, arguments) = construction;
+  final named = _namedArguments(arguments);
+  final coreArgument = named['core'];
+  return arguments.arguments.every((a) => a is NamedExpression) &&
+      named.keys.every((name) => name == 'core' || name == 'key') &&
+      coreArgument is SimpleIdentifier &&
+      coreArgument.name == core;
+}
+
+/// A skin, or a choice between skins made only on the core.
+bool _isSkinChoice(Expression expression, String core) {
+  if (expression is ParenthesizedExpression) {
+    return _isSkinChoice(expression.expression, core);
+  }
+  if (expression is ConditionalExpression) {
+    return _isSkinChoice(expression.thenExpression, core) &&
+        _isSkinChoice(expression.elseExpression, core);
+  }
+  return _isSkin(expression, core);
+}
+
+/// A host key built only from the Control's identity (N7: a key carrying
+/// wire data would reach any skin that finds its ancestor host):
+/// `ValueKey("…${control.id}…")`, optionally with `control.canonicalType`.
+bool _isIdKey(Expression key) {
+  final construction = _construction(key);
+  if (construction == null || construction.$1 != 'ValueKey') return false;
+  final arguments = construction.$2.arguments;
+  if (arguments.length != 1) return false;
+  final value = arguments.single;
+  if (value is SimpleStringLiteral) return true;
+  if (value is! StringInterpolation) return false;
+  return value.elements.whereType<InterpolationExpression>().every((part) {
+    final expression = part.expression;
+    return expression is PrefixedIdentifier &&
+        expression.prefix.name == 'control' &&
+        const {'id', 'canonicalType'}.contains(expression.identifier.name);
+  });
+}
+
+/// C2b, kernel side: no member of a kernel class (fields, getters and
+/// methods, public or not reachable by name) hands out a Control, so a skin
+/// that finds its ancestor CoreHost (N5) or builds one with
+/// `CoreHost.adopt` (N6) cannot reach the Control through it. Only
+/// library-private members and constructors/static helpers may mention it.
+List<String> kernelExposureProblems(PlatformDependencyGraph graph) {
+  final problems = <String>[];
+  final control = RegExp(r'\bControl\b');
+  for (final path in graph.units.keys) {
+    if (!isKernelLibrary(graph, path)) continue;
+    for (final declaration in graph.units[path]!.declarations) {
+      final (name, members) = switch (declaration) {
+        ClassDeclaration c => (c.name.lexeme, c.members),
+        MixinDeclaration m => (m.name.lexeme, m.members),
+        _ => ('', const <ClassMember>[]),
+      };
+      for (final member in members) {
+        if (member is FieldDeclaration && !member.isStatic) {
+          final type = member.fields.type?.toSource() ?? '';
+          for (final variable in member.fields.variables) {
+            if (!variable.name.lexeme.startsWith('_') &&
+                control.hasMatch(type)) {
+              problems.add('$path: $name.${variable.name.lexeme} exposes '
+                  'a Control ($type)');
+            }
+          }
+        }
+        if (member is MethodDeclaration &&
+            !member.isStatic &&
+            !member.name.lexeme.startsWith('_') &&
+            control.hasMatch(member.returnType?.toSource() ?? '')) {
+          problems.add('$path: $name.${member.name.lexeme} exposes a '
+              'Control (${member.returnType})');
+        }
+      }
+    }
+  }
+  return problems;
+}
+
+/// C1e for a sized entry: a control a scaffold sizes before building it (the
+/// AppBar: `Scaffold`/`CupertinoPageScaffold` read the `PreferredSizeWidget`
+/// they are handed, and only a Cupertino class can be an
+/// `ObstructingPreferredSizeWidget`), so its skin must be the outermost
+/// widget. The entry builds no CoreHost; a static `resolve` has exactly two
+/// statements: `final core = XCore(control);` (one constructor call with the
+/// Control as its only argument) and `return switch (design) {...}` over
+/// `PageDesign.material` and `PageDesign.cupertino`, no guards, each arm
+/// building a skin with only `core:` and `key:`. Each skin then hosts that
+/// core with `CoreHost.adopt` (C5 finds the host). Besides those uses,
+/// `control` may only be the `control:` argument of a `resolve(...)` call and
+/// appear in `debugPrint`. Returns null when the entry declares no static
+/// `resolve` (it is then simply missing its CoreHost).
+List<String>? sizedEntryProblems(
+    CompilationUnit unit, String entry, List<(int, int)> allowed) {
+  MethodDeclaration? resolve;
+  for (final declaration in unit.declarations.whereType<ClassDeclaration>()) {
+    for (final method in declaration.members.whereType<MethodDeclaration>()) {
+      if (method.isStatic && method.name.lexeme == 'resolve') resolve = method;
+    }
+  }
+  if (resolve == null) return null;
+  final problems = <String>[];
+  final body = resolve.body;
+  final statements =
+      body is BlockFunctionBody ? body.block.statements : const <Statement>[];
+
+  String? core;
+  final first = statements.isNotEmpty ? statements.first : null;
+  if (first is VariableDeclarationStatement &&
+      first.variables.isFinal &&
+      first.variables.variables.length == 1) {
+    final variable = first.variables.variables.single;
+    final initializer = variable.initializer;
+    final construction =
+        initializer == null ? null : _construction(initializer);
+    final arguments = construction?.$2.arguments ?? const <Expression>[];
+    if (construction != null &&
+        construction.$1.endsWith('Core') &&
+        arguments.length == 1 &&
+        arguments.single is SimpleIdentifier &&
+        (arguments.single as SimpleIdentifier).name == 'control') {
+      core = variable.name.lexeme;
+      allowed.add((arguments.single.offset, arguments.single.end));
+    }
+  }
+  if (statements.length != 2 || core == null) {
+    problems.add('$entry: resolve must be `final core = XCore(control);` '
+        'followed by the switch over PageDesign');
+  }
+
+  final last = statements.length == 2 ? statements.last : null;
+  final returned = last is ReturnStatement ? last.expression : null;
+  final designs = returned is SwitchExpression
+      ? returned.cases.map((c) => c.guardedPattern.pattern.toSource()).toSet()
+      : const <String>{};
+  if (returned is! SwitchExpression ||
+      returned.expression is! SimpleIdentifier ||
+      returned.cases.length != 2 ||
+      !designs.containsAll({'PageDesign.material', 'PageDesign.cupertino'}) ||
+      returned.cases.any((c) => c.guardedPattern.whenClause != null)) {
+    problems.add('$entry: resolve must return an exhaustive switch over '
+        'PageDesign.material and PageDesign.cupertino');
+  } else if (core != null) {
+    for (final arm in returned.cases) {
+      if (!_isSkinChoice(arm.expression, core)) {
+        problems.add('$entry: the ${arm.guardedPattern.pattern} arm must '
+            'build its skin with only core: $core and key:, choosing between '
+            'skins only on the core');
+      }
+    }
+  }
+
+  unit.accept(_Calls((name, arguments) {
+    if (name != 'resolve') return;
+    final control = _namedArguments(arguments)['control'];
+    if (control is SimpleIdentifier && control.name == 'control') {
+      allowed.add((control.offset, control.end));
+    }
+  }));
+  return problems;
+}
+
 /// C1e: the registry entry (`adaptive_*.dart`), the only place outside the
 /// kernel that holds the Control, has the canonical shape: `CoreHost(create:)`
 /// is a plain constructor tear-off, each `PlatformControlRenderer` closure
 /// builds its skin with only `core:` (the builder's core) and `key:`
 /// (choosing between skins only on the core), and `control` appears only as
 /// `CoreHost(control:)`, inside the host's `key:` and inside `debugPrint`.
+///
+/// A sized entry (a control a scaffold sizes before building it, the AppBar)
+/// builds no CoreHost itself: see [sizedEntryProblems].
 List<String> entryShapeProblems(PlatformDependencyGraph graph, String entry) {
   final unit = graph.units[entry];
   if (unit == null) return ['$entry: no such library'];
@@ -434,29 +604,9 @@ List<String> entryShapeProblems(PlatformDependencyGraph graph, String entry) {
   for (final arguments in debugPrints) {
     allowed.add((arguments.offset, arguments.end));
   }
-  if (hosts.isEmpty) problems.add('$entry: builds no CoreHost');
-
-  bool isSkin(Expression expression, String core) {
-    final construction = _construction(expression);
-    if (construction == null) return false;
-    final (_, arguments) = construction;
-    final named = _namedArguments(arguments);
-    final coreArgument = named['core'];
-    return arguments.arguments.every((a) => a is NamedExpression) &&
-        named.keys.every((name) => name == 'core' || name == 'key') &&
-        coreArgument is SimpleIdentifier &&
-        coreArgument.name == core;
-  }
-
-  bool isSkinChoice(Expression expression, String core) {
-    if (expression is ParenthesizedExpression) {
-      return isSkinChoice(expression.expression, core);
-    }
-    if (expression is ConditionalExpression) {
-      return isSkinChoice(expression.thenExpression, core) &&
-          isSkinChoice(expression.elseExpression, core);
-    }
-    return isSkin(expression, core);
+  if (hosts.isEmpty) {
+    problems.addAll(sizedEntryProblems(unit, entry, allowed) ??
+        ['$entry: builds no CoreHost']);
   }
 
   for (final arguments in hosts) {
@@ -475,7 +625,14 @@ List<String> entryShapeProblems(PlatformDependencyGraph graph, String entry) {
       problems.add('$entry: CoreHost(control:) must be the entry\'s control');
     }
     final key = named['key'];
-    if (key != null) allowed.add((key.offset, key.end));
+    if (key != null) {
+      if (_isIdKey(key)) {
+        allowed.add((key.offset, key.end));
+      } else {
+        problems.add('$entry: CoreHost(key:) may only be a ValueKey of a '
+            'string built from control.id and control.canonicalType');
+      }
+    }
     final builder = named['builder'];
     final parameters = builder is FunctionExpression
         ? builder.parameters?.parameters ?? const <FormalParameter>[]
@@ -494,7 +651,7 @@ List<String> entryShapeProblems(PlatformDependencyGraph graph, String entry) {
     for (final design in ['material', 'cupertino']) {
       final result =
           closures[design] == null ? null : _closureResult(closures[design]!);
-      if (result == null || !isSkinChoice(result, core)) {
+      if (result == null || !_isSkinChoice(result, core)) {
         problems.add('$entry: the $design closure must build its skin with '
             'only core: $core and key:, choosing between skins only on the '
             'core');
@@ -807,7 +964,7 @@ Object? sampleValue(PropType type, int Function() nextId) => switch (type) {
 // ------------------------------------------------------------------ C5–C7
 
 Finder coreHostOf(int id) => find.byWidgetPredicate(
-    (widget) => widget is CoreHost && widget.control.id == id);
+    (widget) => widget is CoreHost && widget.debugControlId == id);
 
 int targetIdOf(MigratedControl entry, Map<String, dynamic> wire) {
   final node = findWireNode(wire, entry.wireType);
