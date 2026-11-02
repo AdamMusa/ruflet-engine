@@ -24,7 +24,8 @@ Map<String, dynamic> _text(int id, String value) =>
 Future<void> _showView(WidgetTester tester, PageDesign design,
     {String? location,
     bool navigationBar = true,
-    bool bottomSheet = false}) async {
+    bool bottomSheet = false,
+    double sheetHeight = 64}) async {
   final backend = RufletBackend(
       pageUri: Uri.parse('ruflet://view-fab'),
       assetsDir: '',
@@ -51,7 +52,7 @@ Future<void> _showView(WidgetTester tester, PageDesign design,
         '_c': 'Container',
         '_i': 110,
         'key': 'sheet',
-        'height': 64,
+        'height': sheetHeight,
         'bgcolor': '#123456',
         'content': _text(111, 'Checkout'),
       },
@@ -215,6 +216,45 @@ void main() {
       }
       expect(tester.takeException(), isNull);
     });
+  }
+
+  // The other side of FabFloatOffsetY: a sheet shorter than
+  // margin + fabHeight / 2 does not lift the FAB, which keeps its standard
+  // margin above the bar (the FAB then overlaps the top of the thin sheet,
+  // exactly like Material's Scaffold).
+  for (final design in PageDesign.values) {
+    for (final location in [null, 'centerFloat', 'startDocked']) {
+      if (design == PageDesign.material && location == 'startDocked') {
+        continue; // Material docks on the bar by design.
+      }
+      testWidgets(
+          '$design FAB $location keeps its margin above a short bottom_sheet',
+          (tester) async {
+        await _showView(tester, design,
+            location: location, bottomSheet: true, sheetHeight: 20);
+        final fab = _rect(tester, 'fab');
+        final nav = _rect(tester, 'nav');
+        final sheet = _rect(tester, 'sheet');
+
+        expect(sheet.height, 20);
+        expect(sheet.bottom, nav.top);
+        // margin + fabHeight / 2 > 20: the sheet does not lift the FAB.
+        expect(_margin + fab.height / 2, greaterThan(sheet.height));
+        expect(fab.bottom, closeTo(nav.top - _margin, 0.01));
+        expect(
+            fab.top,
+            closeTo(
+                math.min(
+                    nav.top - _margin - fab.height, sheet.top - fab.height / 2),
+                0.01));
+        expect(_overlaps(fab, nav), isFalse);
+        _expectHorizontal(fab, location);
+        if (design == PageDesign.cupertino) {
+          expect(find.byWidgetPredicate(materialOnly), findsNothing);
+        }
+        expect(tester.takeException(), isNull);
+      });
+    }
   }
 
   // The Material Scaffold is the reference the iOS layout follows.
