@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
 import '../ruflet_service.dart';
+import '../utils/invoke.dart';
 import '../utils/numbers.dart';
 
 class ShareService extends RufletService {
@@ -21,9 +22,9 @@ class ShareService extends RufletService {
     switch (name) {
       case "share_text":
         return _share(
-          text: args["text"],
-          title: args["title"],
-          subject: args["subject"],
+          text: requireInvokeArg(args, "text", "Share.$name").toString(),
+          title: args["title"]?.toString(),
+          subject: args["subject"]?.toString(),
           previewThumbnail: _parseShareFile(args["preview_thumbnail"]),
           sharePositionOrigin: _parseRect(args["share_position_origin"]),
           downloadFallbackEnabled:
@@ -35,12 +36,16 @@ class ShareService extends RufletService {
         );
       case "share_uri":
         return _share(
-          uri: args["uri"],
+          uri: requireInvokeArg(args, "uri", "Share.$name").toString(),
           sharePositionOrigin: _parseRect(args["share_position_origin"]),
           excludedCupertinoActivities: _parseCupertinoActivityTypes(
               args["excluded_cupertino_activities"]),
         );
       case "share_files":
+        requireInvokeArg(args, "files", "Share.$name");
+        if (_parseShareFiles(args["files"])?.isNotEmpty != true) {
+          throw ArgumentError('Share.$name requires at least one file');
+        }
         return _share(
           files: _parseShareFiles(args["files"]),
           title: args["title"],
