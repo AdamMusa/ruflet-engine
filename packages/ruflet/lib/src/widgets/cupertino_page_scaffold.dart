@@ -37,7 +37,8 @@ class RufletCupertinoPageScaffold extends StatefulWidget {
       _RufletCupertinoPageScaffoldState();
 }
 
-class _RufletCupertinoPageScaffoldState extends State<RufletCupertinoPageScaffold> {
+class _RufletCupertinoPageScaffoldState
+    extends State<RufletCupertinoPageScaffold> {
   bool _drawerOpen = false;
   bool _endDrawerOpen = false;
 
@@ -116,7 +117,20 @@ class _RufletCupertinoPageScaffoldState extends State<RufletCupertinoPageScaffol
   }
 
   Widget _buildContent() {
-    Widget content = widget.body;
+    // Like Material's Scaffold.bottomSheet, the persistent bottom sheet floats
+    // over the body but stands on top of the bottom navigation bar instead of
+    // covering it. The Stack is always built so toggling the sheet keeps the
+    // body's state.
+    Widget content = Stack(
+      children: [
+        Positioned.fill(child: widget.body),
+        if (widget.bottomSheet != null)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: widget.bottomSheet!,
+          ),
+      ],
+    );
     if (widget.bottomNavigationBar != null) {
       content = Column(
         children: [
@@ -129,11 +143,6 @@ class _RufletCupertinoPageScaffoldState extends State<RufletCupertinoPageScaffol
     return Stack(
       children: [
         Positioned.fill(child: content),
-        if (widget.bottomSheet != null)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: widget.bottomSheet!,
-          ),
         if (widget.floatingActionButton != null)
           Align(
             alignment: _floatingActionButtonAlignment(),
