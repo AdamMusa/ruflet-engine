@@ -29,6 +29,8 @@ void main() {
     expect(canonicalControlType('CupertinoDialogAction'), 'Button');
     expect(canonicalControlType('CupertinoPicker'), 'Picker');
     expect(canonicalControlType('CupertinoTimerPicker'), 'TimerPicker');
+    expect(canonicalControlType('CupertinoSliverNavigationBar'),
+        'SliverAppBar');
     expect(canonicalControlType('DropdownM2'), 'Dropdown');
   });
 
