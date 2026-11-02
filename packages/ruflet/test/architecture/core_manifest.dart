@@ -1,7 +1,10 @@
 // The controls migrated onto the shared control core. One entry per
 // migration PR; control_core_contract_test.dart checks every entry against
 // rules C1–C7 (see test/architecture/README.md).
+import 'package:flutter/cupertino.dart' show CupertinoSwitch;
+import 'package:flutter/material.dart' show Switch;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
+import 'package:ruflet/src/controls/switch_core.dart';
 import 'package:ruflet/src/core/control_spec.dart';
 
 import '../support/control_snapshot.dart' show SnapshotStep;
@@ -70,4 +73,31 @@ class MigratedControl {
 List<RufletExtension> _noExtensions() => const [];
 
 /// One line per migration, in migration order.
-final List<MigratedControl> migratedControls = [];
+final List<MigratedControl> migratedControls = [
+  MigratedControl(
+    spec: switchSpec,
+    entry: 'lib/src/controls/adaptive_switch.dart',
+    core: 'lib/src/controls/switch_core.dart',
+    propsClass: 'SwitchProps',
+    skins: {
+      Skin.material: 'lib/src/controls/switch.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_switch.dart',
+    },
+    fixture: () => {
+      '_c': 'Column',
+      '_i': 600,
+      'controls': [
+        {'_c': 'Switch', '_i': 601, 'label': 'Toggle'},
+      ],
+    },
+    nativeWidgets: {Skin.material: Switch, Skin.cupertino: CupertinoSwitch},
+    samples: {'label_position': 'left'},
+    parityScript: [
+      SnapshotStep.tapNative(),
+      SnapshotStep.semanticsTap(),
+      SnapshotStep.tapText('Toggle'),
+      SnapshotStep.tab(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
+];

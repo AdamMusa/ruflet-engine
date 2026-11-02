@@ -40,7 +40,6 @@ lib/src/controls/cupertino_slider.dart
 lib/src/controls/cupertino_sliding_segmented_button.dart
 lib/src/controls/cupertino_snack_bar.dart
 lib/src/controls/cupertino_surface_controls.dart
-lib/src/controls/cupertino_switch.dart
 lib/src/controls/cupertino_text.dart
 lib/src/controls/cupertino_textfield.dart
 lib/src/controls/cupertino_timer_picker.dart
@@ -88,5 +87,4 @@ lib/src/controls/progress_ring.dart
 lib/src/controls/radio.dart
 lib/src/controls/segmented_button.dart
 lib/src/controls/slider.dart
-lib/src/controls/switch.dart
 lib/src/controls/textfield.dart
