@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../models/control.dart';
+import 'enums.dart';
 import 'time.dart';
 
 ImplicitAnimationDetails? parseAnimation(dynamic value,
@@ -70,11 +71,17 @@ Curve? parseCurve(String? value, [Curve? defaultValue]) {
     "elasticout": Curves.elasticOut,
     "fastlineartosloweasein": Curves.fastLinearToSlowEaseIn,
     "fastoutslowin": Curves.fastOutSlowIn,
+    "linear": Curves.linear,
     "lineartoeaseout": Curves.linearToEaseOut,
     "slowmiddle": Curves.slowMiddle,
   };
 
-  return curves[value.toLowerCase()] ?? defaultValue;
+  final curve = curves[normalizeEnumName(value)];
+  if (curve == null) {
+    debugPrint("Warning: unknown curve \"$value\"; using the default.");
+    return defaultValue;
+  }
+  return curve;
 }
 
 AnimationStyle? parseAnimationStyle(dynamic value,

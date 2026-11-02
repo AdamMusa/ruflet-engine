@@ -7,6 +7,7 @@ import '../utils/keys.dart';
 import '../utils/misc.dart';
 import '../utils/mouse.dart';
 import '../utils/numbers.dart';
+import '../widgets/list_spacing.dart';
 import '../widgets/reorderable_item_scope.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
@@ -31,13 +32,21 @@ class _ListViewControlState extends State<MaterialReorderableListViewControl> {
   Widget _buildItem(int index) {
     final control = _controls[index];
     final keyValue = control.getKey("key")?.value ?? control.id;
+    Widget child = ControlWidget(
+      key: ValueKey(keyValue),
+      control: control,
+    );
+    final spacing = widget.control.getDouble("spacing", 0)!;
+    if (spacing > 0 && index < _controls.length - 1) {
+      child = withListItemSeparator(child,
+          horizontal: widget.control.getBool("horizontal", false)!,
+          spacing: spacing,
+          dividerThickness: widget.control.getDouble("divider_thickness", 0)!);
+    }
     return ReorderableItemScope(
       key: ValueKey(keyValue),
       index: index,
-      child: ControlWidget(
-        key: ValueKey(keyValue),
-        control: control,
-      ),
+      child: child,
     );
   }
 
@@ -45,10 +54,11 @@ class _ListViewControlState extends State<MaterialReorderableListViewControl> {
     final control = _controls[0];
     return ReorderableItemScope(
       index: 0,
-      child: ControlWidget(
-        key: ValueKey(control.id),
-        control: control,
-      ),
+      child: widget.control.buildWidget("prototype_item") ??
+          ControlWidget(
+            key: ValueKey(control.id),
+            control: control,
+          ),
     );
   }
 
@@ -78,7 +88,10 @@ class _ListViewControlState extends State<MaterialReorderableListViewControl> {
     var horizontal = widget.control.getBool("horizontal", false)!;
     var buildControlsOnDemand =
         widget.control.getBool("build_controls_on_demand", true)!;
-    var itemExtent = widget.control.getDouble("item_extent");
+    // As in ListView, spacing replaces fixed item extents.
+    var spacing = widget.control.getDouble("spacing", 0)!;
+    var itemExtent =
+        spacing > 0 ? null : widget.control.getDouble("item_extent");
     var cacheExtent = widget.control.getDouble("cache_extent");
     var firstItemPrototype =
         widget.control.getBool("first_item_prototype", false)!;
@@ -94,7 +107,9 @@ class _ListViewControlState extends State<MaterialReorderableListViewControl> {
     var scrollDirection = horizontal ? Axis.horizontal : Axis.vertical;
     var header = widget.control.buildWidget("header");
     var footer = widget.control.buildWidget("footer");
-    var prototypeItem = firstItemPrototype && _controls.isNotEmpty
+    var prototypeItem = spacing == 0 &&
+            _controls.isNotEmpty &&
+            (firstItemPrototype || widget.control.get("prototype_item") != null)
         ? _buildPrototypeItem()
         : null;
     var autoScrollerVelocityScalar =

@@ -77,8 +77,8 @@ class _SearchBarControlState extends State<MaterialSearchBarControl> {
     switch (name) {
       case "close_view":
         if (_controller.isOpen) {
-          var text = args["text"];
-          _updateValue(text);
+          var text = args["text"]?.toString();
+          if (text != null) _updateValue(text);
           _controller.closeView(text);
         }
         break;
