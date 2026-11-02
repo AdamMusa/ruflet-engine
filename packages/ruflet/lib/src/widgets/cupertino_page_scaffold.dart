@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart';
 
 import 'platform_page_scaffold_controller.dart';
@@ -117,18 +119,21 @@ class _RufletCupertinoPageScaffoldState
   }
 
   Widget _buildContent() {
-    // Like Material's Scaffold.bottomSheet, the persistent bottom sheet floats
-    // over the body but stands on top of the bottom navigation bar instead of
-    // covering it. The Stack is always built so toggling the sheet keeps the
-    // body's state.
-    Widget content = Stack(
+    // Like Material's Scaffold, the persistent bottom sheet and the floating
+    // action button live in the region above the bottom navigation bar, so
+    // neither covers it. LayoutId keys keep the body's state when the sheet
+    // or the FAB come and go.
+    Widget content = CustomMultiChildLayout(
+      delegate: _CupertinoBodyLayout(
+          floatingActionButtonAlignment: _floatingActionButtonAlignment()),
       children: [
-        Positioned.fill(child: widget.body),
+        LayoutId(id: _BodySlot.body, child: widget.body),
         if (widget.bottomSheet != null)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: widget.bottomSheet!,
-          ),
+          LayoutId(id: _BodySlot.bottomSheet, child: widget.bottomSheet!),
+        if (widget.floatingActionButton != null)
+          LayoutId(
+              id: _BodySlot.floatingActionButton,
+              child: widget.floatingActionButton!),
       ],
     );
     if (widget.bottomNavigationBar != null) {
@@ -143,14 +148,6 @@ class _RufletCupertinoPageScaffoldState
     return Stack(
       children: [
         Positioned.fill(child: content),
-        if (widget.floatingActionButton != null)
-          Align(
-            alignment: _floatingActionButtonAlignment(),
-            child: SafeArea(
-              minimum: const EdgeInsets.all(16),
-              child: widget.floatingActionButton!,
-            ),
-          ),
         if (_drawerOpen || _endDrawerOpen) _buildDrawerOverlay(),
       ],
     );
@@ -206,6 +203,63 @@ class _RufletCupertinoPageScaffoldState
       child: SafeArea(child: _buildContent()),
     );
   }
+}
+
+enum _BodySlot { body, bottomSheet, floatingActionButton }
+
+/// Lays out the region above the bottom navigation bar the way Material's
+/// Scaffold does: the body fills it, the persistent bottom sheet sits at its
+/// bottom over the body, and the floating action button keeps the standard
+/// 16 px margin (kFloatingActionButtonMargin) from the region's edges or, when
+/// that would cover the sheet, rests centred on the sheet's top edge
+/// (Material's FabFloatOffsetY). Docked locations are laid out like float
+/// ones: CupertinoTabBar has no notch for a docked button.
+class _CupertinoBodyLayout extends MultiChildLayoutDelegate {
+  static const _margin = 16.0;
+
+  /// x: -1 start, 0 center, 1 end; y: -1 top, 1 bottom.
+  final Alignment floatingActionButtonAlignment;
+
+  _CupertinoBodyLayout({required this.floatingActionButtonAlignment});
+
+  @override
+  void performLayout(Size size) {
+    layoutChild(_BodySlot.body, BoxConstraints.tight(size));
+    positionChild(_BodySlot.body, Offset.zero);
+
+    var sheetHeight = 0.0;
+    if (hasChild(_BodySlot.bottomSheet)) {
+      final sheet =
+          layoutChild(_BodySlot.bottomSheet, BoxConstraints.loose(size));
+      sheetHeight = sheet.height;
+      positionChild(_BodySlot.bottomSheet,
+          Offset((size.width - sheet.width) / 2, size.height - sheet.height));
+    }
+
+    if (hasChild(_BodySlot.floatingActionButton)) {
+      final fab = layoutChild(_BodySlot.floatingActionButton,
+          BoxConstraints.loose(size).deflate(const EdgeInsets.all(_margin)));
+      final alignment = floatingActionButtonAlignment;
+      final x = alignment.x < 0
+          ? _margin
+          : alignment.x == 0
+              ? (size.width - fab.width) / 2
+              : size.width - fab.width - _margin;
+      var y = _margin;
+      if (alignment.y > 0) {
+        y = size.height - fab.height - _margin;
+        if (sheetHeight > 0) {
+          y = math.min(y, size.height - sheetHeight - fab.height / 2);
+        }
+      }
+      positionChild(_BodySlot.floatingActionButton, Offset(x, y));
+    }
+  }
+
+  @override
+  bool shouldRelayout(_CupertinoBodyLayout oldDelegate) =>
+      oldDelegate.floatingActionButtonAlignment !=
+      floatingActionButtonAlignment;
 }
 
 class _CupertinoNavigationBarHost extends StatelessWidget
