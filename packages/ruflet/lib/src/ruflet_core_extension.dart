@@ -97,6 +97,11 @@ import 'controls/transparent_pointer.dart';
 import 'controls/vertical_divider.dart';
 import 'controls/view.dart';
 import 'controls/window_drag_area.dart';
+import 'controls/absorb_pointer.dart';
+import 'controls/fractionally_sized_box.dart';
+import 'controls/ignore_pointer.dart';
+import 'controls/intrinsic_height.dart';
+import 'controls/intrinsic_width.dart';
 import 'ruflet_extension.dart';
 import 'ruflet_service.dart';
 import 'models/control.dart';
@@ -129,6 +134,8 @@ class RufletCoreExtension extends RufletExtension {
   @override
   Widget? createWidget(Key? key, Control control) {
     switch (control.canonicalType) {
+      case "AbsorbPointer":
+        return AbsorbPointerControl(key: key, control: control);
       case "FilledButton":
       case "FilledTonalButton":
       case "OutlinedButton":
@@ -204,6 +211,14 @@ class RufletCoreExtension extends RufletExtension {
         return ExpansionTileControl(key: key, control: control);
       case "FittedBox":
         return FittedBoxControl(key: key, control: control);
+      case "FractionallySizedBox":
+        return FractionallySizedBoxControl(key: key, control: control);
+      case "IgnorePointer":
+        return IgnorePointerControl(key: key, control: control);
+      case "IntrinsicHeight":
+        return IntrinsicHeightControl(key: key, control: control);
+      case "IntrinsicWidth":
+        return IntrinsicWidthControl(key: key, control: control);
       case "RufletApp":
         return RufletAppControl(key: key, control: control);
       case "FloatingActionButton":
