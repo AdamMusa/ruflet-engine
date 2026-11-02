@@ -116,7 +116,6 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
     setState(() => _textController.text = label);
     control.updateProperties({"value": value, "text": label});
     control.triggerEvent("select", value);
-    if (control.type == "DropdownM2") control.triggerEvent("change", value);
     option.triggerEvent("click");
   }
 
