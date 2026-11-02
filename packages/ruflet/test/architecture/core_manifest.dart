@@ -1,9 +1,10 @@
 // The controls migrated onto the shared control core. One entry per
 // migration PR; control_core_contract_test.dart checks every entry against
 // rules C1–C7 (see test/architecture/README.md).
-import 'package:flutter/cupertino.dart' show CupertinoSwitch;
-import 'package:flutter/material.dart' show Switch;
+import 'package:flutter/cupertino.dart' show CupertinoCheckbox, CupertinoSwitch;
+import 'package:flutter/material.dart' show Checkbox, Switch;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
+import 'package:ruflet/src/controls/checkbox_core.dart';
 import 'package:ruflet/src/controls/switch_core.dart';
 import 'package:ruflet/src/core/control_spec.dart';
 
@@ -96,6 +97,33 @@ final List<MigratedControl> migratedControls = [
       SnapshotStep.tapNative(),
       SnapshotStep.semanticsTap(),
       SnapshotStep.tapText('Toggle'),
+      SnapshotStep.tab(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
+  MigratedControl(
+    spec: checkboxSpec,
+    entry: 'lib/src/controls/adaptive_checkbox.dart',
+    core: 'lib/src/controls/checkbox_core.dart',
+    propsClass: 'CheckboxProps',
+    skins: {
+      Skin.material: 'lib/src/controls/checkbox.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_checkbox.dart',
+    },
+    fixture: () => {
+      '_c': 'Column',
+      '_i': 610,
+      'controls': [
+        {'_c': 'Checkbox', '_i': 611, 'label': 'Check', 'tristate': true},
+      ],
+    },
+    nativeWidgets: {Skin.material: Checkbox, Skin.cupertino: CupertinoCheckbox},
+    samples: {'label_position': 'left', 'visual_density': 'compact'},
+    parityScript: [
+      SnapshotStep.tapNative(),
+      SnapshotStep.semanticsTap(),
+      SnapshotStep.tapText('Check'),
+      SnapshotStep.tapText('Check'),
       SnapshotStep.tab(),
       SnapshotStep.unfocus(),
     ],
