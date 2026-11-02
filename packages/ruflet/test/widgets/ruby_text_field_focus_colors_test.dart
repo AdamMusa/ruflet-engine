@@ -96,6 +96,33 @@ void main() {
     });
   }
 
+  for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
+    testWidgets('$platform focused_bgcolor replaces fill_color while focused',
+        (tester) async {
+      await _pump(tester, platform, {'fill_color': '#00ff00'});
+      Color? background() => platform == TargetPlatform.iOS
+          ? tester
+              .widget<CupertinoTextField>(find.byType(CupertinoTextField))
+              .decoration
+              ?.color
+          : tester
+              .widget<material.InputDecorator>(
+                  find.byType(material.InputDecorator))
+              .decoration
+              .fillColor;
+
+      expect(background(), const Color(0xFF00FF00));
+
+      await tester.showKeyboard(find.byType(EditableText));
+      await tester.pumpAndSettle();
+      expect(background(), _focusedBg);
+
+      await _blur(tester);
+      expect(background(), const Color(0xFF00FF00));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('iOS focused_color behavior is unchanged', (tester) async {
     await _pump(tester, TargetPlatform.iOS, {});
     expect(find.byType(CupertinoTextField), findsOneWidget);

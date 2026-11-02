@@ -151,7 +151,9 @@ InputDecoration buildInputDecoration(
       hoverColor: hoverColor,
       icon: control.buildIconOrWidget("icon"),
       filled: control.getBool("filled", false)!,
-      fillColor: fillColor ?? (focused ? (focusedBgcolor ?? bgcolor) : bgcolor),
+      // focused_bgcolor is the background while focused, also over
+      // fill_color (as on iOS); otherwise fill_color, then bgcolor.
+      fillColor: (focused ? focusedBgcolor : null) ?? fillColor ?? bgcolor,
       //hint
       hintText: control.getString("hint_text"),
       hintStyle: control.getTextStyle(
