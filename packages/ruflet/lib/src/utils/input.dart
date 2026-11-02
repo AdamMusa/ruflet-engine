@@ -30,7 +30,8 @@ TextInputType? parseTextInputType(String? value,
     "websearch": TextInputType.webSearch,
     "twitter": TextInputType.twitter,
   };
-  return typeMap[value?.toLowerCase()] ?? defaultValue;
+  return typeMap[value == null ? null : normalizeEnumName(value)] ??
+      defaultValue;
 }
 
 // Keyboard actions each platform's text input plugin accepts. Flutter asserts

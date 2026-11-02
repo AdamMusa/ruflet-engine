@@ -1,14 +1,17 @@
 import 'package:flutter/widgets.dart';
 
+import 'controls/adaptive_about_dialog.dart';
 import 'controls/adaptive_alert_dialog.dart';
 import 'controls/adaptive_app_bar.dart';
 import 'controls/adaptive_action_sheet.dart';
 import 'controls/adaptive_bottom_sheet.dart';
 import 'controls/adaptive_button.dart';
+import 'controls/adaptive_carousel_view.dart';
 import 'controls/adaptive_checkbox.dart';
 import 'controls/adaptive_context_menu.dart';
 import 'controls/adaptive_context_menu_action.dart';
 import 'controls/adaptive_date_picker.dart';
+import 'controls/adaptive_draggable_scrollable_sheet.dart';
 import 'controls/adaptive_form_row.dart';
 import 'controls/adaptive_list_section.dart';
 import 'controls/adaptive_list_tile.dart';
@@ -17,6 +20,7 @@ import 'controls/adaptive_progress_ring.dart';
 import 'controls/adaptive_radio.dart';
 import 'controls/adaptive_segmented_button.dart';
 import 'controls/adaptive_slider.dart';
+import 'controls/adaptive_stepper.dart';
 import 'controls/adaptive_switch.dart';
 import 'controls/adaptive_texfield.dart';
 import 'controls/adaptive_timer_picker.dart';
@@ -31,6 +35,7 @@ import 'controls/chip.dart';
 import 'controls/circle_avatar.dart';
 import 'controls/column.dart';
 import 'controls/container.dart';
+import 'controls/custom_scroll_view.dart';
 import 'controls/datatable.dart';
 import 'controls/date_range_picker.dart';
 import 'controls/dismissible.dart';
@@ -40,6 +45,7 @@ import 'controls/draggable.dart';
 import 'controls/dropdown.dart';
 import 'controls/expansion_panel.dart';
 import 'controls/expansion_tile.dart';
+import 'controls/fitted_box.dart';
 import 'controls/ruflet_app_control.dart';
 import 'controls/floating_action_button.dart';
 import 'controls/gesture_detector.dart';
@@ -83,6 +89,7 @@ import 'controls/shimmer.dart';
 import 'controls/snack_bar.dart';
 import 'controls/stack.dart';
 import 'controls/submenu_button.dart';
+import 'controls/table.dart';
 import 'controls/tabs.dart';
 import 'controls/text.dart';
 import 'controls/time_picker.dart';
@@ -127,6 +134,8 @@ class RufletCoreExtension extends RufletExtension {
       case "OutlinedButton":
       case "TextButton":
         return AdaptiveButtonControl(key: key, control: control);
+      case "AboutDialog":
+        return AdaptiveAboutDialogControl(key: key, control: control);
       case "AlertDialog":
         return AdaptiveAlertDialogControl(key: key, control: control);
       case "AnimatedSwitcher":
@@ -153,6 +162,8 @@ class RufletCoreExtension extends RufletExtension {
         return CanvasControl(key: key, control: control);
       case "Card":
         return CardControl(key: key, control: control);
+      case "CarouselView":
+        return AdaptiveCarouselViewControl(key: key, control: control);
       case "Checkbox":
         return AdaptiveCheckboxControl(key: key, control: control);
       case "Chip":
@@ -167,6 +178,8 @@ class RufletCoreExtension extends RufletExtension {
         return AdaptiveContextMenuControl(key: key, control: control);
       case "ContextMenuAction":
         return AdaptiveContextMenuActionControl(key: key, control: control);
+      case "CustomScrollView":
+        return CustomScrollViewControl(key: key, control: control);
       case "DataTable":
         return DataTableControl(key: key, control: control);
       case "DatePicker":
@@ -181,12 +194,16 @@ class RufletCoreExtension extends RufletExtension {
         return DragTargetControl(key: key, control: control);
       case "Draggable":
         return DraggableControl(key: key, control: control);
+      case "DraggableScrollableSheet":
+        return DraggableScrollableSheetControl(key: key, control: control);
       case "Dropdown":
         return DropdownControl(key: key, control: control);
       case "ExpansionPanelList":
         return ExpansionPanelListControl(key: key, control: control);
       case "ExpansionTile":
         return ExpansionTileControl(key: key, control: control);
+      case "FittedBox":
+        return FittedBoxControl(key: key, control: control);
       case "RufletApp":
         return RufletAppControl(key: key, control: control);
       case "FloatingActionButton":
@@ -290,6 +307,8 @@ class RufletCoreExtension extends RufletExtension {
         return SnackBarControl(key: key, control: control);
       case "Stack":
         return StackControl(key: key, control: control);
+      case "Stepper":
+        return AdaptiveStepperControl(key: key, control: control);
       case "SubmenuButton":
         return SubmenuButtonControl(key: key, control: control);
       case "Switch":
@@ -300,6 +319,8 @@ class RufletCoreExtension extends RufletExtension {
         return TabBarControl(key: key, control: control);
       case "TabBarView":
         return TabBarViewControl(key: key, control: control);
+      case "Table":
+        return TableControl(key: key, control: control);
       case "Tabs":
         return TabsControl(key: key, control: control);
       case "Text":
