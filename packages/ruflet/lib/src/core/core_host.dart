@@ -13,10 +13,11 @@ final Expando<int> _hostedListeners = Expando<int>('CoreHost listeners');
 class CoreHost<C extends ControlCore> extends StatefulWidget {
   const CoreHost({
     super.key,
-    required this.control,
-    required this.create,
+    required Control control,
+    required C Function(Control control) create,
     required this.builder,
-  });
+  })  : _control = control,
+        _create = create;
 
   /// Hosts a [core] the registry entry created, from inside the skin it
   /// handed that core to. Only for controls whose skin must be the outermost
@@ -33,12 +34,20 @@ class CoreHost<C extends ControlCore> extends StatefulWidget {
   /// handed only for the values a parent reads before the build
   /// ([ControlCore.peekBoolean] and friends).
   CoreHost.adopt({super.key, required C core, required this.builder})
-      : control = core._control,
-        create = ((_) => core);
+      : _control = core._control,
+        _create = ((_) => core);
 
-  final Control control;
-  final C Function(Control control) create;
+  /// Library-private like [ControlCore]'s: a skin can construct a host
+  /// ([CoreHost.adopt]) or find its ancestor host, and must not reach the
+  /// Control through it.
+  final Control _control;
+  final C Function(Control control) _create;
   final Widget Function(BuildContext context, C core) builder;
+
+  /// The id of the Control this host serves (the Control itself stays
+  /// private to the kernel).
+  @visibleForTesting
+  int get debugControlId => _control.id;
 
   /// Invoke listeners that mounted hosts hold on [control] (test support for
   /// the "exactly one listener" contract).
@@ -68,22 +77,22 @@ class _CoreHostState<C extends ControlCore> extends State<CoreHost<C>> {
   @override
   void initState() {
     super.initState();
-    core = widget.create(widget.control);
+    core = widget._create(widget._control);
     core._host = this;
     core.initCore();
-    _listen(widget.control);
+    _listen(widget._control);
   }
 
   @override
   void didUpdateWidget(CoreHost<C> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!identical(oldWidget.control, widget.control)) {
+    if (!identical(oldWidget._control, widget._control)) {
       // Ruby replaced the control in place under the same element: move the
       // listener so invokes reach the new instance and the old one is free.
       _unlisten();
-      core._control = widget.control;
+      core._control = widget._control;
       core.didRebind();
-      _listen(widget.control);
+      _listen(widget._control);
     }
   }
 

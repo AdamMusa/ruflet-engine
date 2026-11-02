@@ -439,6 +439,65 @@ bool _isSkinChoice(Expression expression, String core) {
   return _isSkin(expression, core);
 }
 
+/// A host key built only from the Control's identity (N7: a key carrying
+/// wire data would reach any skin that finds its ancestor host):
+/// `ValueKey("…${control.id}…")`, optionally with `control.canonicalType`.
+bool _isIdKey(Expression key) {
+  final construction = _construction(key);
+  if (construction == null || construction.$1 != 'ValueKey') return false;
+  final arguments = construction.$2.arguments;
+  if (arguments.length != 1) return false;
+  final value = arguments.single;
+  if (value is SimpleStringLiteral) return true;
+  if (value is! StringInterpolation) return false;
+  return value.elements.whereType<InterpolationExpression>().every((part) {
+    final expression = part.expression;
+    return expression is PrefixedIdentifier &&
+        expression.prefix.name == 'control' &&
+        const {'id', 'canonicalType'}.contains(expression.identifier.name);
+  });
+}
+
+/// C2b, kernel side: no member of a kernel class (fields, getters and
+/// methods, public or not reachable by name) hands out a Control, so a skin
+/// that finds its ancestor CoreHost (N5) or builds one with
+/// `CoreHost.adopt` (N6) cannot reach the Control through it. Only
+/// library-private members and constructors/static helpers may mention it.
+List<String> kernelExposureProblems(PlatformDependencyGraph graph) {
+  final problems = <String>[];
+  final control = RegExp(r'\bControl\b');
+  for (final path in graph.units.keys) {
+    if (!isKernelLibrary(graph, path)) continue;
+    for (final declaration in graph.units[path]!.declarations) {
+      final (name, members) = switch (declaration) {
+        ClassDeclaration c => (c.name.lexeme, c.members),
+        MixinDeclaration m => (m.name.lexeme, m.members),
+        _ => ('', const <ClassMember>[]),
+      };
+      for (final member in members) {
+        if (member is FieldDeclaration && !member.isStatic) {
+          final type = member.fields.type?.toSource() ?? '';
+          for (final variable in member.fields.variables) {
+            if (!variable.name.lexeme.startsWith('_') &&
+                control.hasMatch(type)) {
+              problems.add('$path: $name.${variable.name.lexeme} exposes '
+                  'a Control ($type)');
+            }
+          }
+        }
+        if (member is MethodDeclaration &&
+            !member.isStatic &&
+            !member.name.lexeme.startsWith('_') &&
+            control.hasMatch(member.returnType?.toSource() ?? '')) {
+          problems.add('$path: $name.${member.name.lexeme} exposes a '
+              'Control (${member.returnType})');
+        }
+      }
+    }
+  }
+  return problems;
+}
+
 /// C1e for a sized entry: a control a scaffold sizes before building it (the
 /// AppBar: `Scaffold`/`CupertinoPageScaffold` read the `PreferredSizeWidget`
 /// they are handed, and only a Cupertino class can be an
@@ -566,7 +625,14 @@ List<String> entryShapeProblems(PlatformDependencyGraph graph, String entry) {
       problems.add('$entry: CoreHost(control:) must be the entry\'s control');
     }
     final key = named['key'];
-    if (key != null) allowed.add((key.offset, key.end));
+    if (key != null) {
+      if (_isIdKey(key)) {
+        allowed.add((key.offset, key.end));
+      } else {
+        problems.add('$entry: CoreHost(key:) may only be a ValueKey of a '
+            'string built from control.id and control.canonicalType');
+      }
+    }
     final builder = named['builder'];
     final parameters = builder is FunctionExpression
         ? builder.parameters?.parameters ?? const <FormalParameter>[]
@@ -898,7 +964,7 @@ Object? sampleValue(PropType type, int Function() nextId) => switch (type) {
 // ------------------------------------------------------------------ C5–C7
 
 Finder coreHostOf(int id) => find.byWidgetPredicate(
-    (widget) => widget is CoreHost && widget.control.id == id);
+    (widget) => widget is CoreHost && widget.debugControlId == id);
 
 int targetIdOf(MigratedControl entry, Map<String, dynamic> wire) {
   final node = findWireNode(wire, entry.wireType);

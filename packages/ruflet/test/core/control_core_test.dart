@@ -159,7 +159,7 @@ void main() {
           ],
         };
     Finder sizedHost() =>
-        find.byWidgetPredicate((w) => w is CoreHost && w.control.id == 331);
+        find.byWidgetPredicate((w) => w is CoreHost && w.debugControlId == 331);
 
     setUp(() {
       _SizedCore.created.clear();
