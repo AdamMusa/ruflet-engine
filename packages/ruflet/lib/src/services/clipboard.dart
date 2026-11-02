@@ -4,6 +4,7 @@ import 'package:pasteboard/pasteboard.dart';
 
 import '../ruflet_service.dart';
 import '../utils/images.dart';
+import '../utils/invoke.dart';
 
 class ClipboardService extends RufletService {
   ClipboardService({required super.control});
@@ -24,20 +25,25 @@ class ClipboardService extends RufletService {
     debugPrint("ClipboardService.$name($args)");
     switch (name) {
       case "set":
-        await Clipboard.setData(ClipboardData(text: args["data"]));
+        final data = requireInvokeArg(args, "data", "Clipboard.set");
+        await Clipboard.setData(ClipboardData(text: data.toString()));
         return;
       case "get":
         var data = await Clipboard.getData(Clipboard.kTextPlain);
         return data?.text;
       case "set_image":
-        await Pasteboard.writeImage(convertToUint8List(args["data"]));
+        await Pasteboard.writeImage(convertToUint8List(
+            requireInvokeArg(args, "data", "Clipboard.set_image")));
         return;
       case "get_image":
         return await Pasteboard.image;
       case "set_files":
-        final files = (args["files"] as List)
-            .map((f) => f.toString())
-            .toList(growable: false);
+        final value = requireInvokeArg(args, "files", "Clipboard.set_files");
+        if (value is! List) {
+          throw ArgumentError('Clipboard.set_files requires "files" to be a list');
+        }
+        final files =
+            value.map((f) => f.toString()).toList(growable: false);
         return await Pasteboard.writeFiles(files);
       case "get_files":
         return await Pasteboard.files();

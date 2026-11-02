@@ -2,22 +2,33 @@
 // migration PR; control_core_contract_test.dart checks every entry against
 // rules C1–C7 (see test/architecture/README.md).
 import 'package:flutter/cupertino.dart'
-    show CupertinoActivityIndicator, CupertinoButton;
-import 'package:flutter/material.dart' as material show IconButton;
+    show
+        CupertinoActivityIndicator,
+        CupertinoButton,
+        CupertinoCheckbox,
+        CupertinoRadio,
+        CupertinoSwitch;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart'
     show
+        Checkbox,
         CircularProgressIndicator,
         ElevatedButton,
         FilledButton,
         Offset,
         OutlinedButton,
+        Radio,
+        Switch,
         TextButton;
+import 'package:flutter/material.dart' as material show IconButton;
 import 'package:flutter_test/flutter_test.dart' show find;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
 import 'package:ruflet/src/controls/button_core.dart';
+import 'package:ruflet/src/controls/checkbox_core.dart';
 import 'package:ruflet/src/controls/icon_button_core.dart';
 import 'package:ruflet/src/controls/progress_ring_core.dart';
+import 'package:ruflet/src/controls/radio_core.dart';
+import 'package:ruflet/src/controls/switch_core.dart';
 import 'package:ruflet/src/core/control_spec.dart';
 
 import '../support/control_snapshot.dart' show SnapshotStep;
@@ -87,6 +98,99 @@ List<RufletExtension> _noExtensions() => const [];
 
 /// One line per migration, in migration order.
 final List<MigratedControl> migratedControls = [
+  MigratedControl(
+    spec: switchSpec,
+    entry: 'lib/src/controls/adaptive_switch.dart',
+    core: 'lib/src/controls/switch_core.dart',
+    propsClass: 'SwitchProps',
+    skins: {
+      Skin.material: 'lib/src/controls/switch.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_switch.dart',
+    },
+    fixture: () => {
+      '_c': 'Column',
+      '_i': 600,
+      'controls': [
+        {'_c': 'Switch', '_i': 601, 'label': 'Toggle'},
+      ],
+    },
+    nativeWidgets: {Skin.material: Switch, Skin.cupertino: CupertinoSwitch},
+    samples: {'label_position': 'left'},
+    parityScript: [
+      SnapshotStep.tapNative(),
+      SnapshotStep.semanticsTap(),
+      SnapshotStep.tapText('Toggle'),
+      SnapshotStep.tab(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
+  MigratedControl(
+    spec: checkboxSpec,
+    entry: 'lib/src/controls/adaptive_checkbox.dart',
+    core: 'lib/src/controls/checkbox_core.dart',
+    propsClass: 'CheckboxProps',
+    skins: {
+      Skin.material: 'lib/src/controls/checkbox.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_checkbox.dart',
+    },
+    fixture: () => {
+      '_c': 'Column',
+      '_i': 610,
+      'controls': [
+        {'_c': 'Checkbox', '_i': 611, 'label': 'Check', 'tristate': true},
+      ],
+    },
+    nativeWidgets: {Skin.material: Checkbox, Skin.cupertino: CupertinoCheckbox},
+    samples: {'label_position': 'left', 'visual_density': 'compact'},
+    parityScript: [
+      SnapshotStep.tapNative(),
+      SnapshotStep.semanticsTap(),
+      SnapshotStep.tapText('Check'),
+      SnapshotStep.tapText('Check'),
+      SnapshotStep.tab(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
+  MigratedControl(
+    spec: radioSpec,
+    entry: 'lib/src/controls/adaptive_radio.dart',
+    core: 'lib/src/controls/radio_core.dart',
+    propsClass: 'RadioProps',
+    skins: {
+      Skin.material: 'lib/src/controls/radio.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_radio.dart',
+    },
+    fixture: () => {
+      '_c': 'RadioGroup',
+      '_i': 620,
+      'value': 'a',
+      'on_change': true,
+      'content': {
+        '_c': 'Column',
+        '_i': 621,
+        'controls': [
+          {'_c': 'Radio', '_i': 622, 'value': 'b', 'label': 'Bee'},
+        ],
+      },
+    },
+    samples: {
+      'label_position': 'left',
+      'visual_density': 'compact',
+      'value': 'b',
+      'toggleable': false,
+    },
+    nativeWidgets: {
+      Skin.material: Radio<String>,
+      Skin.cupertino: CupertinoRadio<String>,
+    },
+    parityScript: [
+      SnapshotStep.tapNative(),
+      SnapshotStep.tapText('Bee'),
+      SnapshotStep.semanticsTap(),
+      SnapshotStep.tab(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
   for (final (index, spec, material) in [
     (0, buttonSpec, ElevatedButton),
     (1, filledButtonSpec, FilledButton),
@@ -202,17 +306,14 @@ final List<MigratedControl> migratedControls = [
       'stroke_cap': 'round',
       'size_constraints': {'min_width': 40.0, 'min_height': 40.0},
     },
-    parityScript: [
-      SnapshotStep.tapNative(),
-      SnapshotStep.unfocus(),
-    ],
+    parityScript: [SnapshotStep.tapNative(), SnapshotStep.unfocus()],
   ),
 ];
 
 SnapshotStep _longPressCenter() => SnapshotStep('long press', (c) async {
-      await c.tester.longPress(c.finder.first);
-      await c.tester.pumpAndSettle();
-    });
+  await c.tester.longPress(c.finder.first);
+  await c.tester.pumpAndSettle();
+});
 
 SnapshotStep _longPress(String text) =>
     SnapshotStep('long press "$text"', (c) async {
@@ -222,13 +323,13 @@ SnapshotStep _longPress(String text) =>
 
 /// A mouse pointer enters the control and leaves it again.
 SnapshotStep _hover() => SnapshotStep('hover in and out', (c) async {
-      final mouse = await c.tester.createGesture(kind: PointerDeviceKind.mouse);
-      await mouse.addPointer(location: const Offset(790, 590));
-      await c.tester.pump();
-      await mouse.moveTo(c.tester.getCenter(c.finder.first));
-      await c.tester.pumpAndSettle();
-      await mouse.moveTo(const Offset(790, 590));
-      await c.tester.pumpAndSettle();
-      await mouse.removePointer();
-      await c.tester.pump();
-    });
+  final mouse = await c.tester.createGesture(kind: PointerDeviceKind.mouse);
+  await mouse.addPointer(location: const Offset(790, 590));
+  await c.tester.pump();
+  await mouse.moveTo(c.tester.getCenter(c.finder.first));
+  await c.tester.pumpAndSettle();
+  await mouse.moveTo(const Offset(790, 590));
+  await c.tester.pumpAndSettle();
+  await mouse.removePointer();
+  await c.tester.pump();
+});
