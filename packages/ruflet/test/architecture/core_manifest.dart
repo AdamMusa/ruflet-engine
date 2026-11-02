@@ -6,11 +6,13 @@ import 'package:flutter/cupertino.dart'
         CupertinoActivityIndicator,
         CupertinoButton,
         CupertinoCheckbox,
+        CupertinoNavigationBar,
         CupertinoRadio,
         CupertinoSwitch;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart'
     show
+        AppBar,
         Checkbox,
         CircularProgressIndicator,
         ElevatedButton,
@@ -24,6 +26,7 @@ import 'package:flutter/material.dart'
 import 'package:flutter/material.dart' as material show IconButton;
 import 'package:flutter_test/flutter_test.dart' show find;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
+import 'package:ruflet/src/controls/app_bar_core.dart';
 import 'package:ruflet/src/controls/button_core.dart';
 import 'package:ruflet/src/controls/checkbox_core.dart';
 import 'package:ruflet/src/controls/icon_button_core.dart';
@@ -345,6 +348,40 @@ final List<MigratedControl> migratedControls = [
     samples: {
       'stroke_cap': 'round',
       'size_constraints': {'min_width': 40.0, 'min_height': 40.0},
+    },
+    parityScript: [SnapshotStep.tapNative(), SnapshotStep.unfocus()],
+  ),
+  MigratedControl(
+    spec: appBarSpec,
+    entry: 'lib/src/controls/adaptive_app_bar.dart',
+    core: 'lib/src/controls/app_bar_core.dart',
+    propsClass: 'AppBarProps',
+    skins: {
+      Skin.material: 'lib/src/controls/app_bar.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_app_bar.dart',
+    },
+    // A standard bar through the registry; a large Material bar needs the
+    // bounded slot a scaffold gives it.
+    fixture: () => {
+      '_c': 'Column',
+      '_i': 610,
+      'controls': [
+        {'_c': 'AppBar', '_i': 611, 'title': 'Title'},
+      ],
+    },
+    nativeWidgets: {
+      Skin.material: AppBar,
+      Skin.cupertino: CupertinoNavigationBar,
+    },
+    samples: {
+      'large': false,
+      'clip_behavior': 'hardEdge',
+      'border': {
+        'bottom': {'color': '#336699', 'width': 1.0},
+      },
+      'padding': 4.0,
+      'brightness': 'dark',
+      'toolbar_opacity': 0.5,
     },
     parityScript: [SnapshotStep.tapNative(), SnapshotStep.unfocus()],
   ),
