@@ -1,10 +1,12 @@
 // The controls migrated onto the shared control core. One entry per
 // migration PR; control_core_contract_test.dart checks every entry against
 // rules C1–C7 (see test/architecture/README.md).
-import 'package:flutter/cupertino.dart' show CupertinoCheckbox, CupertinoSwitch;
-import 'package:flutter/material.dart' show Checkbox, Switch;
+import 'package:flutter/cupertino.dart'
+    show CupertinoCheckbox, CupertinoRadio, CupertinoSwitch;
+import 'package:flutter/material.dart' show Checkbox, Radio, Switch;
 import 'package:ruflet/ruflet.dart' show RufletExtension;
 import 'package:ruflet/src/controls/checkbox_core.dart';
+import 'package:ruflet/src/controls/radio_core.dart';
 import 'package:ruflet/src/controls/switch_core.dart';
 import 'package:ruflet/src/core/control_spec.dart';
 
@@ -124,6 +126,46 @@ final List<MigratedControl> migratedControls = [
       SnapshotStep.semanticsTap(),
       SnapshotStep.tapText('Check'),
       SnapshotStep.tapText('Check'),
+      SnapshotStep.tab(),
+      SnapshotStep.unfocus(),
+    ],
+  ),
+  MigratedControl(
+    spec: radioSpec,
+    entry: 'lib/src/controls/adaptive_radio.dart',
+    core: 'lib/src/controls/radio_core.dart',
+    propsClass: 'RadioProps',
+    skins: {
+      Skin.material: 'lib/src/controls/radio.dart',
+      Skin.cupertino: 'lib/src/controls/cupertino_radio.dart',
+    },
+    fixture: () => {
+      '_c': 'RadioGroup',
+      '_i': 620,
+      'value': 'a',
+      'on_change': true,
+      'content': {
+        '_c': 'Column',
+        '_i': 621,
+        'controls': [
+          {'_c': 'Radio', '_i': 622, 'value': 'b', 'label': 'Bee'},
+        ],
+      },
+    },
+    samples: {
+      'label_position': 'left',
+      'visual_density': 'compact',
+      'value': 'b',
+      'toggleable': false,
+    },
+    nativeWidgets: {
+      Skin.material: Radio<String>,
+      Skin.cupertino: CupertinoRadio<String>,
+    },
+    parityScript: [
+      SnapshotStep.tapNative(),
+      SnapshotStep.tapText('Bee'),
+      SnapshotStep.semanticsTap(),
       SnapshotStep.tab(),
       SnapshotStep.unfocus(),
     ],
