@@ -30,6 +30,16 @@ class CupertinoListTileControl extends StatelessWidget {
     var additionalInfo = control.buildTextOrWidget("additional_info");
     var subtitle = control.buildTextOrWidget("subtitle");
     var trailing = control.buildIconOrWidget("trailing");
+    if (control.getBool("chevron", false)!) {
+      const chevron = RufletCupertinoListTileChevron();
+      trailing = trailing == null
+          ? chevron
+          : Row(mainAxisSize: MainAxisSize.min, children: [
+              trailing,
+              const SizedBox(width: 6),
+              chevron,
+            ]);
+    }
     var backgroundColor = control.getColor("bgcolor", context);
     var bgcolorActivated = control.getColor("bgcolor_activated", context);
     var padding = control.getPadding("content_padding");
