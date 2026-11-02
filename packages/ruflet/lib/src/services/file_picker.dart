@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import '../ruflet_service.dart';
 import '../utils/file_picker.dart';
+import '../utils/invoke.dart';
 import '../utils/numbers.dart';
 import '../utils/platform.dart';
 
@@ -54,7 +55,7 @@ class FilePickerService extends RufletService {
                 lockParentWindow: true,
                 type: fileType,
                 allowedExtensions: allowedExtensions,
-                allowMultiple: args["allow_multiple"],
+                allowMultiple: parseBool(args["allow_multiple"], false)!,
                 withData: withData,
                 withReadStream: !withData))
             ?.files;
@@ -72,13 +73,10 @@ class FilePickerService extends RufletService {
       case "save_file":
         if ((kIsWeb || isAndroidMobile() || isIOSMobile()) &&
             srcBytes == null) {
-          throw Exception(
-              "\"src_bytes\" is required when saving a file on Web, Android and iOS.");
+          // Web, Android and iOS write the bytes themselves.
+          requireInvokeArg(args, "src_bytes", "FilePicker.save_file");
         }
-        if (kIsWeb && args["file_name"] == null) {
-          throw Exception(
-              "\"file_name\" is required when saving a file on Web.");
-        }
+        if (kIsWeb) requireInvokeArg(args, "file_name", "FilePicker.save_file");
         return await FilePicker.platform.saveFile(
             dialogTitle: dialogTitle,
             fileName: args["file_name"] != null || !isIOSMobile()

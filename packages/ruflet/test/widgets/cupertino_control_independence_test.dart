@@ -1,12 +1,12 @@
 import 'package:ruflet/ruflet.dart';
 import 'package:ruflet/src/controls/adaptive_button.dart';
+import 'package:ruflet/src/controls/adaptive_checkbox.dart';
+import 'package:ruflet/src/controls/adaptive_radio.dart';
+import 'package:ruflet/src/controls/adaptive_switch.dart';
 import 'package:ruflet/src/controls/cupertino_alert_dialog.dart';
 import 'package:ruflet/src/controls/cupertino_app_bar.dart';
 import 'package:ruflet/src/controls/cupertino_button_skin.dart';
-import 'package:ruflet/src/controls/cupertino_checkbox.dart';
 import 'package:ruflet/src/controls/cupertino_container.dart';
-import 'package:ruflet/src/controls/cupertino_radio.dart';
-import 'package:ruflet/src/controls/cupertino_switch.dart';
 import 'package:ruflet/src/controls/cupertino_textfield.dart';
 import 'package:ruflet/src/utils/cupertino_theme.dart';
 import 'package:ruflet/src/widgets/list_tile_clicks.dart';
@@ -81,12 +81,12 @@ void main() {
     });
     var changedRadio = false;
     await tester.pumpWidget(app(Column(children: [
-      CupertinoCheckboxControl(control: checkbox),
+      AdaptiveCheckboxControl(control: checkbox),
       RadioGroup<String>(
           groupValue: 'a',
           onChanged: (_) => changedRadio = true,
-          child: CupertinoRadioControl(control: radio)),
-      CupertinoSwitchControl(control: toggle),
+          child: AdaptiveRadioControl(control: radio)),
+      AdaptiveSwitchControl(control: toggle),
     ])));
     expect(
         tester
@@ -115,8 +115,8 @@ void main() {
     await tester.pumpWidget(app(ListTileClicks(
         notifier: clicks,
         child: Column(children: [
-          CupertinoCheckboxControl(control: checkbox),
-          CupertinoSwitchControl(control: toggle)
+          AdaptiveCheckboxControl(control: checkbox),
+          AdaptiveSwitchControl(control: toggle)
         ]))));
     clicks.onClick();
     expect(checkbox.get('value'), isFalse);
