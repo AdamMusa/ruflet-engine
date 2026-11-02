@@ -134,6 +134,9 @@ class _ScrollableControlState extends State<ScrollableControl> {
                   ? SingleChildScrollView(
                       controller: _controller,
                       scrollDirection: widget.scrollDirection,
+                      keyboardDismissBehavior: widget.control
+                          .getKeyboardDismissBehavior(
+                              "keyboard_dismiss_behavior"),
                       child: widget.child,
                     )
                   : widget.child,

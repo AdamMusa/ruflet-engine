@@ -97,20 +97,35 @@ class _TextFieldControlState extends State<TextFieldControl> {
     debugPrint("TextField.$name($args)");
     switch (name) {
       case "focus":
-        _focusNode.requestFocus();
+        _activeFocusNode.requestFocus();
+      case "blur":
+        _focusNode.unfocus();
+        _shiftEnterfocusNode.unfocus();
       default:
         throw Exception("Unknown TextField method: $name");
     }
   }
 
+  // shift_enter fields render with their own focus node.
+  FocusNode get _activeFocusNode =>
+      widget.control.getBool("shift_enter", false)!
+          ? _shiftEnterfocusNode
+          : _focusNode;
+
   void _onShiftEnterFocusChange() {
-    _focused = _shiftEnterfocusNode.hasFocus;
+    // Rebuild so focused_color and focused_bgcolor follow focus.
+    setState(() {
+      _focused = _shiftEnterfocusNode.hasFocus;
+    });
     widget.control
         .triggerEvent(_shiftEnterfocusNode.hasFocus ? "focus" : "blur");
   }
 
   void _onFocusChange() {
-    _focused = _focusNode.hasFocus;
+    // Rebuild so focused_color and focused_bgcolor follow focus.
+    setState(() {
+      _focused = _focusNode.hasFocus;
+    });
     widget.control.triggerEvent(_focusNode.hasFocus ? "focus" : "blur");
   }
 
@@ -221,12 +236,16 @@ class _TextFieldControlState extends State<TextFieldControl> {
 
     var fitParentSize = widget.control.getBool("fit_parent_size", false)!;
     var maxLength = widget.control.getInt("max_length");
+    var textInputAction =
+        widget.control.getTextInputAction("text_input_action");
 
     Widget textField = TextFormField(
         style: textStyle,
         autofocus: autofocus,
         enabled: !widget.control.disabled,
-        onFieldSubmitted: !multiline
+        textInputAction: textInputAction,
+        onFieldSubmitted: !multiline ||
+                textInputActionEndsMultilineEditing(textInputAction)
             ? (value) {
                 widget.control.triggerEvent("submit", value);
               }
