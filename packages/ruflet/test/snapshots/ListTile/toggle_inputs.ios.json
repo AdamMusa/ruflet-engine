@@ -71,7 +71,7 @@
         {
           "id": 2206,
           "event": "change",
-          "data": null
+          "data": true
         },
         {
           "id": 2201,
@@ -133,7 +133,7 @@
         {
           "id": 2206,
           "event": "change",
-          "data": null
+          "data": false
         },
         {
           "id": 2201,
