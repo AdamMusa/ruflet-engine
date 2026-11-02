@@ -6,6 +6,7 @@ import '../utils/borders.dart';
 import '../utils/colors.dart';
 import '../utils/cupertino_theme.dart';
 import '../utils/edge_insets.dart';
+import '../utils/invoke.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
 import 'base_controls.dart';
@@ -374,7 +375,9 @@ class _CupertinoTabsControlState extends State<CupertinoTabsControl> {
 
   Future<dynamic> _invokeMethod(String name, dynamic args) async {
     if (name != "move_to") throw Exception("Unknown Tabs method: $name");
-    select(args["index"] as int);
+    final index = parseInt(args["index"]);
+    if (index == null) return skipInvoke("Tabs.move_to", "index");
+    select(index);
   }
 
   void select(int index) {
