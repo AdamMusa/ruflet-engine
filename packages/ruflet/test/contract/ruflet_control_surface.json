@@ -2,17 +2,88 @@
   "contract_version": 2,
   "source": "Ruflet::UI::ControlFactory and service registries",
   "summary": {
-    "advertised_entries": 412,
-    "visual_entries": 374,
+    "advertised_entries": 441,
+    "visual_entries": 403,
     "service_entries": 38,
-    "canonical_entries": 214,
-    "wire_types": 213
+    "canonical_entries": 229,
+    "wire_types": 228
   },
   "common_attributes": [
     "flip",
     "transform"
   ],
   "wire_types": {
+    "AboutDialog": {
+      "canonical": "about_dialog",
+      "family": "visual",
+      "dsl_names": [
+        "about_dialog",
+        "aboutdialog"
+      ],
+      "keywords": [
+        "application_icon",
+        "application_legalese",
+        "application_name",
+        "application_version",
+        "barrier_color",
+        "controls",
+        "data",
+        "key",
+        "modal",
+        "on_dismiss",
+        "open",
+        "view",
+        "visible"
+      ],
+      "open_keywords": false
+    },
+    "AbsorbPointer": {
+      "canonical": "absorb_pointer",
+      "family": "visual",
+      "dsl_names": [
+        "absorb_pointer",
+        "absorbpointer"
+      ],
+      "keywords": [
+        "absorbing",
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false
+    },
     "Accelerometer": {
       "canonical": "accelerometer",
       "family": "service",
@@ -27,7 +98,8 @@
         "key",
         "on_error",
         "on_reading"
-      ]
+      ],
+      "open_keywords": false
     },
     "ActionSheet": {
       "canonical": "action_sheet",
@@ -77,7 +149,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ActionSheetAction": {
       "canonical": "action_sheet_action",
@@ -128,7 +201,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "AlertDialog": {
       "canonical": "alert_dialog",
@@ -180,7 +254,8 @@
         "title_text_style",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "AnimatedSwitcher": {
       "canonical": "animated_switcher",
@@ -230,7 +305,8 @@
         "transition",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "AppBar": {
       "canonical": "app_bar",
@@ -286,7 +362,8 @@
         "trailing",
         "transition_between_routes",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "Arc": {
       "canonical": "arc",
@@ -305,7 +382,8 @@
         "width",
         "x",
         "y"
-      ]
+      ],
+      "open_keywords": false
     },
     "Audio": {
       "canonical": "audio",
@@ -333,7 +411,8 @@
         "tooltip",
         "visible",
         "volume"
-      ]
+      ],
+      "open_keywords": false
     },
     "AudioRecorder": {
       "canonical": "audio_recorder",
@@ -349,7 +428,8 @@
         "on_state_change",
         "on_stream",
         "on_upload"
-      ]
+      ],
+      "open_keywords": false
     },
     "AutoComplete": {
       "canonical": "auto_complete",
@@ -398,7 +478,8 @@
         "value",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "AutoCompleteSuggestion": {
       "canonical": "auto_complete_suggestion",
@@ -410,7 +491,8 @@
       "keywords": [
         "key",
         "value"
-      ]
+      ],
+      "open_keywords": false
     },
     "AutofillGroup": {
       "canonical": "autofill_group",
@@ -433,7 +515,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "Badge": {
       "canonical": "badge",
@@ -454,7 +537,8 @@
         "small_size",
         "text_color",
         "text_style"
-      ]
+      ],
+      "open_keywords": false
     },
     "Banner": {
       "canonical": "banner",
@@ -492,7 +576,8 @@
         "surface_tint_color",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "BannerAd": {
       "canonical": "banner_ad",
@@ -501,7 +586,8 @@
         "banner_ad",
         "bannerad"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "BarChart": {
       "canonical": "bar_chart",
@@ -510,7 +596,8 @@
         "bar_chart",
         "barchart"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "BarChartGroup": {
       "canonical": "bar_chart_group",
@@ -519,7 +606,8 @@
         "bar_chart_group",
         "barchartgroup"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "BarChartRod": {
       "canonical": "bar_chart_rod",
@@ -528,7 +616,8 @@
         "bar_chart_rod",
         "barchartrod"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "BarChartRodStackItem": {
       "canonical": "bar_chart_rod_stack_item",
@@ -537,7 +626,8 @@
         "bar_chart_rod_stack_item",
         "barchartrodstackitem"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Barometer": {
       "canonical": "barometer",
@@ -553,7 +643,8 @@
         "key",
         "on_error",
         "on_reading"
-      ]
+      ],
+      "open_keywords": false
     },
     "BasePage": {
       "canonical": "base_page",
@@ -588,7 +679,8 @@
         "views",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Battery": {
       "canonical": "battery",
@@ -600,7 +692,8 @@
         "data",
         "key",
         "on_state_change"
-      ]
+      ],
+      "open_keywords": false
     },
     "BlockPicker": {
       "canonical": "block_picker",
@@ -609,7 +702,8 @@
         "block_picker",
         "blockpicker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "BottomAppBar": {
       "canonical": "bottom_app_bar",
@@ -662,7 +756,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "BottomSheet": {
       "canonical": "bottom_sheet",
@@ -706,7 +801,8 @@
         "tooltip",
         "use_safe_area",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "BrowserContextMenu": {
       "canonical": "browser_context_menu",
@@ -718,7 +814,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "Button": {
       "canonical": "button",
@@ -795,7 +892,8 @@
         "url",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Camera": {
       "canonical": "camera",
@@ -843,7 +941,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "CandlestickChart": {
       "canonical": "candlestick_chart",
@@ -852,7 +951,8 @@
         "candlestick_chart",
         "candlestickchart"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "CandlestickChartSpot": {
       "canonical": "candlestick_chart_spot",
@@ -861,7 +961,8 @@
         "candlestick_chart_spot",
         "candlestickchartspot"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Canvas": {
       "canonical": "canvas",
@@ -908,7 +1009,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Card": {
       "canonical": "card",
@@ -961,7 +1063,8 @@
         "variant",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "CarouselView": {
       "canonical": "carousel_view",
@@ -1022,7 +1125,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ChartAxis": {
       "canonical": "chart_axis",
@@ -1031,7 +1135,8 @@
         "chart_axis",
         "chartaxis"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "ChartAxisLabel": {
       "canonical": "chart_axis_label",
@@ -1040,7 +1145,8 @@
         "chart_axis_label",
         "chartaxislabel"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Checkbox": {
       "canonical": "checkbox",
@@ -1109,7 +1215,8 @@
         "visible",
         "visual_density",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Chip": {
       "canonical": "chip",
@@ -1188,7 +1295,8 @@
         "visible",
         "visual_density",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Circle": {
       "canonical": "circle",
@@ -1203,7 +1311,8 @@
         "radius",
         "x",
         "y"
-      ]
+      ],
+      "open_keywords": false
     },
     "CircleAvatar": {
       "canonical": "circle_avatar",
@@ -1256,7 +1365,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "CircleLayer": {
       "canonical": "circle_layer",
@@ -1265,7 +1375,8 @@
         "circle_layer",
         "circlelayer"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "CircleMarker": {
       "canonical": "circle_marker",
@@ -1274,7 +1385,8 @@
         "circle_marker",
         "circlemarker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Clipboard": {
       "canonical": "clipboard",
@@ -1285,7 +1397,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "CodeEditor": {
       "canonical": "code_editor",
@@ -1294,7 +1407,8 @@
         "code_editor",
         "codeeditor"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Color": {
       "canonical": "color",
@@ -1307,7 +1421,8 @@
         "color",
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "ColorPicker": {
       "canonical": "color_picker",
@@ -1316,7 +1431,8 @@
         "color_picker",
         "colorpicker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Column": {
       "canonical": "column",
@@ -1329,6 +1445,7 @@
         "align",
         "alignment",
         "animate_align",
+        "animate_changes",
         "animate_margin",
         "animate_offset",
         "animate_opacity",
@@ -1344,19 +1461,29 @@
         "controls",
         "data",
         "disabled",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "height",
         "horizontal_alignment",
         "intrinsic_width",
+        "item_animation",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "offset",
         "on_animation_end",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "right",
         "rotate",
         "rtl",
@@ -1373,7 +1500,8 @@
         "visible",
         "width",
         "wrap"
-      ]
+      ],
+      "open_keywords": false
     },
     "Connectivity": {
       "canonical": "connectivity",
@@ -1385,7 +1513,8 @@
         "data",
         "key",
         "on_change"
-      ]
+      ],
+      "open_keywords": false
     },
     "Container": {
       "canonical": "container",
@@ -1457,7 +1586,8 @@
         "url",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ContextMenu": {
       "canonical": "context_menu",
@@ -1516,7 +1646,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ContextMenuAction": {
       "canonical": "context_menu_action",
@@ -1572,7 +1703,66 @@
         "value",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
+    },
+    "CustomScrollView": {
+      "canonical": "custom_scroll_view",
+      "family": "visual",
+      "dsl_names": [
+        "custom_scroll_view",
+        "customscrollview"
+      ],
+      "keywords": [
+        "align",
+        "anchor",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "auto_scroll",
+        "badge",
+        "bottom",
+        "cache_extent",
+        "clip_behavior",
+        "col",
+        "controls",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "horizontal",
+        "key",
+        "keyboard_dismiss_behavior",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_scroll",
+        "on_size_change",
+        "opacity",
+        "reverse",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "scroll",
+        "scroll_interval",
+        "semantic_child_count",
+        "size_change_interval",
+        "slivers",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false
     },
     "DataCell": {
       "canonical": "data_cell",
@@ -1601,7 +1791,8 @@
         "show_edit_icon",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "DataColumn": {
       "canonical": "data_column",
@@ -1626,7 +1817,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "DataColumn2": {
       "canonical": "data_column2",
@@ -1635,7 +1827,8 @@
         "data_column2",
         "datacolumn2"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "DataRow": {
       "canonical": "data_row",
@@ -1661,7 +1854,8 @@
         "selected",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "DataRow2": {
       "canonical": "data_row2",
@@ -1670,7 +1864,8 @@
         "data_row2",
         "datarow2"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "DataTable": {
       "canonical": "data_table",
@@ -1739,7 +1934,8 @@
         "vertical_lines",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "DataTable2": {
       "canonical": "data_table2",
@@ -1748,7 +1944,8 @@
         "data_table2",
         "datatable2"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "DatePicker": {
       "canonical": "date_picker",
@@ -1793,6 +1990,7 @@
         "first_date",
         "height",
         "help_text",
+        "inline",
         "inset_padding",
         "item_extent",
         "key",
@@ -1827,7 +2025,8 @@
         "value",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "DateRangePicker": {
       "canonical": "date_range_picker",
@@ -1875,7 +2074,8 @@
         "switch_to_input_icon",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "Dialogs": {
       "canonical": "dialogs",
@@ -1887,7 +2087,8 @@
         "controls",
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "Dismissible": {
       "canonical": "dismissible",
@@ -1943,7 +2144,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Divider": {
       "canonical": "divider",
@@ -1969,7 +2171,8 @@
         "tooltip",
         "trailing_indent",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "DragTarget": {
       "canonical": "drag_target",
@@ -1996,7 +2199,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "Draggable": {
       "canonical": "draggable",
@@ -2025,7 +2229,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "DraggableScrollableSheet": {
       "canonical": "draggable_scrollable_sheet",
@@ -2086,7 +2291,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Dropdown": {
       "canonical": "dropdown",
@@ -2216,7 +2422,8 @@
         "value",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "DropdownOption": {
       "canonical": "dropdown_option",
@@ -2242,7 +2449,8 @@
         "tooltip",
         "trailing_icon",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "ExpansionPanel": {
       "canonical": "expansion_panel",
@@ -2294,7 +2502,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ExpansionPanelList": {
       "canonical": "expansion_panel_list",
@@ -2349,7 +2558,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ExpansionTile": {
       "canonical": "expansion_tile",
@@ -2422,7 +2632,8 @@
         "visible",
         "visual_density",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "FilePicker": {
       "canonical": "file_picker",
@@ -2436,7 +2647,8 @@
         "key",
         "on_result",
         "on_upload"
-      ]
+      ],
+      "open_keywords": false
     },
     "Fill": {
       "canonical": "fill",
@@ -2448,7 +2660,8 @@
         "data",
         "key",
         "paint"
-      ]
+      ],
+      "open_keywords": false
     },
     "FilledButton": {
       "canonical": "filled_button",
@@ -2519,7 +2732,8 @@
         "url",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "FilledIconButton": {
       "canonical": "filled_icon_button",
@@ -2591,7 +2805,8 @@
         "visible",
         "visual_density",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "FilledTonalButton": {
       "canonical": "filled_tonal_button",
@@ -2662,7 +2877,8 @@
         "url",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "FilledTonalIconButton": {
       "canonical": "filled_tonal_icon_button",
@@ -2734,7 +2950,8 @@
         "visible",
         "visual_density",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "FittedBox": {
       "canonical": "fitted_box",
@@ -2782,7 +2999,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Flashlight": {
       "canonical": "flashlight",
@@ -2794,7 +3012,8 @@
         "data",
         "key",
         "on_error"
-      ]
+      ],
+      "open_keywords": false
     },
     "FloatingActionButton": {
       "canonical": "floating_action_button",
@@ -2858,7 +3077,8 @@
         "url",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "FormRow": {
       "canonical": "form_row",
@@ -2907,7 +3127,57 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
+    },
+    "FractionallySizedBox": {
+      "canonical": "fractionally_sized_box",
+      "family": "visual",
+      "dsl_names": [
+        "fractionally_sized_box",
+        "fractionallysizedbox"
+      ],
+      "keywords": [
+        "align",
+        "alignment",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "height_factor",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width",
+        "width_factor"
+      ],
+      "open_keywords": false
     },
     "Geolocator": {
       "canonical": "geolocator",
@@ -2921,7 +3191,8 @@
         "key",
         "on_error",
         "on_position_change"
-      ]
+      ],
+      "open_keywords": false
     },
     "GestureDetector": {
       "canonical": "gesture_detector",
@@ -3041,7 +3312,8 @@
         "trackpad_scroll_causes_scale",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "GridView": {
       "canonical": "grid_view",
@@ -3073,20 +3345,29 @@
         "controls",
         "data",
         "disabled",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "height",
         "horizontal",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "max_extent",
         "offset",
         "on_animation_end",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
         "padding",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "reverse",
         "right",
         "rotate",
@@ -3103,7 +3384,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Gyroscope": {
       "canonical": "gyroscope",
@@ -3119,7 +3401,8 @@
         "key",
         "on_error",
         "on_reading"
-      ]
+      ],
+      "open_keywords": false
     },
     "HapticFeedback": {
       "canonical": "haptic_feedback",
@@ -3131,7 +3414,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "Hero": {
       "canonical": "hero",
@@ -3177,7 +3461,8 @@
         "transition_on_user_gestures",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "HueRingPicker": {
       "canonical": "hue_ring_picker",
@@ -3186,7 +3471,8 @@
         "hue_ring_picker",
         "hueringpicker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Icon": {
       "canonical": "icon",
@@ -3240,7 +3526,8 @@
         "visible",
         "weight",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "IconButton": {
       "canonical": "icon_button",
@@ -3312,7 +3599,55 @@
         "visible",
         "visual_density",
         "width"
-      ]
+      ],
+      "open_keywords": false
+    },
+    "IgnorePointer": {
+      "canonical": "ignore_pointer",
+      "family": "visual",
+      "dsl_names": [
+        "ignore_pointer",
+        "ignorepointer"
+      ],
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "ignoring",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false
     },
     "Image": {
       "canonical": "image",
@@ -3377,7 +3712,8 @@
         "width",
         "x",
         "y"
-      ]
+      ],
+      "open_keywords": false
     },
     "ImageSourceAttribution": {
       "canonical": "image_source_attribution",
@@ -3386,7 +3722,8 @@
         "image_source_attribution",
         "imagesourceattribution"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "IndexedStack": {
       "canonical": "indexed_stack",
@@ -3435,7 +3772,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "InteractiveViewer": {
       "canonical": "interactive_viewer",
@@ -3495,7 +3833,8 @@
         "trackpad_scroll_causes_scale",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "InterstitialAd": {
       "canonical": "interstitial_ad",
@@ -3504,7 +3843,102 @@
         "interstitial_ad",
         "interstitialad"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
+    },
+    "IntrinsicHeight": {
+      "canonical": "intrinsic_height",
+      "family": "visual",
+      "dsl_names": [
+        "intrinsic_height",
+        "intrinsicheight"
+      ],
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false
+    },
+    "IntrinsicWidth": {
+      "canonical": "intrinsic_width",
+      "family": "visual",
+      "dsl_names": [
+        "intrinsic_width",
+        "intrinsicwidth"
+      ],
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "step_height",
+        "step_width",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false
     },
     "KeyboardListener": {
       "canonical": "keyboard_listener",
@@ -3531,7 +3965,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "Line": {
       "canonical": "line",
@@ -3547,7 +3982,8 @@
         "x2",
         "y1",
         "y2"
-      ]
+      ],
+      "open_keywords": false
     },
     "LineChart": {
       "canonical": "line_chart",
@@ -3556,7 +3992,8 @@
         "line_chart",
         "linechart"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "LineChartData": {
       "canonical": "line_chart_data",
@@ -3565,7 +4002,8 @@
         "line_chart_data",
         "linechartdata"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "LineChartDataPoint": {
       "canonical": "line_chart_data_point",
@@ -3574,7 +4012,8 @@
         "line_chart_data_point",
         "linechartdatapoint"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "ListSection": {
       "canonical": "list_section",
@@ -3631,7 +4070,8 @@
         "variant",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ListTile": {
       "canonical": "list_tile",
@@ -3719,7 +4159,8 @@
         "visible",
         "visual_density",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ListView": {
       "canonical": "list_view",
@@ -3732,6 +4173,7 @@
         "adaptive",
         "align",
         "animate_align",
+        "animate_changes",
         "animate_margin",
         "animate_offset",
         "animate_opacity",
@@ -3751,22 +4193,32 @@
         "data",
         "disabled",
         "divider_thickness",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "first_item_prototype",
         "height",
         "horizontal",
+        "item_animation",
         "item_extent",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "offset",
         "on_animation_end",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
         "padding",
         "prototype_item",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "reverse",
         "right",
         "rotate",
@@ -3781,7 +4233,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Lottie": {
       "canonical": "lottie",
@@ -3789,7 +4242,8 @@
       "dsl_names": [
         "lottie"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Magnetometer": {
       "canonical": "magnetometer",
@@ -3805,7 +4259,8 @@
         "key",
         "on_error",
         "on_reading"
-      ]
+      ],
+      "open_keywords": false
     },
     "Map": {
       "canonical": "map",
@@ -3813,7 +4268,8 @@
       "dsl_names": [
         "map"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "MapLayer": {
       "canonical": "map_layer",
@@ -3822,7 +4278,8 @@
         "map_layer",
         "maplayer"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Markdown": {
       "canonical": "markdown",
@@ -3882,7 +4339,8 @@
         "value",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Marker": {
       "canonical": "marker",
@@ -3890,7 +4348,8 @@
       "dsl_names": [
         "marker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "MarkerLayer": {
       "canonical": "marker_layer",
@@ -3899,7 +4358,8 @@
         "marker_layer",
         "markerlayer"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "MaterialPicker": {
       "canonical": "material_picker",
@@ -3908,7 +4368,8 @@
         "material_picker",
         "materialpicker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "MenuBar": {
       "canonical": "menu_bar",
@@ -3932,7 +4393,8 @@
         "style",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "MenuItemButton": {
       "canonical": "menu_item_button",
@@ -3990,7 +4452,8 @@
         "trailing",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "MergeSemantics": {
       "canonical": "merge_semantics",
@@ -4012,7 +4475,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "MultipleChoiceBlockPicker": {
       "canonical": "multiple_choice_block_picker",
@@ -4021,7 +4485,8 @@
         "multiple_choice_block_picker",
         "multiplechoiceblockpicker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "NativeAd": {
       "canonical": "native_ad",
@@ -4030,7 +4495,8 @@
         "native_ad",
         "nativead"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "NavigationBar": {
       "canonical": "navigation_bar",
@@ -4094,7 +4560,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "NavigationBarDestination": {
       "canonical": "navigation_bar_destination",
@@ -4120,7 +4587,8 @@
         "selected_icon",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "NavigationDrawer": {
       "canonical": "navigation_drawer",
@@ -4154,7 +4622,8 @@
         "tooltip",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "NavigationDrawerDestination": {
       "canonical": "navigation_drawer_destination",
@@ -4179,7 +4648,8 @@
         "selected_icon",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "NavigationRail": {
       "canonical": "navigation_rail",
@@ -4243,7 +4713,8 @@
         "use_indicator",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "NavigationRailDestination": {
       "canonical": "navigation_rail_destination",
@@ -4270,7 +4741,8 @@
         "selected_icon",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "Option": {
       "canonical": "option",
@@ -4295,7 +4767,8 @@
         "text_style",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "OutlinedButton": {
       "canonical": "outlined_button",
@@ -4363,7 +4836,8 @@
         "url",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "OutlinedIconButton": {
       "canonical": "outlined_icon_button",
@@ -4435,7 +4909,8 @@
         "visible",
         "visual_density",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Oval": {
       "canonical": "oval",
@@ -4451,7 +4926,8 @@
         "width",
         "x",
         "y"
-      ]
+      ],
+      "open_keywords": false
     },
     "Overlay": {
       "canonical": "overlay",
@@ -4463,7 +4939,8 @@
         "controls",
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "Page": {
       "canonical": "page",
@@ -4527,7 +5004,8 @@
         "web",
         "width",
         "window"
-      ]
+      ],
+      "open_keywords": false
     },
     "PageView": {
       "canonical": "page_view",
@@ -4584,7 +5062,8 @@
         "viewport_fraction",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Pagelet": {
       "canonical": "pagelet",
@@ -4638,7 +5117,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Path": {
       "canonical": "path",
@@ -4651,7 +5131,8 @@
         "elements",
         "key",
         "paint"
-      ]
+      ],
+      "open_keywords": false
     },
     "PermissionHandler": {
       "canonical": "permission_handler",
@@ -4663,7 +5144,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "Picker": {
       "canonical": "picker",
@@ -4721,7 +5203,8 @@
         "use_magnifier",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "PieChart": {
       "canonical": "pie_chart",
@@ -4730,7 +5213,8 @@
         "pie_chart",
         "piechart"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "PieChartSection": {
       "canonical": "pie_chart_section",
@@ -4739,7 +5223,8 @@
         "pie_chart_section",
         "piechartsection"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Placeholder": {
       "canonical": "placeholder",
@@ -4787,7 +5272,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Points": {
       "canonical": "points",
@@ -4801,7 +5287,8 @@
         "paint",
         "point_mode",
         "points"
-      ]
+      ],
+      "open_keywords": false
     },
     "PolygonLayer": {
       "canonical": "polygon_layer",
@@ -4810,7 +5297,8 @@
         "polygon_layer",
         "polygonlayer"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "PolygonMarker": {
       "canonical": "polygon_marker",
@@ -4819,7 +5307,8 @@
         "polygon_marker",
         "polygonmarker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "PolylineLayer": {
       "canonical": "polyline_layer",
@@ -4828,7 +5317,8 @@
         "polyline_layer",
         "polylinelayer"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "PolylineMarker": {
       "canonical": "polyline_marker",
@@ -4837,7 +5327,8 @@
         "polyline_marker",
         "polylinemarker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "PopupMenuButton": {
       "canonical": "popup_menu_button",
@@ -4902,7 +5393,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "PopupMenuItem": {
       "canonical": "popup_menu_item",
@@ -4931,7 +5423,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "ProgressBar": {
       "canonical": "progress_bar",
@@ -4986,7 +5479,8 @@
         "visible",
         "width",
         "year_2023"
-      ]
+      ],
+      "open_keywords": false
     },
     "ProgressRing": {
       "canonical": "progress_ring",
@@ -5047,7 +5541,8 @@
         "visible",
         "width",
         "year_2023"
-      ]
+      ],
+      "open_keywords": false
     },
     "RadarChart": {
       "canonical": "radar_chart",
@@ -5056,7 +5551,8 @@
         "radar_chart",
         "radarchart"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "RadarChartTitle": {
       "canonical": "radar_chart_title",
@@ -5065,7 +5561,8 @@
         "radar_chart_title",
         "radarcharttitle"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "RadarDataSet": {
       "canonical": "radar_data_set",
@@ -5074,7 +5571,8 @@
         "radar_data_set",
         "radardataset"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "RadarDataSetEntry": {
       "canonical": "radar_data_set_entry",
@@ -5083,7 +5581,8 @@
         "radar_data_set_entry",
         "radardatasetentry"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Radio": {
       "canonical": "radio",
@@ -5147,7 +5646,8 @@
         "visible",
         "visual_density",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "RadioGroup": {
       "canonical": "radio_group",
@@ -5171,7 +5671,8 @@
         "tooltip",
         "value",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "RangeSlider": {
       "canonical": "range_slider",
@@ -5229,7 +5730,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Rect": {
       "canonical": "rect",
@@ -5246,7 +5748,8 @@
         "width",
         "x",
         "y"
-      ]
+      ],
+      "open_keywords": false
     },
     "ReorderableDragHandle": {
       "canonical": "reorderable_drag_handle",
@@ -5293,7 +5796,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ReorderableListView": {
       "canonical": "reorderable_list_view",
@@ -5336,6 +5840,7 @@
         "horizontal",
         "item_extent",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "mouse_cursor",
@@ -5364,7 +5869,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ResponsiveRow": {
       "canonical": "responsive_row",
@@ -5420,7 +5926,8 @@
         "vertical_alignment",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "RichAttribution": {
       "canonical": "rich_attribution",
@@ -5429,7 +5936,8 @@
         "rich_attribution",
         "richattribution"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Rive": {
       "canonical": "rive",
@@ -5437,7 +5945,8 @@
       "dsl_names": [
         "rive"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "RotatedBox": {
       "canonical": "rotated_box",
@@ -5483,7 +5992,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Row": {
       "canonical": "row",
@@ -5511,15 +6021,18 @@
         "controls",
         "data",
         "disabled",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "height",
         "intrinsic_height",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "offset",
         "on_animation_end",
+        "on_end_reached",
         "on_scroll",
         "on_size_change",
         "opacity",
@@ -5540,7 +6053,8 @@
         "visible",
         "width",
         "wrap"
-      ]
+      ],
+      "open_keywords": false
     },
     "RufletApp": {
       "canonical": "ruflet_app",
@@ -5595,7 +6109,8 @@
         "url",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "RufletSpinKit": {
       "canonical": "spinkit",
@@ -5645,7 +6160,8 @@
         "visible",
         "wave_type",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "SafeArea": {
       "canonical": "safe_area",
@@ -5697,7 +6213,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "ScatterChart": {
       "canonical": "scatter_chart",
@@ -5706,7 +6223,8 @@
         "scatter_chart",
         "scatterchart"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "ScatterChartSpot": {
       "canonical": "scatter_chart_spot",
@@ -5715,7 +6233,8 @@
         "scatter_chart_spot",
         "scatterchartspot"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "ScreenBrightness": {
       "canonical": "screen_brightness",
@@ -5729,7 +6248,8 @@
         "key",
         "on_application_screen_brightness_change",
         "on_system_screen_brightness_change"
-      ]
+      ],
+      "open_keywords": false
     },
     "Screenshot": {
       "canonical": "screenshot",
@@ -5750,7 +6270,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "SearchBar": {
       "canonical": "search_bar",
@@ -5835,7 +6356,8 @@
         "view_trailing",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "SecureStorage": {
       "canonical": "secure_storage",
@@ -5853,7 +6375,8 @@
         "on_change",
         "web_options",
         "windows_options"
-      ]
+      ],
+      "open_keywords": false
     },
     "Segment": {
       "canonical": "segment",
@@ -5876,7 +6399,8 @@
         "tooltip",
         "value",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "SegmentedButton": {
       "canonical": "segmented_button",
@@ -5938,6 +6462,7 @@
         "selected_index",
         "show_selected_icon",
         "size_change_interval",
+        "sliding",
         "style",
         "thumb_color",
         "tooltip",
@@ -5945,7 +6470,8 @@
         "unselected_color",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "SelectionArea": {
       "canonical": "selection_area",
@@ -5968,7 +6494,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "Semantics": {
       "canonical": "semantics",
@@ -6037,7 +6564,8 @@
         "tooltip",
         "value",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "SemanticsService": {
       "canonical": "semantics_service",
@@ -6049,7 +6577,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "ServiceRegistry": {
       "canonical": "service_registry",
@@ -6063,7 +6592,8 @@
         "data",
         "key",
         "services"
-      ]
+      ],
+      "open_keywords": false
     },
     "ShaderMask": {
       "canonical": "shader_mask",
@@ -6111,7 +6641,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Shadow": {
       "canonical": "shadow",
@@ -6126,7 +6657,8 @@
         "key",
         "path",
         "transparent_occluder"
-      ]
+      ],
+      "open_keywords": false
     },
     "ShakeDetector": {
       "canonical": "shake_detector",
@@ -6143,7 +6675,8 @@
         "shake_count_reset_time_ms",
         "shake_slop_time_ms",
         "shake_threshold_gravity"
-      ]
+      ],
+      "open_keywords": false
     },
     "Share": {
       "canonical": "share",
@@ -6154,7 +6687,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "SharedPreferences": {
       "canonical": "shared_preferences",
@@ -6166,7 +6700,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "Shimmer": {
       "canonical": "shimmer",
@@ -6216,7 +6751,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "SimpleAttribution": {
       "canonical": "simple_attribution",
@@ -6225,7 +6761,8 @@
         "simple_attribution",
         "simpleattribution"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "SlidePicker": {
       "canonical": "slide_picker",
@@ -6234,7 +6771,8 @@
         "slide_picker",
         "slidepicker"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Slider": {
       "canonical": "slider",
@@ -6302,7 +6840,143 @@
         "visible",
         "width",
         "year_2023"
-      ]
+      ],
+      "open_keywords": false
+    },
+    "SliverAppBar": {
+      "canonical": "sliver_app_bar",
+      "family": "visual",
+      "dsl_names": [
+        "sliver_app_bar",
+        "sliverappbar"
+      ],
+      "keywords": [
+        "actions",
+        "always_show_middle",
+        "automatically_imply_leading",
+        "bgcolor",
+        "border",
+        "bottom",
+        "bottom_height",
+        "center_title",
+        "collapsed_height",
+        "color",
+        "data",
+        "elevation",
+        "expanded_height",
+        "flexible_space",
+        "floating",
+        "key",
+        "leading",
+        "pinned",
+        "previous_page_title",
+        "scrolled_under_elevation",
+        "shadow_color",
+        "snap",
+        "stretch",
+        "title",
+        "toolbar_height",
+        "transition_between_routes",
+        "variant",
+        "visible"
+      ],
+      "open_keywords": false
+    },
+    "SliverFillRemaining": {
+      "canonical": "sliver_fill_remaining",
+      "family": "visual",
+      "dsl_names": [
+        "sliver_fill_remaining",
+        "sliverfillremaining"
+      ],
+      "keywords": [
+        "content",
+        "data",
+        "fill_overscroll",
+        "has_scroll_body",
+        "key",
+        "visible"
+      ],
+      "open_keywords": false
+    },
+    "SliverGrid": {
+      "canonical": "sliver_grid",
+      "family": "visual",
+      "dsl_names": [
+        "sliver_grid",
+        "slivergrid"
+      ],
+      "keywords": [
+        "bgcolor",
+        "child_aspect_ratio",
+        "controls",
+        "data",
+        "header",
+        "key",
+        "max_extent",
+        "padding",
+        "run_spacing",
+        "runs_count",
+        "spacing",
+        "sticky_header",
+        "visible"
+      ],
+      "open_keywords": false
+    },
+    "SliverList": {
+      "canonical": "sliver_list",
+      "family": "visual",
+      "dsl_names": [
+        "sliver_list",
+        "sliverlist"
+      ],
+      "keywords": [
+        "bgcolor",
+        "build_controls_on_demand",
+        "controls",
+        "data",
+        "divider_thickness",
+        "header",
+        "item_extent",
+        "key",
+        "padding",
+        "spacing",
+        "sticky_header",
+        "visible"
+      ],
+      "open_keywords": false
+    },
+    "SliverPadding": {
+      "canonical": "sliver_padding",
+      "family": "visual",
+      "dsl_names": [
+        "sliver_padding",
+        "sliverpadding"
+      ],
+      "keywords": [
+        "controls",
+        "data",
+        "key",
+        "padding",
+        "slivers",
+        "visible"
+      ],
+      "open_keywords": false
+    },
+    "SliverToBoxAdapter": {
+      "canonical": "sliver_to_box_adapter",
+      "family": "visual",
+      "dsl_names": [
+        "sliver_to_box_adapter",
+        "slivertoboxadapter"
+      ],
+      "keywords": [
+        "content",
+        "data",
+        "key",
+        "visible"
+      ],
+      "open_keywords": false
     },
     "SnackBar": {
       "canonical": "snack_bar",
@@ -6344,7 +7018,8 @@
         "tooltip",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "SnackBarAction": {
       "canonical": "snack_bar_action",
@@ -6371,7 +7046,8 @@
         "text_color",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "Stack": {
       "canonical": "stack",
@@ -6419,7 +7095,86 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
+    },
+    "Step": {
+      "canonical": "stepper_step",
+      "family": "visual",
+      "dsl_names": [
+        "stepper_step",
+        "stepperstep"
+      ],
+      "keywords": [
+        "content",
+        "data",
+        "is_active",
+        "key",
+        "label",
+        "state",
+        "subtitle",
+        "title",
+        "visible"
+      ],
+      "open_keywords": false
+    },
+    "Stepper": {
+      "canonical": "stepper",
+      "family": "visual",
+      "dsl_names": [
+        "stepper"
+      ],
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "cancel_text",
+        "clip_behavior",
+        "col",
+        "connector_color",
+        "connector_thickness",
+        "continue_text",
+        "controls",
+        "current_step",
+        "data",
+        "disabled",
+        "elevation",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "on_step_cancel",
+        "on_step_continue",
+        "on_step_tap",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "show_controls",
+        "size_change_interval",
+        "steps",
+        "tooltip",
+        "top",
+        "type",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false
     },
     "StoragePaths": {
       "canonical": "storage_paths",
@@ -6431,7 +7186,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "SubmenuButton": {
       "canonical": "submenu_button",
@@ -6488,7 +7244,8 @@
         "trailing",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Switch": {
       "canonical": "switch",
@@ -6564,7 +7321,8 @@
         "value",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Tab": {
       "canonical": "tab",
@@ -6589,7 +7347,8 @@
         "rtl",
         "tooltip",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "TabBar": {
       "canonical": "tab_bar",
@@ -6657,7 +7416,8 @@
         "unselected_label_text_style",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "TabBarView": {
       "canonical": "tab_bar_view",
@@ -6705,7 +7465,8 @@
         "viewport_fraction",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Table": {
       "canonical": "table",
@@ -6758,7 +7519,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "TableRow": {
       "canonical": "table_row",
@@ -6773,7 +7535,8 @@
         "data",
         "key",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "Tabs": {
       "canonical": "tabs",
@@ -6822,7 +7585,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Text": {
       "canonical": "text",
@@ -6894,7 +7658,8 @@
         "width",
         "x",
         "y"
-      ]
+      ],
+      "open_keywords": false
     },
     "TextButton": {
       "canonical": "text_button",
@@ -6962,7 +7727,8 @@
         "url",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "TextField": {
       "canonical": "text_field",
@@ -7115,7 +7881,8 @@
         "value",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "TextSourceAttribution": {
       "canonical": "text_source_attribution",
@@ -7124,7 +7891,8 @@
         "text_source_attribution",
         "textsourceattribution"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "TextSpan": {
       "canonical": "text_span",
@@ -7154,7 +7922,8 @@
         "tooltip",
         "url",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "TileLayer": {
       "canonical": "tile_layer",
@@ -7163,7 +7932,8 @@
         "tile_layer",
         "tilelayer"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "TimePicker": {
       "canonical": "time_picker",
@@ -7204,7 +7974,8 @@
         "tooltip",
         "value",
         "visible"
-      ]
+      ],
+      "open_keywords": false
     },
     "TimerPicker": {
       "canonical": "timer_picker",
@@ -7258,7 +8029,8 @@
         "value",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "TransparentPointer": {
       "canonical": "transparent_pointer",
@@ -7303,7 +8075,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "UrlLauncher": {
       "canonical": "url_launcher",
@@ -7315,7 +8088,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "UserAccelerometer": {
       "canonical": "user_accelerometer",
@@ -7332,7 +8106,8 @@
         "key",
         "on_error",
         "on_reading"
-      ]
+      ],
+      "open_keywords": false
     },
     "VerticalDivider": {
       "canonical": "vertical_divider",
@@ -7359,7 +8134,8 @@
         "trailing_indent",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Video": {
       "canonical": "video",
@@ -7367,7 +8143,8 @@
       "dsl_names": [
         "video"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "View": {
       "canonical": "view",
@@ -7401,6 +8178,7 @@
         "disabled",
         "drawer",
         "end_drawer",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "floating_action_button",
@@ -7410,16 +8188,24 @@
         "height",
         "horizontal_alignment",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "navigation_bar",
         "offset",
         "on_animation_end",
         "on_confirm_pop",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
         "padding",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "right",
         "rotate",
         "route",
@@ -7435,7 +8221,8 @@
         "vertical_alignment",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "Wakelock": {
       "canonical": "wakelock",
@@ -7446,7 +8233,8 @@
       "keywords": [
         "data",
         "key"
-      ]
+      ],
+      "open_keywords": false
     },
     "WebView": {
       "canonical": "web_view",
@@ -7455,7 +8243,8 @@
         "web_view",
         "webview"
       ],
-      "keywords": []
+      "keywords": [],
+      "open_keywords": true
     },
     "Window": {
       "canonical": "window",
@@ -7501,7 +8290,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     },
     "WindowDragArea": {
       "canonical": "window_drag_area",
@@ -7550,7 +8340,8 @@
         "top",
         "visible",
         "width"
-      ]
+      ],
+      "open_keywords": false
     }
   },
   "entries": [
@@ -7568,6 +8359,7 @@
         "on_error",
         "on_reading"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7584,6 +8376,7 @@
         "on_stream",
         "on_upload"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7600,6 +8393,7 @@
         "on_stream",
         "on_upload"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "audio_recorder"
     },
@@ -7617,6 +8411,7 @@
         "on_error",
         "on_reading"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7630,6 +8425,7 @@
         "key",
         "on_state_change"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7642,6 +8438,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7654,6 +8451,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "browser_context_menu"
     },
@@ -7703,6 +8501,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7715,6 +8514,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7728,6 +8528,7 @@
         "key",
         "on_change"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7742,6 +8543,7 @@
         "on_result",
         "on_upload"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7756,6 +8558,7 @@
         "on_result",
         "on_upload"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "file_picker"
     },
@@ -7769,6 +8572,7 @@
         "key",
         "on_error"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7784,6 +8588,7 @@
         "on_error",
         "on_position_change"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7801,6 +8606,7 @@
         "on_error",
         "on_reading"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7813,6 +8619,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7825,6 +8632,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "haptic_feedback"
     },
@@ -7842,6 +8650,7 @@
         "on_error",
         "on_reading"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7854,6 +8663,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7866,6 +8676,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "permission_handler"
     },
@@ -7880,6 +8691,7 @@
         "on_application_screen_brightness_change",
         "on_system_screen_brightness_change"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7894,6 +8706,7 @@
         "on_application_screen_brightness_change",
         "on_system_screen_brightness_change"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "screen_brightness"
     },
@@ -7912,6 +8725,7 @@
         "web_options",
         "windows_options"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7930,6 +8744,7 @@
         "web_options",
         "windows_options"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "secure_storage"
     },
@@ -7942,6 +8757,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7954,6 +8770,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "semantics_service"
     },
@@ -7971,6 +8788,7 @@
         "shake_slop_time_ms",
         "shake_threshold_gravity"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -7988,6 +8806,7 @@
         "shake_slop_time_ms",
         "shake_threshold_gravity"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "shake_detector"
     },
@@ -8000,6 +8819,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8012,6 +8832,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8024,6 +8845,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "shared_preferences"
     },
@@ -8036,6 +8858,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8048,6 +8871,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "storage_paths"
     },
@@ -8060,6 +8884,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8072,6 +8897,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "url_launcher"
     },
@@ -8089,6 +8915,7 @@
         "on_error",
         "on_reading"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8106,6 +8933,7 @@
         "on_error",
         "on_reading"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "user_accelerometer"
     },
@@ -8118,8 +8946,151 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
+    },
+    {
+      "dsl_name": "about_dialog",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::AboutDialogControl",
+      "wire_type": "AboutDialog",
+      "keywords": [
+        "application_icon",
+        "application_legalese",
+        "application_name",
+        "application_version",
+        "barrier_color",
+        "controls",
+        "data",
+        "key",
+        "modal",
+        "on_dismiss",
+        "open",
+        "view",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "aboutdialog",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::AboutDialogControl",
+      "wire_type": "AboutDialog",
+      "keywords": [
+        "application_icon",
+        "application_legalese",
+        "application_name",
+        "application_version",
+        "barrier_color",
+        "controls",
+        "data",
+        "key",
+        "modal",
+        "on_dismiss",
+        "open",
+        "view",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "about_dialog"
+    },
+    {
+      "dsl_name": "absorb_pointer",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::AbsorbPointerControl",
+      "wire_type": "AbsorbPointer",
+      "keywords": [
+        "absorbing",
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "absorbpointer",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::AbsorbPointerControl",
+      "wire_type": "AbsorbPointer",
+      "keywords": [
+        "absorbing",
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "absorb_pointer"
     },
     {
       "dsl_name": "action_sheet",
@@ -8166,6 +9137,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8215,6 +9187,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8263,6 +9236,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "action_sheet"
     },
@@ -8312,6 +9286,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "action_sheet_action"
     },
@@ -8362,6 +9337,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8412,6 +9388,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "alert_dialog"
     },
@@ -8462,6 +9439,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8512,6 +9490,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "animated_switcher"
     },
@@ -8566,6 +9545,7 @@
         "transition_between_routes",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8620,6 +9600,7 @@
         "transition_between_routes",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "app_bar"
     },
@@ -8640,6 +9621,7 @@
         "x",
         "y"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8669,6 +9651,7 @@
         "visible",
         "volume"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8718,6 +9701,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8730,6 +9714,7 @@
         "key",
         "value"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8779,6 +9764,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "auto_complete"
     },
@@ -8791,6 +9777,7 @@
         "key",
         "value"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "auto_complete_suggestion"
     },
@@ -8814,6 +9801,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8837,6 +9825,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "autofill_group"
     },
@@ -8859,6 +9848,7 @@
         "text_color",
         "text_style"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8898,6 +9888,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -8907,6 +9898,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BannerAdControl",
       "wire_type": "BannerAd",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -8916,6 +9908,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BannerAdControl",
       "wire_type": "BannerAd",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "banner_ad"
     },
@@ -8925,6 +9918,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BarChartControl",
       "wire_type": "BarChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -8934,6 +9928,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BarChartGroupControl",
       "wire_type": "BarChartGroup",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -8943,6 +9938,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BarChartRodControl",
       "wire_type": "BarChartRod",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -8952,6 +9948,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BarChartRodStackItemControl",
       "wire_type": "BarChartRodStackItem",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -8961,6 +9958,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BarChartControl",
       "wire_type": "BarChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "bar_chart"
     },
@@ -8970,6 +9968,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BarChartGroupControl",
       "wire_type": "BarChartGroup",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "bar_chart_group"
     },
@@ -8979,6 +9978,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BarChartRodControl",
       "wire_type": "BarChartRod",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "bar_chart_rod"
     },
@@ -8988,6 +9988,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BarChartRodStackItemControl",
       "wire_type": "BarChartRodStackItem",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "bar_chart_rod_stack_item"
     },
@@ -9023,6 +10024,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9058,6 +10060,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "base_page"
     },
@@ -9067,6 +10070,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BlockPickerControl",
       "wire_type": "BlockPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -9076,6 +10080,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::BlockPickerControl",
       "wire_type": "BlockPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "block_picker"
     },
@@ -9129,6 +10134,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9171,6 +10177,7 @@
         "use_safe_area",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9224,6 +10231,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "bottom_app_bar"
     },
@@ -9266,6 +10274,7 @@
         "use_safe_area",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "bottom_sheet"
     },
@@ -9278,6 +10287,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9290,6 +10300,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "browser_context_menu"
     },
@@ -9361,6 +10372,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9370,6 +10382,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CandlestickChartControl",
       "wire_type": "CandlestickChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -9379,6 +10392,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CandlestickChartSpotControl",
       "wire_type": "CandlestickChartSpot",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -9388,6 +10402,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CandlestickChartControl",
       "wire_type": "CandlestickChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "candlestick_chart"
     },
@@ -9397,6 +10412,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CandlestickChartSpotControl",
       "wire_type": "CandlestickChartSpot",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "candlestick_chart_spot"
     },
@@ -9445,6 +10461,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9499,6 +10516,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9560,6 +10578,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9621,6 +10640,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "carousel_view"
     },
@@ -9630,6 +10650,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ChartAxisControl",
       "wire_type": "ChartAxis",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -9639,6 +10660,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ChartAxisLabelControl",
       "wire_type": "ChartAxisLabel",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -9648,6 +10670,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ChartAxisControl",
       "wire_type": "ChartAxis",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "chart_axis"
     },
@@ -9657,6 +10680,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ChartAxisLabelControl",
       "wire_type": "ChartAxisLabel",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "chart_axis_label"
     },
@@ -9725,6 +10749,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9805,6 +10830,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9821,6 +10847,7 @@
         "x",
         "y"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9874,6 +10901,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -9883,6 +10911,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CircleLayerControl",
       "wire_type": "CircleLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -9892,6 +10921,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CircleMarkerControl",
       "wire_type": "CircleMarker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -9945,6 +10975,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "circle_avatar"
     },
@@ -9954,6 +10985,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CircleLayerControl",
       "wire_type": "CircleLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "circle_layer"
     },
@@ -9963,6 +10995,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CircleMarkerControl",
       "wire_type": "CircleMarker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "circle_marker"
     },
@@ -9972,6 +11005,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CodeEditorControl",
       "wire_type": "CodeEditor",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -9981,6 +11015,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CodeEditorControl",
       "wire_type": "CodeEditor",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "code_editor"
     },
@@ -9995,6 +11030,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -10004,6 +11040,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ColorPickerControl",
       "wire_type": "ColorPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -10013,6 +11050,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ColorPickerControl",
       "wire_type": "ColorPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "color_picker"
     },
@@ -10026,6 +11064,7 @@
         "align",
         "alignment",
         "animate_align",
+        "animate_changes",
         "animate_margin",
         "animate_offset",
         "animate_opacity",
@@ -10041,19 +11080,29 @@
         "controls",
         "data",
         "disabled",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "height",
         "horizontal_alignment",
         "intrinsic_width",
+        "item_animation",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "offset",
         "on_animation_end",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "right",
         "rotate",
         "rtl",
@@ -10071,6 +11120,7 @@
         "width",
         "wrap"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -10144,6 +11194,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -10201,6 +11252,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -10255,6 +11307,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -10312,6 +11365,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "context_menu"
     },
@@ -10366,6 +11420,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "context_menu_action"
     },
@@ -10414,6 +11469,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "action_sheet"
     },
@@ -10463,6 +11519,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "action_sheet_action"
     },
@@ -10511,6 +11568,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "progress_ring"
     },
@@ -10541,6 +11599,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "alert_dialog"
     },
@@ -10576,6 +11635,7 @@
         "transition_between_routes",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "app_bar"
     },
@@ -10614,6 +11674,7 @@
         "use_safe_area",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "bottom_sheet"
     },
@@ -10678,6 +11739,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "button"
     },
@@ -10739,6 +11801,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "checkbox"
     },
@@ -10764,6 +11827,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "context_menu"
     },
@@ -10791,6 +11855,7 @@
         "trailing_icon",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "context_menu_action"
     },
@@ -10822,6 +11887,7 @@
         "expand_loose",
         "first_date",
         "height",
+        "inline",
         "item_extent",
         "key",
         "last_date",
@@ -10849,6 +11915,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "date_picker"
     },
@@ -10875,6 +11942,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "button"
     },
@@ -10939,6 +12007,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "filled_button"
     },
@@ -10998,6 +12067,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "list_tile"
     },
@@ -11050,6 +12120,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "navigation_bar"
     },
@@ -11107,6 +12178,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "picker"
     },
@@ -11164,6 +12236,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "radio"
     },
@@ -11218,6 +12291,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "segmented_button"
     },
@@ -11273,6 +12347,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "slider"
     },
@@ -11318,12 +12393,14 @@
         "scale",
         "selected_index",
         "size_change_interval",
+        "sliding",
         "thumb_color",
         "tooltip",
         "top",
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "segmented_button"
     },
@@ -11390,6 +12467,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "switch"
     },
@@ -11541,6 +12619,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "text_field"
     },
@@ -11593,6 +12672,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "timer_picker"
     },
@@ -11657,6 +12737,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "filled_tonal_button"
     },
@@ -11705,6 +12786,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "action_sheet"
     },
@@ -11754,6 +12836,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "action_sheet_action"
     },
@@ -11802,6 +12885,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "progress_ring"
     },
@@ -11832,6 +12916,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "alert_dialog"
     },
@@ -11867,6 +12952,7 @@
         "transition_between_routes",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "app_bar"
     },
@@ -11905,6 +12991,7 @@
         "use_safe_area",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "bottom_sheet"
     },
@@ -11969,6 +13056,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "button"
     },
@@ -12030,6 +13118,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "checkbox"
     },
@@ -12055,6 +13144,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "context_menu"
     },
@@ -12082,6 +13172,7 @@
         "trailing_icon",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "context_menu_action"
     },
@@ -12113,6 +13204,7 @@
         "expand_loose",
         "first_date",
         "height",
+        "inline",
         "item_extent",
         "key",
         "last_date",
@@ -12140,6 +13232,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "date_picker"
     },
@@ -12166,6 +13259,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "button"
     },
@@ -12230,6 +13324,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "filled_button"
     },
@@ -12289,6 +13384,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "list_tile"
     },
@@ -12341,6 +13437,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "navigation_bar"
     },
@@ -12398,6 +13495,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "picker"
     },
@@ -12455,6 +13553,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "radio"
     },
@@ -12509,6 +13608,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "segmented_button"
     },
@@ -12564,6 +13664,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "slider"
     },
@@ -12609,12 +13710,14 @@
         "scale",
         "selected_index",
         "size_change_interval",
+        "sliding",
         "thumb_color",
         "tooltip",
         "top",
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "segmented_button"
     },
@@ -12681,6 +13784,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "switch"
     },
@@ -12832,6 +13936,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "text_field"
     },
@@ -12884,6 +13989,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "timer_picker"
     },
@@ -12948,8 +14054,125 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "filled_tonal_button"
+    },
+    {
+      "dsl_name": "custom_scroll_view",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::CustomScrollViewControl",
+      "wire_type": "CustomScrollView",
+      "keywords": [
+        "align",
+        "anchor",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "auto_scroll",
+        "badge",
+        "bottom",
+        "cache_extent",
+        "clip_behavior",
+        "col",
+        "controls",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "horizontal",
+        "key",
+        "keyboard_dismiss_behavior",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_scroll",
+        "on_size_change",
+        "opacity",
+        "reverse",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "scroll",
+        "scroll_interval",
+        "semantic_child_count",
+        "size_change_interval",
+        "slivers",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "customscrollview",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::CustomScrollViewControl",
+      "wire_type": "CustomScrollView",
+      "keywords": [
+        "align",
+        "anchor",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "auto_scroll",
+        "badge",
+        "bottom",
+        "cache_extent",
+        "clip_behavior",
+        "col",
+        "controls",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "horizontal",
+        "key",
+        "keyboard_dismiss_behavior",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_scroll",
+        "on_size_change",
+        "opacity",
+        "reverse",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "scroll",
+        "scroll_interval",
+        "semantic_child_count",
+        "size_change_interval",
+        "slivers",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "custom_scroll_view"
     },
     {
       "dsl_name": "data_cell",
@@ -12977,6 +14200,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13002,6 +14226,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13011,6 +14236,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::DataColumn2Control",
       "wire_type": "DataColumn2",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -13037,6 +14263,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13046,6 +14273,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::DataRow2Control",
       "wire_type": "DataRow2",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -13115,6 +14343,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13124,6 +14353,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::DataTable2Control",
       "wire_type": "DataTable2",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -13153,6 +14383,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "data_cell"
     },
@@ -13178,6 +14409,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "data_column"
     },
@@ -13187,6 +14419,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::DataColumn2Control",
       "wire_type": "DataColumn2",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "data_column2"
     },
@@ -13213,6 +14446,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "data_row"
     },
@@ -13222,6 +14456,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::DataRow2Control",
       "wire_type": "DataRow2",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "data_row2"
     },
@@ -13291,6 +14526,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "data_table"
     },
@@ -13300,6 +14536,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::DataTable2Control",
       "wire_type": "DataTable2",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "data_table2"
     },
@@ -13342,6 +14579,7 @@
         "first_date",
         "height",
         "help_text",
+        "inline",
         "inset_padding",
         "item_extent",
         "key",
@@ -13377,6 +14615,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13425,6 +14664,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13467,6 +14707,7 @@
         "first_date",
         "height",
         "help_text",
+        "inline",
         "inset_padding",
         "item_extent",
         "key",
@@ -13502,6 +14743,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "date_picker"
     },
@@ -13550,6 +14792,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "date_range_picker"
     },
@@ -13563,6 +14806,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13620,6 +14864,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13647,6 +14892,7 @@
         "trailing_indent",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13674,6 +14920,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13704,6 +14951,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13765,6 +15013,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -13826,6 +15075,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "draggable_scrollable_sheet"
     },
@@ -13853,6 +15103,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "drag_target"
     },
@@ -13982,6 +15233,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -14111,6 +15363,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "dropdown"
     },
@@ -14137,6 +15390,7 @@
         "trailing_icon",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -14266,6 +15520,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "dropdown"
     },
@@ -14292,6 +15547,7 @@
         "trailing_icon",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "dropdown_option"
     },
@@ -14363,6 +15619,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "button"
     },
@@ -14434,6 +15691,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "button"
     },
@@ -14486,6 +15744,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -14537,6 +15796,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -14610,6 +15870,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -14662,6 +15923,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "expansion_panel"
     },
@@ -14717,6 +15979,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "expansion_panel_list"
     },
@@ -14790,6 +16053,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "expansion_tile"
     },
@@ -14803,6 +16067,7 @@
         "key",
         "paint"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -14872,6 +16137,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -14944,6 +16210,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -15013,6 +16280,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -15085,6 +16353,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -15154,6 +16423,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "filled_button"
     },
@@ -15226,6 +16496,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "filled_icon_button"
     },
@@ -15295,6 +16566,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "filled_tonal_button"
     },
@@ -15367,6 +16639,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "filled_tonal_icon_button"
     },
@@ -15415,6 +16688,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -15463,6 +16737,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "fitted_box"
     },
@@ -15527,6 +16802,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -15591,6 +16867,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "floating_action_button"
     },
@@ -15640,6 +16917,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -15689,8 +16967,107 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "form_row"
+    },
+    {
+      "dsl_name": "fractionally_sized_box",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::FractionallySizedBoxControl",
+      "wire_type": "FractionallySizedBox",
+      "keywords": [
+        "align",
+        "alignment",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "height_factor",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width",
+        "width_factor"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "fractionallysizedbox",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::FractionallySizedBoxControl",
+      "wire_type": "FractionallySizedBox",
+      "keywords": [
+        "align",
+        "alignment",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "height_factor",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width",
+        "width_factor"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "fractionally_sized_box"
     },
     {
       "dsl_name": "gesture_detector",
@@ -15809,6 +17186,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -15929,6 +17307,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "gesture_detector"
     },
@@ -15960,20 +17339,29 @@
         "controls",
         "data",
         "disabled",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "height",
         "horizontal",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "max_extent",
         "offset",
         "on_animation_end",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
         "padding",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "reverse",
         "right",
         "rotate",
@@ -15991,6 +17379,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16022,20 +17411,29 @@
         "controls",
         "data",
         "disabled",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "height",
         "horizontal",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "max_extent",
         "offset",
         "on_animation_end",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
         "padding",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "reverse",
         "right",
         "rotate",
@@ -16053,6 +17451,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "grid_view"
     },
@@ -16100,6 +17499,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16109,6 +17509,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::HueRingPickerControl",
       "wire_type": "HueRingPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -16118,6 +17519,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::HueRingPickerControl",
       "wire_type": "HueRingPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "hue_ring_picker"
     },
@@ -16173,6 +17575,7 @@
         "weight",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16245,6 +17648,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16317,8 +17721,103 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "icon_button"
+    },
+    {
+      "dsl_name": "ignore_pointer",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::IgnorePointerControl",
+      "wire_type": "IgnorePointer",
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "ignoring",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "ignorepointer",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::IgnorePointerControl",
+      "wire_type": "IgnorePointer",
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "ignoring",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "ignore_pointer"
     },
     {
       "dsl_name": "image",
@@ -16383,6 +17882,7 @@
         "x",
         "y"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16392,6 +17892,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ImageSourceAttributionControl",
       "wire_type": "ImageSourceAttribution",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -16401,6 +17902,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ImageSourceAttributionControl",
       "wire_type": "ImageSourceAttribution",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "image_source_attribution"
     },
@@ -16450,6 +17952,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16499,6 +18002,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "indexed_stack"
     },
@@ -16559,6 +18063,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16619,6 +18124,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "interactive_viewer"
     },
@@ -16628,6 +18134,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::InterstitialAdControl",
       "wire_type": "InterstitialAd",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -16637,8 +18144,197 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::InterstitialAdControl",
       "wire_type": "InterstitialAd",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "interstitial_ad"
+    },
+    {
+      "dsl_name": "intrinsic_height",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::IntrinsicHeightControl",
+      "wire_type": "IntrinsicHeight",
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "intrinsic_width",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::IntrinsicWidthControl",
+      "wire_type": "IntrinsicWidth",
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "step_height",
+        "step_width",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "intrinsicheight",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::IntrinsicHeightControl",
+      "wire_type": "IntrinsicHeight",
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "intrinsic_height"
+    },
+    {
+      "dsl_name": "intrinsicwidth",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::IntrinsicWidthControl",
+      "wire_type": "IntrinsicWidth",
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "col",
+        "content",
+        "data",
+        "disabled",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "size_change_interval",
+        "step_height",
+        "step_width",
+        "tooltip",
+        "top",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "intrinsic_width"
     },
     {
       "dsl_name": "keyboard_listener",
@@ -16664,6 +18360,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16691,6 +18388,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "keyboard_listener"
     },
@@ -16708,6 +18406,7 @@
         "y1",
         "y2"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16717,6 +18416,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::LineChartControl",
       "wire_type": "LineChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -16726,6 +18426,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::LineChartDataControl",
       "wire_type": "LineChartData",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -16735,6 +18436,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::LineChartDataPointControl",
       "wire_type": "LineChartDataPoint",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -16744,6 +18446,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::LineChartControl",
       "wire_type": "LineChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "line_chart"
     },
@@ -16753,6 +18456,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::LineChartDataControl",
       "wire_type": "LineChartData",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "line_chart_data"
     },
@@ -16762,6 +18466,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::LineChartDataPointControl",
       "wire_type": "LineChartDataPoint",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "line_chart_data_point"
     },
@@ -16819,6 +18524,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16905,6 +18611,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -16917,6 +18624,7 @@
         "adaptive",
         "align",
         "animate_align",
+        "animate_changes",
         "animate_margin",
         "animate_offset",
         "animate_opacity",
@@ -16936,22 +18644,32 @@
         "data",
         "disabled",
         "divider_thickness",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "first_item_prototype",
         "height",
         "horizontal",
+        "item_animation",
         "item_extent",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "offset",
         "on_animation_end",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
         "padding",
         "prototype_item",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "reverse",
         "right",
         "rotate",
@@ -16967,6 +18685,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17024,6 +18743,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "list_section"
     },
@@ -17110,6 +18830,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "list_tile"
     },
@@ -17122,6 +18843,7 @@
         "adaptive",
         "align",
         "animate_align",
+        "animate_changes",
         "animate_margin",
         "animate_offset",
         "animate_opacity",
@@ -17141,22 +18863,32 @@
         "data",
         "disabled",
         "divider_thickness",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "first_item_prototype",
         "height",
         "horizontal",
+        "item_animation",
         "item_extent",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "offset",
         "on_animation_end",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
         "padding",
         "prototype_item",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "reverse",
         "right",
         "rotate",
@@ -17172,6 +18904,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "list_view"
     },
@@ -17181,6 +18914,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::LottieControl",
       "wire_type": "Lottie",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -17190,6 +18924,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MapControl",
       "wire_type": "Map",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -17199,6 +18934,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MapLayerControl",
       "wire_type": "MapLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -17208,6 +18944,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MapLayerControl",
       "wire_type": "MapLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "map_layer"
     },
@@ -17269,6 +19006,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17278,6 +19016,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MarkerControl",
       "wire_type": "Marker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -17287,6 +19026,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MarkerLayerControl",
       "wire_type": "MarkerLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -17296,6 +19036,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MarkerLayerControl",
       "wire_type": "MarkerLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "marker_layer"
     },
@@ -17305,6 +19046,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MaterialPickerControl",
       "wire_type": "MaterialPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -17314,6 +19056,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MaterialPickerControl",
       "wire_type": "MaterialPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "material_picker"
     },
@@ -17338,6 +19081,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17396,6 +19140,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17420,6 +19165,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "menu_bar"
     },
@@ -17478,6 +19224,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "menu_item_button"
     },
@@ -17500,6 +19247,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17522,6 +19270,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "merge_semantics"
     },
@@ -17531,6 +19280,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MultipleChoiceBlockPickerControl",
       "wire_type": "MultipleChoiceBlockPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -17540,6 +19290,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::MultipleChoiceBlockPickerControl",
       "wire_type": "MultipleChoiceBlockPicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "multiple_choice_block_picker"
     },
@@ -17549,6 +19300,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::NativeAdControl",
       "wire_type": "NativeAd",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -17558,6 +19310,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::NativeAdControl",
       "wire_type": "NativeAd",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "native_ad"
     },
@@ -17620,6 +19373,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17646,6 +19400,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17680,6 +19435,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17705,6 +19461,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17766,6 +19523,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17793,6 +19551,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -17855,6 +19614,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "navigation_bar"
     },
@@ -17881,6 +19641,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "navigation_bar_destination"
     },
@@ -17915,6 +19676,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "navigation_drawer"
     },
@@ -17940,6 +19702,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "navigation_drawer_destination"
     },
@@ -18004,6 +19767,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "navigation_rail"
     },
@@ -18031,6 +19795,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "navigation_rail_destination"
     },
@@ -18057,6 +19822,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18125,6 +19891,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18197,6 +19964,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18265,6 +20033,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "outlined_button"
     },
@@ -18337,6 +20106,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "outlined_icon_button"
     },
@@ -18354,6 +20124,7 @@
         "x",
         "y"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18367,6 +20138,7 @@
         "data",
         "key"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18432,6 +20204,7 @@
         "width",
         "window"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18489,6 +20262,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18544,6 +20318,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18601,6 +20376,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "page_view"
     },
@@ -18615,6 +20391,7 @@
         "key",
         "paint"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18672,6 +20449,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18681,6 +20459,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PieChartControl",
       "wire_type": "PieChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -18690,6 +20469,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PieChartSectionControl",
       "wire_type": "PieChartSection",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -18699,6 +20479,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PieChartControl",
       "wire_type": "PieChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "pie_chart"
     },
@@ -18708,6 +20489,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PieChartSectionControl",
       "wire_type": "PieChartSection",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "pie_chart_section"
     },
@@ -18757,6 +20539,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18772,6 +20555,7 @@
         "point_mode",
         "points"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18781,6 +20565,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PolygonLayerControl",
       "wire_type": "PolygonLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -18790,6 +20575,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PolygonMarkerControl",
       "wire_type": "PolygonMarker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -18799,6 +20585,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PolygonLayerControl",
       "wire_type": "PolygonLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "polygon_layer"
     },
@@ -18808,6 +20595,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PolygonMarkerControl",
       "wire_type": "PolygonMarker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "polygon_marker"
     },
@@ -18817,6 +20605,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PolylineLayerControl",
       "wire_type": "PolylineLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -18826,6 +20615,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PolylineMarkerControl",
       "wire_type": "PolylineMarker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -18835,6 +20625,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PolylineLayerControl",
       "wire_type": "PolylineLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "polyline_layer"
     },
@@ -18844,6 +20635,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::PolylineMarkerControl",
       "wire_type": "PolylineMarker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "polyline_marker"
     },
@@ -18909,6 +20701,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -18938,6 +20731,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19003,6 +20797,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "popup_menu_button"
     },
@@ -19032,6 +20827,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "popup_menu_item"
     },
@@ -19087,6 +20883,7 @@
         "width",
         "year_2023"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19146,6 +20943,7 @@
         "width",
         "year_2023"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19201,6 +20999,7 @@
         "width",
         "year_2023"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "progress_bar"
     },
@@ -19260,6 +21059,7 @@
         "width",
         "year_2023"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "progress_ring"
     },
@@ -19269,6 +21069,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RadarChartControl",
       "wire_type": "RadarChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -19278,6 +21079,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RadarChartTitleControl",
       "wire_type": "RadarChartTitle",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -19287,6 +21089,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RadarDataSetControl",
       "wire_type": "RadarDataSet",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -19296,6 +21099,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RadarDataSetEntryControl",
       "wire_type": "RadarDataSetEntry",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -19305,6 +21109,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RadarChartControl",
       "wire_type": "RadarChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "radar_chart"
     },
@@ -19314,6 +21119,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RadarChartTitleControl",
       "wire_type": "RadarChartTitle",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "radar_chart_title"
     },
@@ -19323,6 +21129,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RadarDataSetControl",
       "wire_type": "RadarDataSet",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "radar_data_set"
     },
@@ -19332,6 +21139,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RadarDataSetEntryControl",
       "wire_type": "RadarDataSetEntry",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "radar_data_set_entry"
     },
@@ -19395,6 +21203,7 @@
         "visual_density",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19419,6 +21228,7 @@
         "value",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19443,6 +21253,7 @@
         "value",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "radio_group"
     },
@@ -19501,6 +21312,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19559,6 +21371,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "range_slider"
     },
@@ -19577,6 +21390,7 @@
         "x",
         "y"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19624,6 +21438,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19666,6 +21481,7 @@
         "horizontal",
         "item_extent",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "mouse_cursor",
@@ -19695,6 +21511,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19742,6 +21559,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "reorderable_drag_handle"
     },
@@ -19784,6 +21602,7 @@
         "horizontal",
         "item_extent",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "mouse_cursor",
@@ -19813,6 +21632,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "reorderable_list_view"
     },
@@ -19865,6 +21685,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -19921,6 +21742,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "responsive_row"
     },
@@ -19930,6 +21752,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RichAttributionControl",
       "wire_type": "RichAttribution",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -19939,6 +21762,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RichAttributionControl",
       "wire_type": "RichAttribution",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "rich_attribution"
     },
@@ -19948,6 +21772,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::RiveControl",
       "wire_type": "Rive",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -19994,6 +21819,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20040,6 +21866,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "rotated_box"
     },
@@ -20068,15 +21895,18 @@
         "controls",
         "data",
         "disabled",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "height",
         "intrinsic_height",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "offset",
         "on_animation_end",
+        "on_end_reached",
         "on_scroll",
         "on_size_change",
         "opacity",
@@ -20098,6 +21928,7 @@
         "width",
         "wrap"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20153,6 +21984,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20208,6 +22040,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "ruflet_app"
     },
@@ -20260,6 +22093,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20312,6 +22146,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "safe_area"
     },
@@ -20321,6 +22156,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ScatterChartControl",
       "wire_type": "ScatterChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -20330,6 +22166,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ScatterChartSpotControl",
       "wire_type": "ScatterChartSpot",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -20339,6 +22176,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ScatterChartControl",
       "wire_type": "ScatterChart",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "scatter_chart"
     },
@@ -20348,6 +22186,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ScatterChartSpotControl",
       "wire_type": "ScatterChartSpot",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "scatter_chart_spot"
     },
@@ -20370,6 +22209,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20455,6 +22295,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20540,6 +22381,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "search_bar"
     },
@@ -20564,6 +22406,7 @@
         "value",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20621,6 +22464,7 @@
         "selected_index",
         "show_selected_icon",
         "size_change_interval",
+        "sliding",
         "style",
         "thumb_color",
         "tooltip",
@@ -20629,6 +22473,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20686,6 +22531,7 @@
         "selected_index",
         "show_selected_icon",
         "size_change_interval",
+        "sliding",
         "style",
         "thumb_color",
         "tooltip",
@@ -20694,6 +22540,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "segmented_button"
     },
@@ -20717,6 +22564,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20740,6 +22588,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "selection_area"
     },
@@ -20810,6 +22659,7 @@
         "value",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20824,6 +22674,7 @@
         "key",
         "services"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20838,6 +22689,7 @@
         "key",
         "services"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "service_registry"
     },
@@ -20886,6 +22738,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -20934,6 +22787,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "shader_mask"
     },
@@ -20950,6 +22804,7 @@
         "path",
         "transparent_occluder"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21001,6 +22856,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21010,6 +22866,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::SimpleAttributionControl",
       "wire_type": "SimpleAttribution",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -21019,6 +22876,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::SimpleAttributionControl",
       "wire_type": "SimpleAttribution",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "simple_attribution"
     },
@@ -21028,6 +22886,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::SlidePickerControl",
       "wire_type": "SlidePicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -21037,6 +22896,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::SlidePickerControl",
       "wire_type": "SlidePicker",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "slide_picker"
     },
@@ -21104,8 +22964,279 @@
         "width",
         "year_2023"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
+    },
+    {
+      "dsl_name": "sliver_app_bar",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverAppBarControl",
+      "wire_type": "SliverAppBar",
+      "keywords": [
+        "actions",
+        "always_show_middle",
+        "automatically_imply_leading",
+        "bgcolor",
+        "border",
+        "bottom",
+        "bottom_height",
+        "center_title",
+        "collapsed_height",
+        "color",
+        "data",
+        "elevation",
+        "expanded_height",
+        "flexible_space",
+        "floating",
+        "key",
+        "leading",
+        "pinned",
+        "previous_page_title",
+        "scrolled_under_elevation",
+        "shadow_color",
+        "snap",
+        "stretch",
+        "title",
+        "toolbar_height",
+        "transition_between_routes",
+        "variant",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "sliver_fill_remaining",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverFillRemainingControl",
+      "wire_type": "SliverFillRemaining",
+      "keywords": [
+        "content",
+        "data",
+        "fill_overscroll",
+        "has_scroll_body",
+        "key",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "sliver_grid",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverGridControl",
+      "wire_type": "SliverGrid",
+      "keywords": [
+        "bgcolor",
+        "child_aspect_ratio",
+        "controls",
+        "data",
+        "header",
+        "key",
+        "max_extent",
+        "padding",
+        "run_spacing",
+        "runs_count",
+        "spacing",
+        "sticky_header",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "sliver_list",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverListControl",
+      "wire_type": "SliverList",
+      "keywords": [
+        "bgcolor",
+        "build_controls_on_demand",
+        "controls",
+        "data",
+        "divider_thickness",
+        "header",
+        "item_extent",
+        "key",
+        "padding",
+        "spacing",
+        "sticky_header",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "sliver_padding",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverPaddingControl",
+      "wire_type": "SliverPadding",
+      "keywords": [
+        "controls",
+        "data",
+        "key",
+        "padding",
+        "slivers",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "sliver_to_box_adapter",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverToBoxAdapterControl",
+      "wire_type": "SliverToBoxAdapter",
+      "keywords": [
+        "content",
+        "data",
+        "key",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "sliverappbar",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverAppBarControl",
+      "wire_type": "SliverAppBar",
+      "keywords": [
+        "actions",
+        "always_show_middle",
+        "automatically_imply_leading",
+        "bgcolor",
+        "border",
+        "bottom",
+        "bottom_height",
+        "center_title",
+        "collapsed_height",
+        "color",
+        "data",
+        "elevation",
+        "expanded_height",
+        "flexible_space",
+        "floating",
+        "key",
+        "leading",
+        "pinned",
+        "previous_page_title",
+        "scrolled_under_elevation",
+        "shadow_color",
+        "snap",
+        "stretch",
+        "title",
+        "toolbar_height",
+        "transition_between_routes",
+        "variant",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "sliver_app_bar"
+    },
+    {
+      "dsl_name": "sliverfillremaining",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverFillRemainingControl",
+      "wire_type": "SliverFillRemaining",
+      "keywords": [
+        "content",
+        "data",
+        "fill_overscroll",
+        "has_scroll_body",
+        "key",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "sliver_fill_remaining"
+    },
+    {
+      "dsl_name": "slivergrid",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverGridControl",
+      "wire_type": "SliverGrid",
+      "keywords": [
+        "bgcolor",
+        "child_aspect_ratio",
+        "controls",
+        "data",
+        "header",
+        "key",
+        "max_extent",
+        "padding",
+        "run_spacing",
+        "runs_count",
+        "spacing",
+        "sticky_header",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "sliver_grid"
+    },
+    {
+      "dsl_name": "sliverlist",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverListControl",
+      "wire_type": "SliverList",
+      "keywords": [
+        "bgcolor",
+        "build_controls_on_demand",
+        "controls",
+        "data",
+        "divider_thickness",
+        "header",
+        "item_extent",
+        "key",
+        "padding",
+        "spacing",
+        "sticky_header",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "sliver_list"
+    },
+    {
+      "dsl_name": "sliverpadding",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverPaddingControl",
+      "wire_type": "SliverPadding",
+      "keywords": [
+        "controls",
+        "data",
+        "key",
+        "padding",
+        "slivers",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "sliver_padding"
+    },
+    {
+      "dsl_name": "slivertoboxadapter",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::SliverToBoxAdapterControl",
+      "wire_type": "SliverToBoxAdapter",
+      "keywords": [
+        "content",
+        "data",
+        "key",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "sliver_to_box_adapter"
     },
     {
       "dsl_name": "snack_bar",
@@ -21146,6 +23277,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21173,6 +23305,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21215,6 +23348,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "snack_bar"
     },
@@ -21242,6 +23376,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "snack_bar_action"
     },
@@ -21293,6 +23428,7 @@
         "wave_type",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21342,8 +23478,108 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
+    },
+    {
+      "dsl_name": "stepper",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::StepperControl",
+      "wire_type": "Stepper",
+      "keywords": [
+        "align",
+        "animate_align",
+        "animate_margin",
+        "animate_offset",
+        "animate_opacity",
+        "animate_position",
+        "animate_rotation",
+        "animate_scale",
+        "animate_size",
+        "aspect_ratio",
+        "badge",
+        "bottom",
+        "cancel_text",
+        "clip_behavior",
+        "col",
+        "connector_color",
+        "connector_thickness",
+        "continue_text",
+        "controls",
+        "current_step",
+        "data",
+        "disabled",
+        "elevation",
+        "expand",
+        "expand_loose",
+        "height",
+        "key",
+        "left",
+        "margin",
+        "offset",
+        "on_animation_end",
+        "on_size_change",
+        "on_step_cancel",
+        "on_step_continue",
+        "on_step_tap",
+        "opacity",
+        "right",
+        "rotate",
+        "rtl",
+        "scale",
+        "show_controls",
+        "size_change_interval",
+        "steps",
+        "tooltip",
+        "top",
+        "type",
+        "visible",
+        "width"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "stepper_step",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::StepControl",
+      "wire_type": "Step",
+      "keywords": [
+        "content",
+        "data",
+        "is_active",
+        "key",
+        "label",
+        "state",
+        "subtitle",
+        "title",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": true,
+      "alias_of": null
+    },
+    {
+      "dsl_name": "stepperstep",
+      "family": "visual",
+      "ruby_class": "Ruflet::UI::Controls::RufletComponents::StepControl",
+      "wire_type": "Step",
+      "keywords": [
+        "content",
+        "data",
+        "is_active",
+        "key",
+        "label",
+        "state",
+        "subtitle",
+        "title",
+        "visible"
+      ],
+      "open_keywords": false,
+      "canonical": false,
+      "alias_of": "stepper_step"
     },
     {
       "dsl_name": "submenu_button",
@@ -21399,6 +23635,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21456,6 +23693,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "submenu_button"
     },
@@ -21531,6 +23769,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21557,6 +23796,7 @@
         "tooltip",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21625,6 +23865,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21673,6 +23914,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21741,6 +23983,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "tab_bar"
     },
@@ -21789,6 +24032,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "tab_bar_view"
     },
@@ -21843,6 +24087,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21858,6 +24103,7 @@
         "key",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21873,6 +24119,7 @@
         "key",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "table_row"
     },
@@ -21923,6 +24170,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -21996,6 +24244,7 @@
         "x",
         "y"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -22064,6 +24313,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -22215,6 +24465,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -22224,6 +24475,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::TextSourceAttributionControl",
       "wire_type": "TextSourceAttribution",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -22254,6 +24506,7 @@
         "url",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -22322,6 +24575,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "text_button"
     },
@@ -22473,6 +24727,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "text_field"
     },
@@ -22482,6 +24737,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::TextSourceAttributionControl",
       "wire_type": "TextSourceAttribution",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "text_source_attribution"
     },
@@ -22512,6 +24768,7 @@
         "url",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "text_span"
     },
@@ -22521,6 +24778,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::TileLayerControl",
       "wire_type": "TileLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -22530,6 +24788,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::TileLayerControl",
       "wire_type": "TileLayer",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "tile_layer"
     },
@@ -22571,6 +24830,7 @@
         "value",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -22612,6 +24872,7 @@
         "value",
         "visible"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "time_picker"
     },
@@ -22664,6 +24925,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -22716,6 +24978,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "timer_picker"
     },
@@ -22761,6 +25024,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -22806,6 +25070,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "transparent_pointer"
     },
@@ -22833,6 +25098,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -22860,6 +25126,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "vertical_divider"
     },
@@ -22869,6 +25136,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::VideoControl",
       "wire_type": "Video",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -22903,6 +25171,7 @@
         "disabled",
         "drawer",
         "end_drawer",
+        "end_reached_threshold",
         "expand",
         "expand_loose",
         "floating_action_button",
@@ -22912,16 +25181,24 @@
         "height",
         "horizontal_alignment",
         "key",
+        "keyboard_dismiss_behavior",
         "left",
         "margin",
         "navigation_bar",
         "offset",
         "on_animation_end",
         "on_confirm_pop",
+        "on_end_reached",
+        "on_refresh",
         "on_scroll",
         "on_size_change",
         "opacity",
         "padding",
+        "refresh_bgcolor",
+        "refresh_color",
+        "refresh_displacement",
+        "refresh_timeout",
+        "refresh_trigger_distance",
         "right",
         "rotate",
         "route",
@@ -22938,6 +25215,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -22947,6 +25225,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::WebViewControl",
       "wire_type": "WebView",
       "keywords": [],
+      "open_keywords": true,
       "canonical": true,
       "alias_of": null
     },
@@ -22956,6 +25235,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::WebViewControl",
       "wire_type": "WebView",
       "keywords": [],
+      "open_keywords": true,
       "canonical": false,
       "alias_of": "web_view"
     },
@@ -23003,6 +25283,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -23052,6 +25333,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": true,
       "alias_of": null
     },
@@ -23101,6 +25383,7 @@
         "visible",
         "width"
       ],
+      "open_keywords": false,
       "canonical": false,
       "alias_of": "window_drag_area"
     }
