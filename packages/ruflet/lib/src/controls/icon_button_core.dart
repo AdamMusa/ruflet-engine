@@ -156,10 +156,13 @@ class IconButtonCore extends ControlCore<IconButtonProps>
         _ => IconButtonVariant.standard,
       };
 
-  /// The leading button of an AppBar (iOS shows its native back chevron for
-  /// a Material back arrow there).
+  /// A plain IconButton leading an AppBar: iOS shows its native back
+  /// chevron for a Material back arrow there. The filled, tonal and outlined
+  /// variants keep their glyph, as before the move onto the core.
   bool get isAppBarLeading =>
-      parentWireType == 'AppBar' && parentSlot == 'leading';
+      variant == IconButtonVariant.standard &&
+      parentWireType == 'AppBar' &&
+      parentSlot == 'leading';
 
   @override
   IconButtonProps parse(PropReader r) => IconButtonProps.parse(r);
