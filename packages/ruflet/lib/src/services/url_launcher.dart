@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../ruflet_service.dart';
 import '../utils/enums.dart';
+import '../utils/invoke.dart';
 import '../utils/launch_url.dart';
 import '../utils/numbers.dart';
 
@@ -26,7 +27,8 @@ class UrlLauncherService extends RufletService {
     debugPrint("UrlLauncherService.$name($args)");
     switch (name) {
       case "launch_url":
-        return openWebBrowser(parseUrl(args["url"]!)!,
+        final url = _requireUrl(args, name);
+        return openWebBrowser(url,
             mode: _parseLaunchMode(args["mode"]),
             webViewConfiguration:
                 _parseWebViewConfiguration(args["web_view_configuration"]),
@@ -34,11 +36,13 @@ class UrlLauncherService extends RufletService {
                 _parseBrowserConfiguration(args["browser_configuration"]),
             webOnlyWindowName: args["web_only_window_name"]);
       case "can_launch_url":
-        return canLaunchUrl(Uri.parse(parseUrl(args["url"]!)!.url));
+        final url = _requireUrl(args, name);
+        return canLaunchUrl(Uri.parse(url.url));
       case "close_in_app_web_view":
         return closeInAppWebView();
       case "open_window":
-        return openWindow(parseUrl(args["url"]!)!,
+        final url = _requireUrl(args, name);
+        return openWindow(url,
             title: args["title"],
             width: parseDouble(args["width"]),
             height: parseDouble(args["height"]));
@@ -86,4 +90,12 @@ BrowserConfiguration? _parseBrowserConfiguration(dynamic value) {
     return BrowserConfiguration(showTitle: showTitle);
   }
   return null;
+}
+
+Url _requireUrl(Map args, String method) {
+  final url = parseUrl(requireInvokeArg(args, "url", "UrlLauncher.$method"));
+  if (url == null) {
+    throw ArgumentError('UrlLauncher.$method requires "url" to be a string');
+  }
+  return url;
 }

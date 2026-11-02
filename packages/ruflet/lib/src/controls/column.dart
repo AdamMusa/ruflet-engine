@@ -3,12 +3,14 @@ import 'package:flutter/widgets.dart';
 import '../extensions/control.dart';
 import '../models/control.dart';
 import '../utils/alignment.dart';
+import '../utils/misc.dart';
 import '../utils/numbers.dart';
 import 'adaptive_refresh_scroll_view.dart';
+import 'animated_children.dart';
 import 'base_controls.dart';
+import 'box_sliver.dart';
 import 'end_reached_listener.dart';
 import 'scroll_notification_control.dart';
-import 'scroll_slivers.dart';
 import 'scrollable_control.dart';
 
 class ColumnControl extends StatelessWidget {
@@ -29,9 +31,7 @@ class ColumnControl extends StatelessWidget {
     var wrap = control.getBool("wrap", false)!;
     var horizontalAlignment = control.getString("horizontal_alignment");
     var intrinsicWidth = control.getBool("intrinsic_width", false)!;
-    var controls = control.buildWidgets("controls");
-
-    Widget child = wrap
+    Widget flex(List<Widget> controls) => wrap
         ? Wrap(
             direction: Axis.vertical,
             spacing: spacing,
@@ -52,6 +52,13 @@ class ColumnControl extends StatelessWidget {
                 horizontalAlignment, CrossAxisAlignment.start)!,
             children: controls,
           );
+
+    // `animate_changes` animates inserted/removed children (AnimatedList
+    // behavior) of a vertical Column.
+    Widget child = control.getBool("animate_changes", false)! && !wrap
+        ? AnimatedChildrenBuilder(
+            control: control, axis: Axis.vertical, builder: flex)
+        : flex(control.buildWidgets("controls"));
 
     if (intrinsicWidth) {
       child = IntrinsicWidth(child: child);
@@ -118,6 +125,8 @@ class _RefreshableColumnState extends State<_RefreshableColumn> {
           control: widget.control,
           controller: _controller,
           shrinkWrap: constraints.maxHeight == double.infinity,
+          keyboardDismissBehavior: widget.control
+              .getKeyboardDismissBehavior("keyboard_dismiss_behavior"),
           slivers: [
             boxSliver(widget.child,
                 fillViewport: hasExpandedChild(widget.control))

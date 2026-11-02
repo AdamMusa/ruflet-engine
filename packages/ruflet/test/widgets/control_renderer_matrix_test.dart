@@ -60,6 +60,23 @@ class Fixtures {
         props['actions'] = [
           node('ContextMenuAction', {'content': text('Action')})
         ];
+      case 'CustomScrollView':
+        props['slivers'] = [
+          node('SliverAppBar',
+              {'title': text('Title'), 'variant': 'large', 'pinned': true}),
+          node('SliverList', {
+            'header': text('H'),
+            'sticky_header': true,
+            'controls': [text('A'), text('B')]
+          }),
+          node('SliverGrid', {
+            'runs_count': 2,
+            'controls': [text('G1'), text('G2')]
+          }),
+          node('SliverToBoxAdapter', {'content': text('Box')}),
+          text('Auto-wrapped'),
+          node('SliverFillRemaining', {'content': text('Fill')}),
+        ];
       case 'Image':
         props['src'] =
             'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a6i8AAAAASUVORK5CYII=';
@@ -176,6 +193,18 @@ class Fixtures {
         props.addAll({'base_color': '#112233', 'highlight_color': '#445566'});
       case 'RotatedBox':
         props['quarter_turns'] = 1;
+      case 'Stepper':
+        props.addAll({
+          'current_step': 0,
+          'steps': [
+            node('Step', {
+              'title': text('One'),
+              'content': text('Body 1'),
+              'is_active': true
+            }),
+            node('Step', {'title': text('Two'), 'content': text('Body 2')})
+          ]
+        });
       case 'ActionSheet':
         props['actions'] = [
           node('ActionSheetAction', {'content': text('Action')})

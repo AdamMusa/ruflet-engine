@@ -20,6 +20,7 @@ class CupertinoRefreshScrollView extends StatelessWidget {
   final double? cacheExtent;
   final Clip clipBehavior;
   final int? semanticChildCount;
+  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
   final RefreshCallback onRefresh;
 
   const CupertinoRefreshScrollView({
@@ -31,6 +32,7 @@ class CupertinoRefreshScrollView extends StatelessWidget {
     required this.cacheExtent,
     required this.clipBehavior,
     required this.semanticChildCount,
+    required this.keyboardDismissBehavior,
     required this.onRefresh,
   });
 
@@ -52,6 +54,7 @@ class CupertinoRefreshScrollView extends StatelessWidget {
       cacheExtent: cacheExtent,
       clipBehavior: clipBehavior,
       semanticChildCount: semanticChildCount,
+      keyboardDismissBehavior: keyboardDismissBehavior,
       slivers: [
         CupertinoSliverRefreshControl(
           onRefresh: onRefresh,

@@ -20,6 +20,7 @@ import 'controls/adaptive_progress_ring.dart';
 import 'controls/adaptive_radio.dart';
 import 'controls/adaptive_segmented_button.dart';
 import 'controls/adaptive_slider.dart';
+import 'controls/adaptive_stepper.dart';
 import 'controls/adaptive_switch.dart';
 import 'controls/adaptive_texfield.dart';
 import 'controls/adaptive_timer_picker.dart';
@@ -34,6 +35,7 @@ import 'controls/chip.dart';
 import 'controls/circle_avatar.dart';
 import 'controls/column.dart';
 import 'controls/container.dart';
+import 'controls/custom_scroll_view.dart';
 import 'controls/datatable.dart';
 import 'controls/date_range_picker.dart';
 import 'controls/dismissible.dart';
@@ -176,6 +178,8 @@ class RufletCoreExtension extends RufletExtension {
         return AdaptiveContextMenuControl(key: key, control: control);
       case "ContextMenuAction":
         return AdaptiveContextMenuActionControl(key: key, control: control);
+      case "CustomScrollView":
+        return CustomScrollViewControl(key: key, control: control);
       case "DataTable":
         return DataTableControl(key: key, control: control);
       case "DatePicker":
@@ -303,6 +307,8 @@ class RufletCoreExtension extends RufletExtension {
         return SnackBarControl(key: key, control: control);
       case "Stack":
         return StackControl(key: key, control: control);
+      case "Stepper":
+        return AdaptiveStepperControl(key: key, control: control);
       case "SubmenuButton":
         return SubmenuButtonControl(key: key, control: control);
       case "Switch":

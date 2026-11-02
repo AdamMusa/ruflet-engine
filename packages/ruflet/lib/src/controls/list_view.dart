@@ -9,11 +9,12 @@ import '../utils/misc.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
 import 'adaptive_refresh_scroll_view.dart';
+import 'animated_children.dart';
 import 'base_controls.dart';
 import 'end_reached_listener.dart';
 import 'control_widget.dart';
+import 'list_view_sliver.dart';
 import 'scroll_notification_control.dart';
-import 'scroll_slivers.dart';
 import 'scrollable_control.dart';
 
 class ListViewControl extends StatefulWidget {
@@ -26,8 +27,10 @@ class ListViewControl extends StatefulWidget {
   State<ListViewControl> createState() => _ListViewControlState();
 }
 
-class _ListViewControlState extends State<ListViewControl> {
+class _ListViewControlState extends State<ListViewControl>
+    with TickerProviderStateMixin {
   late final ScrollController _controller;
+  AnimatedChildren? _animated;
 
   @override
   void initState() {
@@ -37,8 +40,25 @@ class _ListViewControlState extends State<ListViewControl> {
 
   @override
   void dispose() {
+    _animated?.dispose();
     _controller.dispose();
     super.dispose();
+  }
+
+  /// `animate_changes`: the items to show, including removed ones that are
+  /// still animating out; null when the list does not animate.
+  List<AnimatedChildEntry>? _syncAnimatedChildren(List<Control> controls) {
+    if (!widget.control.getBool("animate_changes", false)!) {
+      _animated?.dispose();
+      _animated = null;
+      return null;
+    }
+    _animated ??= AnimatedChildren(
+        vsync: this,
+        onChanged: () {
+          if (mounted) setState(() {});
+        });
+    return _animated!.sync(controls, ItemAnimation.of(widget.control));
   }
 
   @override
@@ -54,12 +74,29 @@ class _ListViewControlState extends State<ListViewControl> {
     var reverse = widget.control.getBool("reverse", false)!;
     var clipBehavior =
         parseClip(widget.control.getString("clip_behavior"), Clip.hardEdge)!;
+    final keyboardDismissBehavior =
+        widget.control.getKeyboardDismissBehavior("keyboard_dismiss_behavior");
     var scrollDirection = horizontal ? Axis.horizontal : Axis.vertical;
     var buildControlsOnDemand =
         widget.control.getBool("build_controls_on_demand", true)!;
     var firstItemPrototype =
         widget.control.getBool("first_item_prototype", false)!;
     var controls = widget.control.children("controls");
+    final animated = _syncAnimatedChildren(controls);
+    if (animated != null) {
+      controls = [for (final entry in animated) entry.control];
+    }
+    Widget item(int index) {
+      final control = controls[index];
+      final child = ControlWidget(
+        key: ValueKey(control.getKey("key")?.value ?? control.id),
+        control: control,
+      );
+      return animated == null
+          ? child
+          : animated[index].transition(scrollDirection, child);
+    }
+
     var prototypeItem = widget.control.buildWidget("prototype_item") ??
         (firstItemPrototype && controls.isNotEmpty
             ? ControlWidget(control: controls.first)
@@ -93,10 +130,12 @@ class _ListViewControlState extends State<ListViewControl> {
                 shrinkWrap: shrinkWrap,
                 cacheExtent: cacheExtent,
                 clipBehavior: clipBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior,
                 semanticChildCount: semanticChildCount ?? controls.length,
                 slivers: [
                   listViewSliver(
-                      context, widget.control, controls, prototypeItem)
+                      context, widget.control, controls, prototypeItem,
+                      itemBuilder: item)
                 ],
               ),
               scrollDirection);
@@ -107,6 +146,7 @@ class _ListViewControlState extends State<ListViewControl> {
                 cacheExtent: cacheExtent,
                 reverse: reverse,
                 clipBehavior: clipBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior,
                 scrollDirection: scrollDirection,
                 shrinkWrap: shrinkWrap,
                 padding: padding,
@@ -116,11 +156,7 @@ class _ListViewControlState extends State<ListViewControl> {
                 children: () {
                   final childWidgets = <Widget>[];
                   for (var index = 0; index < controls.length; index++) {
-                    final item = controls[index];
-                    childWidgets.add(ControlWidget(
-                      key: ValueKey(item.getKey("key")?.value ?? item.id),
-                      control: item,
-                    ));
+                    childWidgets.add(item(index));
                     if (spacing > 0 && index < controls.length - 1) {
                       childWidgets.add(separator());
                     }
@@ -134,17 +170,12 @@ class _ListViewControlState extends State<ListViewControl> {
                     cacheExtent: cacheExtent,
                     reverse: reverse,
                     clipBehavior: clipBehavior,
+                    keyboardDismissBehavior: keyboardDismissBehavior,
                     scrollDirection: scrollDirection,
                     shrinkWrap: shrinkWrap,
                     padding: padding,
                     itemCount: controls.length,
-                    itemBuilder: (context, index) {
-                      return ControlWidget(
-                        key: ValueKey(controls[index].getKey("key")?.value ??
-                            controls[index].id),
-                        control: controls[index],
-                      );
-                    },
+                    itemBuilder: (context, index) => item(index),
                     separatorBuilder: (context, index) {
                       return separator();
                     },
@@ -152,6 +183,7 @@ class _ListViewControlState extends State<ListViewControl> {
                 : ListView.builder(
                     controller: _controller,
                     clipBehavior: clipBehavior,
+                    keyboardDismissBehavior: keyboardDismissBehavior,
                     semanticChildCount: semanticChildCount,
                     reverse: reverse,
                     cacheExtent: cacheExtent,
@@ -160,13 +192,7 @@ class _ListViewControlState extends State<ListViewControl> {
                     padding: padding,
                     itemCount: controls.length,
                     itemExtent: itemExtent,
-                    itemBuilder: (context, index) {
-                      return ControlWidget(
-                        key: ValueKey(controls[index].getKey("key")?.value ??
-                            controls[index].id),
-                        control: controls[index],
-                      );
-                    },
+                    itemBuilder: (context, index) => item(index),
                     prototypeItem: prototypeItem,
                   );
 

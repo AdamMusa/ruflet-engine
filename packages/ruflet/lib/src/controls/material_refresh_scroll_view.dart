@@ -13,6 +13,7 @@ class MaterialRefreshScrollView extends StatelessWidget {
   final double? cacheExtent;
   final Clip clipBehavior;
   final int? semanticChildCount;
+  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
   final RefreshCallback onRefresh;
 
   const MaterialRefreshScrollView({
@@ -24,6 +25,7 @@ class MaterialRefreshScrollView extends StatelessWidget {
     required this.cacheExtent,
     required this.clipBehavior,
     required this.semanticChildCount,
+    required this.keyboardDismissBehavior,
     required this.onRefresh,
   });
 
@@ -44,6 +46,7 @@ class MaterialRefreshScrollView extends StatelessWidget {
         cacheExtent: cacheExtent,
         clipBehavior: clipBehavior,
         semanticChildCount: semanticChildCount,
+        keyboardDismissBehavior: keyboardDismissBehavior,
         slivers: slivers,
       ),
     );
