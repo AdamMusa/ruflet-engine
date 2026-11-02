@@ -16,6 +16,7 @@ import 'package:flutter/widgets.dart';
 import '../controls/base_controls.dart';
 import '../extensions/control.dart';
 import '../models/control.dart';
+import '../models/control_type.dart';
 import '../utils/alignment.dart';
 import '../utils/animations.dart';
 import '../utils/borders.dart';
@@ -75,6 +76,34 @@ abstract class ControlCore<P extends Object> {
 
   bool get disabled => _control.disabled;
   bool get enabled => !disabled;
+
+  /// The canonical wire type of the control (`FilledButton`, never an alias).
+  /// One core class may serve several wire types (a registry entry maps them
+  /// all to one host) and choose its [spec] from it.
+  @protected
+  String get wireType => _control.canonicalType;
+
+  /// The canonical wire type of the enclosing control, for cores whose
+  /// rendering depends on where they sit (a Button inside an AlertDialog).
+  @protected
+  String? get parentWireType => _control.parent?.canonicalType;
+
+  /// The property of the enclosing control that holds this one (`leading`,
+  /// `actions`, `controls`...), for cores that render differently in a
+  /// particular slot (the iOS back chevron of an AppBar's leading button).
+  @protected
+  String? get parentSlot {
+    final parent = _control.parent;
+    if (parent == null) return null;
+    bool isSelf(Object? value) =>
+        value is Control &&
+        (identical(value, _control) ||
+            identical(value.unwrapComponent(), _control));
+    for (final MapEntry(:key, :value) in parent.properties.entries) {
+      if (isSelf(value) || (value is List && value.any(isSelf))) return key;
+    }
+    return null;
+  }
 
   /// Interactive states, so both skins resolve `WidgetStateProperty` values
   /// the same way. Subclasses add theirs (selected, focused...).

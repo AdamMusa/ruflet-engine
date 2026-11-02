@@ -109,6 +109,33 @@ void main() {
       });
     }
 
+    testWidgets(
+        'a core reads its canonical wire type, its parent\'s and its slot',
+        (tester) async {
+      await mountWire(tester, HarnessDesign.android, {
+        '_c': 'Column',
+        '_i': 360,
+        'controls': [
+          // An alias resolves to its canonical type.
+          {'_c': 'ElevatedButton', '_i': 361},
+        ],
+      }, extensions: [
+        _InlineExtension('ElevatedButton', _TypeCore.new)
+      ]);
+      expect(_TypeCore.last!.props, ('Button', 'Column', 'controls'));
+    });
+
+    testWidgets('a core reads a single-child slot too', (tester) async {
+      await mountWire(tester, HarnessDesign.android, {
+        '_c': 'Container',
+        '_i': 365,
+        'content': {'_c': 'ElevatedButton', '_i': 366},
+      }, extensions: [
+        _InlineExtension('ElevatedButton', _TypeCore.new)
+      ]);
+      expect(_TypeCore.last!.props, ('Button', 'Container', 'content'));
+    });
+
     testWidgets('disposing unregisters the listener and disposes the core',
         (tester) async {
       final mount = await _mount(tester, {});
@@ -438,6 +465,21 @@ class _WrapCore extends ControlCore<Object> {
 
   @override
   Object parse(PropReader r) => const Object();
+}
+
+class _TypeCore extends ControlCore<(String, String?, String?)> {
+  _TypeCore(super.control) {
+    last = this;
+  }
+
+  static _TypeCore? last;
+
+  @override
+  ControlSpec get spec => const ControlSpec(wireType: 'Button', props: []);
+
+  @override
+  (String, String?, String?) parse(PropReader r) =>
+      (wireType, parentWireType, parentSlot);
 }
 
 class _UnhandledCore extends ControlCore<Object> {
