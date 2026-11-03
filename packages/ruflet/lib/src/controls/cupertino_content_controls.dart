@@ -11,6 +11,7 @@ import '../utils/numbers.dart';
 import '../widgets/error.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
+import 'scrollable_control.dart';
 
 class CupertinoChipControl extends StatelessWidget {
   final Control control;
@@ -283,7 +284,8 @@ class CupertinoExpansionPanelListControl extends StatelessWidget {
         );
       }).toList(),
     );
-    return LayoutControl(control: control, child: result);
+    return LayoutControl(
+        control: control, child: wrapInScrollableControl(control, result));
   }
 }
 

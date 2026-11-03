@@ -8,6 +8,7 @@ import '../utils/numbers.dart';
 import '../utils/time.dart';
 import '../widgets/platform_design.dart';
 import '../widgets/platform_scrollbar.dart';
+import 'scroll_notification_control.dart';
 
 class ScrollableControl extends StatefulWidget {
   final Control control;
@@ -87,6 +88,25 @@ class _ScrollableControlState extends State<ScrollableControl> {
     }
   }
 
+  /// How `auto_scroll` moves to the end (Flet's `auto_scroll_animation`):
+  /// `{duration, curve}`, a duration in milliseconds or `true` (1 second,
+  /// linear, like every Flet animation value); 1 second `ease` when unset. A
+  /// zero duration, or `false`, jumps.
+  ImplicitAnimationDetails _autoScrollAnimation() {
+    final fallback = ImplicitAnimationDetails(
+        duration: const Duration(seconds: 1), curve: Curves.ease);
+    var value = widget.control.get("auto_scroll_animation");
+    if (value == false) {
+      return ImplicitAnimationDetails(
+          duration: Duration.zero, curve: Curves.ease);
+    }
+    if (value is double) value = value.round();
+    if (value != null && value != true && value is! int && value is! Map) {
+      return fallback;
+    }
+    return parseAnimation(value, fallback)!;
+  }
+
   @override
   void dispose() {
     if (_ownController) {
@@ -103,13 +123,16 @@ class _ScrollableControlState extends State<ScrollableControl> {
         widget.control.getScrollMode("scroll", ScrollMode.none)!;
 
     if (widget.control.getBool("auto_scroll", false)!) {
+      final animation = _autoScrollAnimation();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || !_controller.hasClients) return;
-        _controller.animateTo(
-          _controller.position.maxScrollExtent,
-          duration: const Duration(seconds: 1),
-          curve: Curves.ease,
-        );
+        final end = _controller.position.maxScrollExtent;
+        if (animation.duration <= Duration.zero) {
+          _controller.jumpTo(end);
+        } else {
+          _controller.animateTo(end,
+              duration: animation.duration, curve: animation.curve);
+        }
       });
     }
     final platform = effectiveTargetPlatform(context);
@@ -143,4 +166,22 @@ class _ScrollableControlState extends State<ScrollableControl> {
             ))
         : widget.child;
   }
+}
+
+/// Gives a multi-child control without a scroll view of its own (Flet's
+/// ResponsiveRow and ExpansionPanelList are ScrollableControls) Column's
+/// scroll surface along [axis]: `scroll` wraps [child] in a scroll view with
+/// `auto_scroll`, `auto_scroll_animation` and `scroll_to`, and `on_scroll`
+/// reports its position. Without `scroll`, [child] lays out as before.
+Widget wrapInScrollableControl(Control control, Widget child,
+    {Axis axis = Axis.vertical}) {
+  Widget result = ScrollableControl(
+      control: control,
+      scrollDirection: axis,
+      wrapIntoScrollableView: true,
+      child: child);
+  if (control.getBool("on_scroll", false)!) {
+    result = ScrollNotificationControl(control: control, child: result);
+  }
+  return result;
 }
