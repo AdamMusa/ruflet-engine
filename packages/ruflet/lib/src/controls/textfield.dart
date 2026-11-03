@@ -14,8 +14,10 @@ import '../utils/mouse.dart';
 import '../utils/numbers.dart';
 import '../utils/platform.dart';
 import '../utils/text.dart';
+import '../utils/pasted_file.dart';
 import '../utils/textfield.dart';
 import '../utils/theme.dart';
+import '../widgets/paste_files_scope.dart';
 import 'base_controls.dart';
 
 class TextFieldControl extends StatefulWidget {
@@ -119,6 +121,12 @@ class _TextFieldControlState extends State<TextFieldControl> {
     });
     widget.control
         .triggerEvent(_shiftEnterfocusNode.hasFocus ? "focus" : "blur");
+  }
+
+  // Ruby's on_paste_files (Flet's TextFieldPasteFilesEvent data).
+  void _onPasteFiles(List<PastedFile> files) {
+    widget.control.triggerEvent(
+        "paste_files", {"files": files.map((file) => file.toMap()).toList()});
   }
 
   void _onFocusChange() {
@@ -326,6 +334,12 @@ class _TextFieldControlState extends State<TextFieldControl> {
             widget.control.triggerEvent("change", value);
           }
         });
+
+    textField = PasteFilesScope(
+        enabled: widget.control.getBool("on_paste_files", false)!,
+        focusNode: focusNode,
+        onPaste: _onPasteFiles,
+        child: textField);
 
     if (cursorColor != null || selectionColor != null) {
       textField = TextSelectionTheme(

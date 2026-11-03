@@ -21,6 +21,9 @@ class SemanticsControl extends StatelessWidget {
           child: content);
     }
     Semantics semantics = Semantics(
+      // A stable ID for accessibility tools and widget tests (Android
+      // resource-id, iOS accessibilityIdentifier, web flt-semantics-identifier).
+      identifier: control.getString("identifier"),
       label: control.getString("label"),
       enabled: !control.disabled,
       expanded: control.getBool("expanded"),

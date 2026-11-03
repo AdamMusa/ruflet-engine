@@ -200,6 +200,18 @@ class _DropdownControlState extends State<MaterialDropdownControl> {
                       Size.fromWidth(menuWidth ?? double.infinity)));
     }
 
+    // menu_border_radius (Flet's DropdownM2, which Ruby's dropdown_m2 sends
+    // on this wire) rounds the open menu; border_radius rounds the field.
+    final menuBorderRadius =
+        widget.control.getBorderRadius("menu_border_radius");
+    if (menuBorderRadius != null) {
+      menuStyle =
+          (menuStyle ?? theme.dropdownMenuTheme.menuStyle ?? const MenuStyle())
+              .copyWith(
+                  shape: WidgetStatePropertyAll(
+                      RoundedRectangleBorder(borderRadius: menuBorderRadius)));
+    }
+
     if (textSize != null || color != null) {
       textStyle =
           (textStyle ?? theme.dropdownMenuTheme.textStyle ?? const TextStyle())
