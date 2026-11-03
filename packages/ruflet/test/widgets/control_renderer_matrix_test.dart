@@ -77,6 +77,20 @@ class Fixtures {
           text('Auto-wrapped'),
           node('SliverFillRemaining', {'content': text('Fill')}),
         ];
+      case 'NestedScrollView':
+        props.addAll({
+          'header_slivers': [
+            node('SliverAppBar', {
+              'title': text('Title'),
+              'pinned': true,
+              'flexible_space': text('Space')
+            }),
+            node('SliverToBoxAdapter', {'content': text('Box')}),
+          ],
+          'body': node('ListView', {
+            'controls': [text('A'), text('B')]
+          }),
+        });
       case 'Image':
         props['src'] =
             'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a6i8AAAAASUVORK5CYII=';

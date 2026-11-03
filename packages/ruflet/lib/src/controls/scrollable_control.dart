@@ -8,6 +8,7 @@ import '../utils/numbers.dart';
 import '../utils/time.dart';
 import '../widgets/platform_design.dart';
 import '../widgets/platform_scrollbar.dart';
+import 'nested_scroll_body.dart';
 
 class ScrollableControl extends StatefulWidget {
   final Control control;
@@ -30,19 +31,24 @@ class ScrollableControl extends StatefulWidget {
 }
 
 class _ScrollableControlState extends State<ScrollableControl> {
-  late final ScrollController _controller;
-  late bool _ownController = false;
+  ScrollController? _ownController;
+
+  /// The controller of a NestedScrollView this control scrolls with as its
+  /// body (a Column/Row with `scroll`), set by [build].
+  ScrollController? _nestedController;
+
+  /// The controller `scroll_to`, `auto_scroll` and the scrollbar act on: the
+  /// renderer's (a NestedScrollView body list passes the inner controller),
+  /// the NestedScrollView's for a body Column/Row, or this state's own.
+  ScrollController get _controller =>
+      widget.scrollController ??
+      _nestedController ??
+      (_ownController ??= ScrollController());
 
   @override
   void initState() {
     super.initState();
     widget.control.addInvokeMethodListener(_invokeMethod);
-    if (widget.scrollController != null) {
-      _controller = widget.scrollController!;
-    } else {
-      _controller = ScrollController();
-      _ownController = true;
-    }
   }
 
   Future<dynamic> _invokeMethod(String name, dynamic args) async {
@@ -89,9 +95,7 @@ class _ScrollableControlState extends State<ScrollableControl> {
 
   @override
   void dispose() {
-    if (_ownController) {
-      _controller.dispose();
-    }
+    _ownController?.dispose();
     widget.control.removeInvokeMethodListener(_invokeMethod);
     super.dispose();
   }
@@ -101,6 +105,13 @@ class _ScrollableControlState extends State<ScrollableControl> {
     debugPrint("ScrollableControl build: ${widget.control.id}");
     ScrollMode scrollMode =
         widget.control.getScrollMode("scroll", ScrollMode.none)!;
+    // A NestedScrollView body scroll view: the renderer's own (ListView,
+    // GridView, CustomScrollView) or, for a Column/Row, this one.
+    final nested = scrollMode != ScrollMode.none
+        ? NestedScrollBody.of(context, widget.control)
+        : null;
+    _nestedController =
+        widget.wrapIntoScrollableView ? nested?.controller : null;
 
     if (widget.control.getBool("auto_scroll", false)!) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -118,7 +129,12 @@ class _ScrollableControlState extends State<ScrollableControl> {
     return scrollMode != ScrollMode.none
         ? PlatformScrollbar(
             // todo: create class ScrollBarConfiguration on Py end, for more customizability
-            thumbVisibility: (scrollMode == ScrollMode.always ||
+            // The inner controller of a NestedScrollView is shared by the
+            // pages of a TabBarView body, two of which are attached mid-swipe,
+            // where an always visible (interactive) thumb cannot attach. Its
+            // body scroll views show the thumb while they scroll.
+            thumbVisibility: nested == null &&
+                (scrollMode == ScrollMode.always ||
                     (scrollMode == ScrollMode.adaptive && !mobile)) &&
                 scrollMode != ScrollMode.hidden,
             thickness: scrollMode == ScrollMode.hidden
@@ -130,17 +146,36 @@ class _ScrollableControlState extends State<ScrollableControl> {
             child: ScrollConfiguration(
               behavior:
                   ScrollConfiguration.of(context).copyWith(scrollbars: false),
-              child: widget.wrapIntoScrollableView
-                  ? SingleChildScrollView(
-                      controller: _controller,
-                      scrollDirection: widget.scrollDirection,
-                      keyboardDismissBehavior: widget.control
-                          .getKeyboardDismissBehavior(
-                              "keyboard_dismiss_behavior"),
-                      child: widget.child,
-                    )
-                  : widget.child,
+              child: !widget.wrapIntoScrollableView
+                  ? widget.child
+                  : nested != null
+                      ? _nestedScrollView(nested)
+                      : SingleChildScrollView(
+                          controller: _controller,
+                          scrollDirection: widget.scrollDirection,
+                          keyboardDismissBehavior: widget.control
+                              .getKeyboardDismissBehavior(
+                                  "keyboard_dismiss_behavior"),
+                          child: widget.child,
+                        ),
             ))
         : widget.child;
+  }
+
+  /// The Column/Row as a NestedScrollView body: the same box content after
+  /// the overlap of the pinned header, scrolling with the inner controller.
+  Widget _nestedScrollView(NestedScrollBody nested) {
+    final handle = nested.handle;
+    return CustomScrollView(
+      key: PageStorageKey("nested_body_${widget.control.id}"),
+      controller: _controller,
+      scrollDirection: widget.scrollDirection,
+      keyboardDismissBehavior: widget.control
+          .getKeyboardDismissBehavior("keyboard_dismiss_behavior"),
+      slivers: [
+        if (handle != null) SliverOverlapInjector(handle: handle),
+        SliverToBoxAdapter(child: widget.child),
+      ],
+    );
   }
 }
