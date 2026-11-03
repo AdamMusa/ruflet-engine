@@ -98,6 +98,7 @@ import 'controls/vertical_divider.dart';
 import 'controls/view.dart';
 import 'controls/window_drag_area.dart';
 import 'controls/absorb_pointer.dart';
+import 'controls/form.dart';
 import 'controls/fractionally_sized_box.dart';
 import 'controls/ignore_pointer.dart';
 import 'controls/intrinsic_height.dart';
@@ -223,6 +224,8 @@ class RufletCoreExtension extends RufletExtension {
         return RufletAppControl(key: key, control: control);
       case "FloatingActionButton":
         return FloatingActionButtonControl(key: key, control: control);
+      case "Form":
+        return FormControl(key: key, control: control);
       case "FormRow":
         return AdaptiveFormRowControl(key: key, control: control);
       case "GestureDetector":
