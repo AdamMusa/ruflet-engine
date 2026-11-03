@@ -830,6 +830,7 @@
         "elevatedbutton"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -869,6 +870,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -1523,6 +1525,7 @@
         "container"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -1563,6 +1566,7 @@
         "left",
         "margin",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_hover",
@@ -2673,6 +2677,7 @@
         "filledbutton"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -2710,6 +2715,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -2743,6 +2749,7 @@
         "fillediconbutton"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -2778,6 +2785,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -2818,6 +2826,7 @@
         "filledtonalbutton"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -2855,6 +2864,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -2888,6 +2898,7 @@
         "filledtonaliconbutton"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -2923,6 +2934,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -3023,6 +3035,7 @@
         "floatingactionbutton"
       ],
       "keywords": [
+        "action",
         "align",
         "animate_align",
         "animate_margin",
@@ -3061,6 +3074,7 @@
         "mini",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_size_change",
@@ -3537,6 +3551,7 @@
         "iconbutton"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -3572,6 +3587,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -4083,6 +4099,7 @@
         "listtile"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "additional_info",
         "align",
@@ -4128,6 +4145,7 @@
         "mouse_cursor",
         "notched",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_long_press",
@@ -4778,6 +4796,7 @@
         "outlinedbutton"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -4814,6 +4833,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -4847,6 +4867,7 @@
         "outlinediconbutton"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -4882,6 +4903,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -7669,6 +7691,7 @@
         "textbutton"
       ],
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -7705,6 +7728,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -7902,6 +7926,7 @@
         "textspan"
       ],
       "keywords": [
+        "action",
         "badge",
         "col",
         "data",
@@ -7909,6 +7934,7 @@
         "expand",
         "expand_loose",
         "key",
+        "on_action_result",
         "on_click",
         "on_enter",
         "on_exit",
@@ -10310,6 +10336,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::ButtonControl",
       "wire_type": "Button",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -10349,6 +10376,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -11130,6 +11158,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::ContainerControl",
       "wire_type": "Container",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -11170,6 +11199,7 @@
         "left",
         "margin",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_hover",
@@ -11684,6 +11714,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoButtonControl",
       "wire_type": "Button",
       "keywords": [
+        "action",
         "align",
         "alignment",
         "animate_align",
@@ -11718,6 +11749,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -11925,6 +11957,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoDialogActionControl",
       "wire_type": "Button",
       "keywords": [
+        "action",
         "badge",
         "col",
         "content",
@@ -11935,6 +11968,7 @@
         "expand",
         "expand_loose",
         "key",
+        "on_action_result",
         "on_click",
         "opacity",
         "rtl",
@@ -11952,6 +11986,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoFilledButtonControl",
       "wire_type": "FilledButton",
       "keywords": [
+        "action",
         "align",
         "alignment",
         "animate_align",
@@ -11986,6 +12021,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -12017,6 +12053,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoListTileControl",
       "wire_type": "ListTile",
       "keywords": [
+        "action",
         "additional_info",
         "align",
         "animate_align",
@@ -12047,6 +12084,7 @@
         "margin",
         "notched",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_size_change",
@@ -12682,6 +12720,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoTintedButtonControl",
       "wire_type": "FilledTonalButton",
       "keywords": [
+        "action",
         "align",
         "alignment",
         "animate_align",
@@ -12716,6 +12755,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -13001,6 +13041,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoButtonControl",
       "wire_type": "Button",
       "keywords": [
+        "action",
         "align",
         "alignment",
         "animate_align",
@@ -13035,6 +13076,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -13242,6 +13284,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoDialogActionControl",
       "wire_type": "Button",
       "keywords": [
+        "action",
         "badge",
         "col",
         "content",
@@ -13252,6 +13295,7 @@
         "expand",
         "expand_loose",
         "key",
+        "on_action_result",
         "on_click",
         "opacity",
         "rtl",
@@ -13269,6 +13313,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoFilledButtonControl",
       "wire_type": "FilledButton",
       "keywords": [
+        "action",
         "align",
         "alignment",
         "animate_align",
@@ -13303,6 +13348,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -13334,6 +13380,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoListTileControl",
       "wire_type": "ListTile",
       "keywords": [
+        "action",
         "additional_info",
         "align",
         "animate_align",
@@ -13364,6 +13411,7 @@
         "margin",
         "notched",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_size_change",
@@ -13999,6 +14047,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::CupertinoTintedButtonControl",
       "wire_type": "FilledTonalButton",
       "keywords": [
+        "action",
         "align",
         "alignment",
         "animate_align",
@@ -14033,6 +14082,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -15557,6 +15607,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::ButtonControl",
       "wire_type": "Button",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -15596,6 +15647,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -15629,6 +15681,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::ButtonControl",
       "wire_type": "Button",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -15668,6 +15721,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -16077,6 +16131,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::FilledButtonControl",
       "wire_type": "FilledButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -16114,6 +16169,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -16147,6 +16203,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::FilledIconButtonControl",
       "wire_type": "FilledIconButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -16182,6 +16239,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -16220,6 +16278,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::FilledTonalButtonControl",
       "wire_type": "FilledTonalButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -16257,6 +16316,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -16290,6 +16350,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::FilledTonalIconButtonControl",
       "wire_type": "FilledTonalIconButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -16325,6 +16386,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -16363,6 +16425,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::FilledButtonControl",
       "wire_type": "FilledButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -16400,6 +16463,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -16433,6 +16497,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::FilledIconButtonControl",
       "wire_type": "FilledIconButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -16468,6 +16533,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -16506,6 +16572,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::FilledTonalButtonControl",
       "wire_type": "FilledTonalButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -16543,6 +16610,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -16576,6 +16644,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::FilledTonalIconButtonControl",
       "wire_type": "FilledTonalIconButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -16611,6 +16680,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -16747,6 +16817,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::FloatingActionButtonControl",
       "wire_type": "FloatingActionButton",
       "keywords": [
+        "action",
         "align",
         "animate_align",
         "animate_margin",
@@ -16785,6 +16856,7 @@
         "mini",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_size_change",
@@ -16812,6 +16884,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::FloatingActionButtonControl",
       "wire_type": "FloatingActionButton",
       "keywords": [
+        "action",
         "align",
         "animate_align",
         "animate_margin",
@@ -16850,6 +16923,7 @@
         "mini",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_size_change",
@@ -17585,6 +17659,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::IconButtonControl",
       "wire_type": "IconButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -17620,6 +17695,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -17658,6 +17734,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::IconButtonControl",
       "wire_type": "IconButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -17693,6 +17770,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -18534,6 +18612,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::ListTileControl",
       "wire_type": "ListTile",
       "keywords": [
+        "action",
         "adaptive",
         "additional_info",
         "align",
@@ -18579,6 +18658,7 @@
         "mouse_cursor",
         "notched",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_long_press",
@@ -18753,6 +18833,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::ListTileControl",
       "wire_type": "ListTile",
       "keywords": [
+        "action",
         "adaptive",
         "additional_info",
         "align",
@@ -18798,6 +18879,7 @@
         "mouse_cursor",
         "notched",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_click",
         "on_long_press",
@@ -19832,6 +19914,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::OutlinedButtonControl",
       "wire_type": "OutlinedButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -19868,6 +19951,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -19901,6 +19985,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::OutlinedIconButtonControl",
       "wire_type": "OutlinedIconButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -19936,6 +20021,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -19974,6 +20060,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::OutlinedButtonControl",
       "wire_type": "OutlinedButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -20010,6 +20097,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -20043,6 +20131,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::OutlinedIconButtonControl",
       "wire_type": "OutlinedIconButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -20078,6 +20167,7 @@
         "margin",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -24254,6 +24344,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::TextButtonControl",
       "wire_type": "TextButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -24290,6 +24381,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -24485,6 +24577,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::TextSpanControl",
       "wire_type": "TextSpan",
       "keywords": [
+        "action",
         "badge",
         "col",
         "data",
@@ -24492,6 +24585,7 @@
         "expand",
         "expand_loose",
         "key",
+        "on_action_result",
         "on_click",
         "on_enter",
         "on_exit",
@@ -24516,6 +24610,7 @@
       "ruby_class": "Ruflet::UI::PlatformControlContracts::Components::TextButtonControl",
       "wire_type": "TextButton",
       "keywords": [
+        "action",
         "adaptive",
         "align",
         "alignment",
@@ -24552,6 +24647,7 @@
         "min_size",
         "mouse_cursor",
         "offset",
+        "on_action_result",
         "on_animation_end",
         "on_blur",
         "on_click",
@@ -24747,6 +24843,7 @@
       "ruby_class": "Ruflet::UI::Controls::RufletComponents::TextSpanControl",
       "wire_type": "TextSpan",
       "keywords": [
+        "action",
         "badge",
         "col",
         "data",
@@ -24754,6 +24851,7 @@
         "expand",
         "expand_loose",
         "key",
+        "on_action_result",
         "on_click",
         "on_enter",
         "on_exit",
