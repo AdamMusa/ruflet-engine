@@ -61,7 +61,131 @@ Future<_RecordingBackend> _pumpSearchBar(
   return backend;
 }
 
+/// A SearchBar with one suggestion; [props] adds Ruby keys.
+Future<(_RecordingBackend, Control)> _pumpSearchView(
+  WidgetTester tester,
+  TargetPlatform platform,
+  Map<String, dynamic> props,
+) async {
+  final backend = _RecordingBackend(platform);
+  final control = Control.fromMap({
+    '_c': 'SearchBar',
+    '_i': 1,
+    'width': 300,
+    'bar_hint_text': 'Search',
+    'controls': [
+      {'_c': 'Text', '_i': 2, 'value': 'Suggestion'},
+    ],
+    ...props,
+  }, backend);
+  final body = Center(child: ControlWidget(control: control));
+  await tester.pumpWidget(
+    ChangeNotifierProvider<RufletBackend>.value(
+      value: backend,
+      child: platform == TargetPlatform.iOS
+          ? CupertinoApp(home: CupertinoPageScaffold(child: body))
+          : material.MaterialApp(home: material.Scaffold(body: body)),
+    ),
+  );
+  expect(tester.takeException(), isNull);
+  return (backend, control);
+}
+
+/// Opens the search view the way Ruby does (open_view, e.g. from on_tap):
+/// Material pushes its view route, iOS activates the field and lists the
+/// suggestions inline.
+Future<void> _openView(WidgetTester tester, Control control) async {
+  final call = control.invokeMethod(
+    'open_view',
+    const {},
+    const Duration(seconds: 1),
+  );
+  await tester.pumpAndSettle();
+  await call;
+  expect(find.text('Suggestion'), findsOneWidget);
+}
+
 void main() {
+  for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
+    testWidgets('$platform SearchBar fires Ruby on_tap_outside_view', (
+      tester,
+    ) async {
+      final (backend, control) = await _pumpSearchView(tester, platform, {
+        'on_tap_outside_view': true,
+        'on_tap_outside_bar': true,
+      });
+      // Closed: an outside tap is not a view event.
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pump();
+      expect(backend.events, isEmpty);
+
+      await _openView(tester, control);
+      // Taps on the view's own field and suggestions stay inside.
+      await tester.tap(find.text('Suggestion'));
+      await tester.pump();
+      await tester.tap(find.byType(EditableText).last);
+      await tester.pump();
+      expect(backend.events, isNot(contains('tap_outside_view')));
+
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pump();
+      expect(
+        backend.events.where((e) => e == 'tap_outside_view'),
+        hasLength(1),
+      );
+      // That tap belongs to the open view, not to the bar.
+      expect(backend.events, isNot(contains('tap_outside_bar')));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('$platform SearchBar view taps are silent unsubscribed', (
+      tester,
+    ) async {
+      final (backend, control) = await _pumpSearchView(tester, platform, {});
+      await _openView(tester, control);
+
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(backend.events, isNot(contains('tap_outside_view')));
+    });
+  }
+
+  testWidgets('Material SearchBar view closes on an outside tap, once', (
+    tester,
+  ) async {
+    final (backend, control) = await _pumpSearchView(
+      tester,
+      TargetPlatform.android,
+      {'on_tap_outside_view': true},
+    );
+    await _openView(tester, control);
+
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
+    expect(find.text('Suggestion'), findsNothing, reason: 'barrier dismissed');
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
+    expect(backend.events.where((e) => e == 'tap_outside_view'), hasLength(1));
+  });
+
+  testWidgets('iOS SearchBar listing suggestions for a query is an open view', (
+    tester,
+  ) async {
+    final (backend, control) = await _pumpSearchView(
+      tester,
+      TargetPlatform.iOS,
+      {'value': 'S', 'on_tap_outside_view': true, 'on_tap_outside_bar': true},
+    );
+    await tester.tap(find.byType(EditableText));
+    await tester.pumpAndSettle();
+    expect(find.text('Suggestion'), findsOneWidget);
+
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pump();
+    expect(backend.events, ['tap_outside_view']);
+  });
+
   for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
     testWidgets('$platform SearchBar fires Ruby on_tap_outside_bar', (
       tester,

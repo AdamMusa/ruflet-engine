@@ -283,6 +283,9 @@ class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
     final showSuggestions = _focusNode.hasFocus &&
         suggestions.isNotEmpty &&
         (_viewOpen || _controller.text.isNotEmpty);
+    // The inline counterpart of Material's search view: opened by
+    // open_view, or listing suggestions for the query.
+    final viewShown = _viewOpen || showSuggestions;
     final leading = control.buildWidget("bar_leading");
     final trailing = control.buildWidgets("bar_trailing");
 
@@ -295,9 +298,10 @@ class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
             Expanded(
               // CupertinoSearchTextField has no onTapOutside; like the
               // Material SearchBar's text field, report outside taps while
-              // the bar has focus.
+              // the bar has focus and the view is closed.
               child: TextFieldTapRegion(
                 onTapOutside: _focusNode.hasFocus &&
+                        !viewShown &&
                         control.getBool("on_tap_outside_bar", false)!
                     ? (event) => control.triggerEvent("tap_outside_bar")
                     : null,
@@ -338,7 +342,17 @@ class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
           ),
       ],
     );
-    return LayoutControl(control: control, child: search);
+    // A tap outside the field and its suggestions while the view is shown
+    // is Ruby's tap_outside_view, as a tap on Material's view barrier.
+    return LayoutControl(
+        control: control,
+        child: TapRegion(
+          onTapOutside:
+              viewShown && control.getBool("on_tap_outside_view", false)!
+                  ? (event) => control.triggerEvent("tap_outside_view")
+                  : null,
+          child: search,
+        ));
   }
 }
 
