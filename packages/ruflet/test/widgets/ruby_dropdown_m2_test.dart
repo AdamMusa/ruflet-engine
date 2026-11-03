@@ -258,4 +258,96 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  // Flet 1.0's DropdownM2.menu_border_radius rounds the open menu, while
+  // border_radius keeps rounding the field (Ruby's dropdown_m2 sends both on
+  // the Dropdown wire).
+  group('menu_border_radius', () {
+    const menuRadius = BorderRadius.all(Radius.circular(12));
+
+    Map<String, dynamic> rounded({bool menu = true}) => {
+          '_c': 'Dropdown',
+          '_i': 1,
+          'width': 300,
+          'border_radius': 4,
+          if (menu) 'menu_border_radius': 12,
+          'options': _options(),
+        };
+
+    testWidgets('Material Dropdown rounds the open menu, not the field',
+        (tester) async {
+      await _pump(tester, TargetPlatform.android, rounded());
+
+      final menu = tester.widget<material.DropdownMenu<String>>(
+          find.byType(material.DropdownMenu<String>));
+      expect(menu.menuStyle!.shape!.resolve({}),
+          const material.RoundedRectangleBorder(borderRadius: menuRadius));
+      final field =
+          menu.inputDecorationTheme as material.InputDecorationThemeData;
+      expect((field.border! as material.OutlineInputBorder).borderRadius,
+          const BorderRadius.all(Radius.circular(4)));
+
+      await tester.tap(find.byType(material.DropdownMenu<String>));
+      await tester.pumpAndSettle();
+      expect(
+          find.byWidgetPredicate((widget) =>
+              widget is material.Material &&
+              widget.shape ==
+                  const material.RoundedRectangleBorder(
+                      borderRadius: menuRadius)),
+          findsOneWidget,
+          reason: 'the open menu surface takes the radius');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Material Dropdown without it keeps the theme menu shape',
+        (tester) async {
+      await _pump(tester, TargetPlatform.android, rounded(menu: false));
+
+      final menu = tester.widget<material.DropdownMenu<String>>(
+          find.byType(material.DropdownMenu<String>));
+      expect(menu.menuStyle?.shape, isNull);
+    });
+
+    testWidgets(
+        'Material DropdownM2 rounds its menu, border_radius as fallback',
+        (tester) async {
+      final (_, control) = await _pump(tester, TargetPlatform.android,
+          {..._dropdownM2(), 'border_radius': 4, 'menu_border_radius': 12});
+      material.DropdownButton<String> button() =>
+          tester.widget<material.DropdownButton<String>>(
+              find.byType(material.DropdownButton<String>));
+      expect(button().borderRadius, menuRadius);
+
+      control.update({'menu_border_radius': null}, shouldNotify: true);
+      await tester.pumpAndSettle();
+      expect(button().borderRadius, const BorderRadius.all(Radius.circular(4)));
+    });
+
+    testWidgets('Cupertino rounds the options sheet', (tester) async {
+      await _pump(tester, TargetPlatform.iOS, rounded());
+      await tester.tap(find.byType(CupertinoTextField));
+      await tester.pumpAndSettle();
+
+      final clip = find.ancestor(
+          of: find.byType(CupertinoPopupSurface),
+          matching: find.byType(ClipRRect));
+      expect(clip, findsOneWidget);
+      expect(tester.widget<ClipRRect>(clip).borderRadius, menuRadius);
+      expect(find.byType(material.Material), findsNothing);
+    });
+
+    testWidgets('Cupertino without it keeps the native sheet', (tester) async {
+      await _pump(tester, TargetPlatform.iOS, rounded(menu: false));
+      await tester.tap(find.byType(CupertinoTextField));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CupertinoPopupSurface), findsOneWidget);
+      expect(
+          find.ancestor(
+              of: find.byType(CupertinoPopupSurface),
+              matching: find.byType(ClipRRect)),
+          findsNothing);
+    });
+  });
 }

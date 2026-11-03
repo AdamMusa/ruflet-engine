@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../extensions/control.dart';
 import '../models/control.dart';
 import '../models/ruflet_time.dart';
+import '../utils/borders.dart';
 import '../utils/colors.dart';
 import '../utils/edge_insets.dart';
 import '../utils/numbers.dart';
@@ -66,7 +67,8 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
     final selected = await showCupertinoModalPopup<int>(
       context: context,
       barrierDismissible: true,
-      builder: (context) => CupertinoPopupSurface(
+      builder: (context) => _DropdownMenuSurface(
+        borderRadius: control.getBorderRadius("menu_border_radius"),
         child: SafeArea(
           top: false,
           child: SizedBox(
@@ -166,6 +168,24 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
       onSubmitted: (_) => _showOptions(),
     );
     return LayoutControl(control: control, child: field);
+  }
+}
+
+/// The Dropdown options sheet: a [CupertinoPopupSurface], rounded by Ruby's
+/// menu_border_radius (Flet's DropdownM2) like the Material menu.
+class _DropdownMenuSurface extends StatelessWidget {
+  final BorderRadius? borderRadius;
+  final Widget child;
+
+  const _DropdownMenuSurface({required this.borderRadius, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = CupertinoPopupSurface(child: child);
+    final radius = borderRadius;
+    return radius == null
+        ? surface
+        : ClipRRect(borderRadius: radius, child: surface);
   }
 }
 
