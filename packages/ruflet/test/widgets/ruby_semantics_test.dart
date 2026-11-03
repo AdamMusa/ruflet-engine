@@ -125,6 +125,38 @@ void main() {
           ));
     });
 
+    testWidgets('$design Semantics exposes the Ruby identifier',
+        (tester) async {
+      await _pump(tester, platform, {
+        '_c': 'Semantics',
+        '_i': 1,
+        'container': true,
+        'identifier': 'save-button',
+        'label': 'Save',
+        'content': _text(2, 'Save'),
+      });
+      expect(tester.widget<Semantics>(_semanticsWidget()).properties.identifier,
+          'save-button');
+      expect(tester.getSemantics(_semanticsWidget()).getSemanticsData().identifier,
+          'save-button');
+      expect(find.bySemanticsIdentifier('save-button'), findsOneWidget);
+    });
+
+    testWidgets('$design Semantics without identifier sets none',
+        (tester) async {
+      await _pump(tester, platform, {
+        '_c': 'Semantics',
+        '_i': 1,
+        'container': true,
+        'label': 'Plain',
+        'content': _text(2, 'Plain'),
+      });
+      expect(tester.widget<Semantics>(_semanticsWidget()).properties.identifier,
+          isNull);
+      expect(tester.getSemantics(_semanticsWidget()).getSemanticsData().identifier,
+          isEmpty);
+    });
+
     testWidgets('$design Semantics fires each Ruby on_* event by name',
         (tester) async {
       final backend = await _pump(tester, platform, {
