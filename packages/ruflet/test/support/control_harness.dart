@@ -133,10 +133,13 @@ class HarnessMount {
 
 /// Mounts [wire] (a root control map) in a [design] app, starting from an
 /// empty tree so no element or focus state survives from a previous mount.
+/// With [settle] false it returns after the first frame, before animations
+/// run (a repeating one never settles).
 Future<HarnessMount> mountWire(
     WidgetTester tester, HarnessDesign design, Map<String, dynamic> wire,
     {List<RufletExtension> extensions = const [],
-    Size surface = const Size(800, 600)}) async {
+    Size surface = const Size(800, 600),
+    bool settle = true}) async {
   await tester.binding.setSurfaceSize(surface);
   addTearDown(() => tester.binding.setSurfaceSize(null));
   final backend = HarnessBackend(design, extensions: extensions);
@@ -144,7 +147,7 @@ Future<HarnessMount> mountWire(
   await tester.pumpWidget(const SizedBox());
   await tester
       .pumpWidget(harnessApp(backend, design, ControlWidget(control: root)));
-  await tester.pumpAndSettle();
+  if (settle) await tester.pumpAndSettle();
   return HarnessMount(backend, design, root);
 }
 

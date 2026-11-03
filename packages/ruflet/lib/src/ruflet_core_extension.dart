@@ -102,6 +102,13 @@ import 'controls/fractionally_sized_box.dart';
 import 'controls/ignore_pointer.dart';
 import 'controls/intrinsic_height.dart';
 import 'controls/intrinsic_width.dart';
+import 'controls/clip_oval.dart';
+import 'controls/clip_rsuperellipse.dart';
+import 'controls/fade_transition.dart';
+import 'controls/rotation_transition.dart';
+import 'controls/scale_transition.dart';
+import 'controls/size_transition.dart';
+import 'controls/slide_transition.dart';
 import 'ruflet_extension.dart';
 import 'ruflet_service.dart';
 import 'models/control.dart';
@@ -177,6 +184,10 @@ class RufletCoreExtension extends RufletExtension {
         return ChipControl(key: key, control: control);
       case "CircleAvatar":
         return CircleAvatarControl(key: key, control: control);
+      case "ClipOval":
+        return ClipOvalControl(key: key, control: control);
+      case "ClipRSuperellipse":
+        return ClipRSuperellipseControl(key: key, control: control);
       case "Column":
         return ColumnControl(key: key, control: control);
       case "Container":
@@ -219,6 +230,16 @@ class RufletCoreExtension extends RufletExtension {
         return IntrinsicHeightControl(key: key, control: control);
       case "IntrinsicWidth":
         return IntrinsicWidthControl(key: key, control: control);
+      case "FadeTransition":
+        return FadeTransitionControl(key: key, control: control);
+      case "RotationTransition":
+        return RotationTransitionControl(key: key, control: control);
+      case "ScaleTransition":
+        return ScaleTransitionControl(key: key, control: control);
+      case "SizeTransition":
+        return SizeTransitionControl(key: key, control: control);
+      case "SlideTransition":
+        return SlideTransitionControl(key: key, control: control);
       case "RufletApp":
         return RufletAppControl(key: key, control: control);
       case "FloatingActionButton":
