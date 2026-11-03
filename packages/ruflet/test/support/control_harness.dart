@@ -78,8 +78,8 @@ Widget harnessApp(HarnessBackend backend, HarnessDesign design, Widget child) {
     child: design == HarnessDesign.ios
         ? CupertinoApp(
             debugShowCheckedModeBanner: false,
-            builder: (context, child) => RufletStyleThemeScope(
-                data: cupertinoStyleTheme(context), child: child!),
+            builder: (context, child) =>
+                cupertinoStyleThemeScope(context, child!),
             home: CupertinoPageScaffold(child: body),
           )
         : material.MaterialApp(

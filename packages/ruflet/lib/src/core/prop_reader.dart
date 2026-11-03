@@ -5,8 +5,10 @@ part of 'control_core.dart';
 /// Every read is checked against the [ControlSpec] in debug builds: reading a
 /// key the spec does not declare (or with another [PropType]) fails an
 /// assertion, and every read is logged in [CoreReadLog] for the contract test.
-/// Theme-dependent values resolve against [RufletStyleTheme.of], which the
-/// app renderers and per-control theme scopes install for each design.
+/// Theme-dependent values resolve against [RufletStyleTheme.of] for the
+/// host's own context, which the app renderers and per-control theme scopes
+/// install for each design (a design that shades raised surfaces, like iOS
+/// dialogs and sheets, resolves them for the surface the control is on).
 class PropReader {
   PropReader._(this._control, this._spec, this._context)
       : _theme = RufletStyleTheme.of(_context);

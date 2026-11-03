@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:markdown/markdown.dart' as md;
@@ -19,8 +21,95 @@ List<String> _warnings(void Function() body) {
   return lines;
 }
 
+/// Every public [Curves] constant by its Dart name.
+const _allCurves = <String, Curve>{
+  'bounceIn': Curves.bounceIn,
+  'bounceInOut': Curves.bounceInOut,
+  'bounceOut': Curves.bounceOut,
+  'decelerate': Curves.decelerate,
+  'ease': Curves.ease,
+  'easeIn': Curves.easeIn,
+  'easeInBack': Curves.easeInBack,
+  'easeInCirc': Curves.easeInCirc,
+  'easeInCubic': Curves.easeInCubic,
+  'easeInExpo': Curves.easeInExpo,
+  'easeInOut': Curves.easeInOut,
+  'easeInOutBack': Curves.easeInOutBack,
+  'easeInOutCirc': Curves.easeInOutCirc,
+  'easeInOutCubic': Curves.easeInOutCubic,
+  'easeInOutCubicEmphasized': Curves.easeInOutCubicEmphasized,
+  'easeInOutExpo': Curves.easeInOutExpo,
+  'easeInOutQuad': Curves.easeInOutQuad,
+  'easeInOutQuart': Curves.easeInOutQuart,
+  'easeInOutQuint': Curves.easeInOutQuint,
+  'easeInOutSine': Curves.easeInOutSine,
+  'easeInQuad': Curves.easeInQuad,
+  'easeInQuart': Curves.easeInQuart,
+  'easeInQuint': Curves.easeInQuint,
+  'easeInSine': Curves.easeInSine,
+  'easeInToLinear': Curves.easeInToLinear,
+  'easeOut': Curves.easeOut,
+  'easeOutBack': Curves.easeOutBack,
+  'easeOutCirc': Curves.easeOutCirc,
+  'easeOutCubic': Curves.easeOutCubic,
+  'easeOutExpo': Curves.easeOutExpo,
+  'easeOutQuad': Curves.easeOutQuad,
+  'easeOutQuart': Curves.easeOutQuart,
+  'easeOutQuint': Curves.easeOutQuint,
+  'easeOutSine': Curves.easeOutSine,
+  'elasticIn': Curves.elasticIn,
+  'elasticInOut': Curves.elasticInOut,
+  'elasticOut': Curves.elasticOut,
+  'fastEaseInToSlowEaseOut': Curves.fastEaseInToSlowEaseOut,
+  'fastLinearToSlowEaseIn': Curves.fastLinearToSlowEaseIn,
+  'fastOutSlowIn': Curves.fastOutSlowIn,
+  'linear': Curves.linear,
+  'linearToEaseOut': Curves.linearToEaseOut,
+  'slowMiddle': Curves.slowMiddle,
+};
+
+/// The constant names declared by `Curves` in the Flutter SDK this package
+/// resolves, read from its source (tests have no mirrors).
+Set<String> _sdkCurveNames() {
+  final config = File('.dart_tool/package_config.json');
+  final packages = jsonDecode(config.readAsStringSync())['packages'] as List;
+  final rootUri =
+      packages.firstWhere((p) => p['name'] == 'flutter')['rootUri'] as String;
+  final root = config.absolute.uri
+      .resolve(rootUri.endsWith('/') ? rootUri : '$rootUri/');
+  final source = File.fromUri(root.resolve('lib/src/animation/curves.dart'))
+      .readAsStringSync();
+  final start = source.indexOf('abstract final class Curves {');
+  expect(start, isNonNegative, reason: 'Curves class not found');
+  final body = source.substring(start, source.indexOf('\n}\n', start));
+  return RegExp(r'^  static const \w+ (\w+) =', multiLine: true)
+      .allMatches(body)
+      .map((match) => match[1]!)
+      .toSet();
+}
+
 void main() {
   group('parseCurve', () {
+    test('every Flutter Curves constant parses by its snake_case name', () {
+      for (final MapEntry(key: name, value: curve) in _allCurves.entries) {
+        final snake = name.replaceAllMapped(
+            RegExp('[A-Z]'), (match) => '_${match[0]!.toLowerCase()}');
+        late Curve? parsed;
+        expect(_warnings(() => parsed = parseCurve(snake)), isEmpty,
+            reason: snake);
+        expect(parsed, same(curve), reason: snake);
+        expect(parseCurve(name), same(curve), reason: name);
+      }
+      expect(parseCurve('fast_ease_in_to_slow_ease_out'),
+          Curves.fastEaseInToSlowEaseOut);
+    });
+
+    test('the curve list is every Curves constant of this Flutter SDK', () {
+      // A Flutter upgrade that adds a curve fails here until parseCurve
+      // and _allCurves know it.
+      expect(_sdkCurveNames(), _allCurves.keys.toSet());
+    });
+
     test('accepts camelCase, snake_case and any letter case', () {
       for (final name in [
         'easeInOut',
