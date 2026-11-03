@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../extensions/control.dart';
 import '../models/control.dart';
+import '../services/client_action.dart' show runControlClientActions;
 import '../utils/colors.dart';
 import '../utils/launch_url.dart';
 import '../utils/numbers.dart';
@@ -41,6 +42,7 @@ class CupertinoFloatingActionButtonControl extends StatelessWidget {
       onPressed: control.disabled
           ? null
           : () {
+              runControlClientActions(control);
               if (url != null) openWebBrowser(url);
               control.triggerEvent("click");
             },
