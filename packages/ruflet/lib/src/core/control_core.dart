@@ -17,6 +17,8 @@ import '../controls/base_controls.dart';
 import '../extensions/control.dart';
 import '../models/control.dart';
 import '../models/control_type.dart';
+import '../services/client_action.dart'
+    show parseClientActions, performClientActions;
 import '../utils/alignment.dart';
 import '../utils/animations.dart';
 import '../utils/borders.dart';
@@ -169,6 +171,26 @@ abstract class ControlCore<P extends Object> {
     throw AssertionError('${spec.wireType} peeks "$key" as ${type.name} but '
         'its ControlSpec does not declare it');
   }
+
+  /// Performs the client actions Ruby attached to the control ([action],
+  /// its `action` key read as raw wire data): each service call starts now,
+  /// synchronously, so it runs inside the tap that called this, where
+  /// browsers still allow clipboard writes, new tabs, file pickers and the
+  /// share sheet. Call it from the tap callback before firing `click`. Each
+  /// outcome is reported as the `action_result` event, which the spec must
+  /// declare.
+  @protected
+  void runClientActions(RawProp action) {
+    if (!hasClientActions(action)) return;
+    performClientActions(_control, action.value,
+        (outcome) => events.fire('action_result', outcome));
+  }
+
+  /// Whether [action] (a control's `action` key) holds any client action,
+  /// for a core whose tap does nothing otherwise.
+  @protected
+  bool hasClientActions(RawProp action) =>
+      parseClientActions(action.value).isNotEmpty;
 
   /// Client-owned state written back to Ruby (value, selected index...).
   @protected

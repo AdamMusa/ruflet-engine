@@ -49,27 +49,8 @@ class FilePickerService extends RufletService {
           uploadFiles(files, control.backend.pageUri);
         }
       case "pick_files":
-        _files = (await FilePicker.platform.pickFiles(
-                dialogTitle: dialogTitle,
-                initialDirectory: initialDirectory,
-                lockParentWindow: true,
-                type: fileType,
-                allowedExtensions: allowedExtensions,
-                allowMultiple: parseBool(args["allow_multiple"], false)!,
-                withData: withData,
-                withReadStream: !withData))
-            ?.files;
-        return _files != null
-            ? _files!.asMap().entries.map((file) {
-                return FilePickerFile(
-                        id: file.key, // use entry's index as id
-                        name: file.value.name,
-                        path: kIsWeb ? null : file.value.path,
-                        size: file.value.size,
-                        bytes: withData ? file.value.bytes : null)
-                    .toMap();
-              }).toList()
-            : [];
+        _files = await pickPlatformFiles(args);
+        return pickedFilesResult(_files, withData);
       case "save_file":
         if ((kIsWeb || isAndroidMobile() || isIOSMobile()) &&
             srcBytes == null) {
@@ -196,4 +177,56 @@ class FilePickerService extends RufletService {
       return uploadUrl;
     }
   }
+}
+
+/// Opens the platform file picker for FilePicker.pick_files [args]. The
+/// dialog opens synchronously (before the first await), so a `FilePicker`
+/// client action opens it inside the user's tap, where browsers allow it.
+Future<List<PlatformFile>?> pickPlatformFiles(dynamic args) async {
+  var fileType = parseFileType(args["file_type"], FileType.any)!;
+  var allowedExtensions = (args["allowed_extensions"] as List?)
+      ?.map((e) => e.toString())
+      .toList();
+  if (allowedExtensions != null && allowedExtensions.isNotEmpty) {
+    fileType = FileType.custom;
+  }
+  var withData = parseBool(args["with_data"], false)!;
+  return (await FilePicker.platform.pickFiles(
+          dialogTitle: args["dialog_title"],
+          initialDirectory: args["initial_directory"],
+          lockParentWindow: true,
+          type: fileType,
+          allowedExtensions: allowedExtensions,
+          allowMultiple: parseBool(args["allow_multiple"], false)!,
+          withData: withData,
+          withReadStream: !withData))
+      ?.files;
+}
+
+/// What FilePicker.pick_files returns to Ruby for the picked [files]: each
+/// file's index (the id `upload` takes), name, path (not on the web), size and,
+/// [withData], its bytes. Empty when the user cancelled.
+List<Map<String, dynamic>> pickedFilesResult(
+        List<PlatformFile>? files, bool withData) =>
+    files == null
+        ? []
+        : files.asMap().entries.map((file) {
+            return FilePickerFile(
+                    id: file.key, // use entry's index as id
+                    name: file.value.name,
+                    path: kIsWeb ? null : file.value.path,
+                    size: file.value.size,
+                    bytes: withData ? file.value.bytes : null)
+                .toMap();
+          }).toList();
+
+/// FilePicker.pick_files without a FilePicker service on the page: a
+/// `FilePicker` client action uses it when Ruby has not mounted one. The
+/// picked files are returned but not kept, so they cannot be uploaded.
+Future<dynamic> pickFilesWithoutService(String name, dynamic args) async {
+  if (name != "pick_files") {
+    throw Exception("Unknown FilePicker client action: $name");
+  }
+  return pickedFilesResult(
+      await pickPlatformFiles(args), parseBool(args["with_data"], false)!);
 }

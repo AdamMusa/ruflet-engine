@@ -37,6 +37,8 @@ const listTileSpec = ControlSpec(wireType: 'ListTile', props: [
   PropSpec('toggle_inputs', PropType.boolean, 'toggleInputs',
       consumer: PropConsumer.core),
   PropSpec('url', PropType.raw, 'url', consumer: PropConsumer.core),
+  // Client actions run in the tap, before `click` (Flet's `action`).
+  PropSpec('action', PropType.raw, 'action', consumer: PropConsumer.core),
   PropSpec('additional_info', PropType.textOrWidget, 'additionalInfo',
       skins: {Skin.cupertino},
       reason: 'iOS detail text before the trailing widget; Material tiles put '
@@ -106,6 +108,7 @@ const listTileSpec = ControlSpec(wireType: 'ListTile', props: [
 ], events: [
   EventSpec('click', field: 'onTap'),
   EventSpec('long_press', field: 'onLongPress'),
+  EventSpec('action_result', source: EventSource.core),
 ]);
 
 @immutable
@@ -122,6 +125,7 @@ class ListTileProps {
         selected = r.boolean('selected'),
         toggleInputs = r.boolean('toggle_inputs'),
         url = r.raw('url'),
+        action = r.raw('action'),
         additionalInfo = r.textOrWidget('additional_info'),
         bgcolorActivated = r.color('bgcolor_activated'),
         notched = r.boolean('notched'),
@@ -163,6 +167,7 @@ class ListTileProps {
   final bool selected;
   final bool toggleInputs;
   final RawProp url;
+  final RawProp action;
   final TextOrWidget? additionalInfo;
   final Color? bgcolorActivated;
   final bool notched;
@@ -193,9 +198,9 @@ class ListTileProps {
   final TextStyle? leadingAndTrailingTextStyle;
 }
 
-/// The shared list tile: what a tap does (click, `url`, and toggling the
-/// inputs inside a `toggle_inputs` tile), long press, the padding and the
-/// trailing chevron, identical on Material and Cupertino.
+/// The shared list tile: what a tap does (click, `action`, `url`, and
+/// toggling the inputs inside a `toggle_inputs` tile), long press, the
+/// padding and the trailing chevron, identical on Material and Cupertino.
 class ListTileCore extends ControlCore<ListTileProps> {
   ListTileCore(super.control);
 
@@ -209,16 +214,24 @@ class ListTileCore extends ControlCore<ListTileProps> {
   /// subscribe to it through [ListTileClicks].
   final ListTileClickNotifier _clicks = ListTileClickNotifier();
 
-  /// Toggles the tile's inputs (`toggle_inputs`), opens `url` and fires
-  /// `click`. Null while disabled, or when a tap would do nothing, which
-  /// also turns off the native tap feedback.
+  /// Runs the client `action`s, toggles the tile's inputs
+  /// (`toggle_inputs`), opens `url` and fires `click`. Null while disabled,
+  /// or when a tap would do nothing, which also turns off the native tap
+  /// feedback.
   VoidCallback? get onTap {
     if (disabled) return null;
     final click = events.callback('click');
     final toggleInputs = props.toggleInputs;
     final Url? url = parseUrl(props.url.value);
-    if (click == null && !toggleInputs && url == null) return null;
+    final action = props.action;
+    if (click == null &&
+        !toggleInputs &&
+        url == null &&
+        !hasClientActions(action)) {
+      return null;
+    }
     return () {
+      runClientActions(action);
       if (toggleInputs) _clicks.onClick();
       if (url != null) openWebBrowser(url);
       click?.call();
