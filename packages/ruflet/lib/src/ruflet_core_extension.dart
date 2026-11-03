@@ -66,6 +66,7 @@ import 'controls/navigation_bar.dart';
 import 'controls/navigation_bar_destination.dart';
 import 'controls/navigation_drawer.dart';
 import 'controls/navigation_rail.dart';
+import 'controls/nested_scroll_view.dart';
 import 'controls/page.dart';
 import 'controls/page_view.dart';
 import 'controls/pagelet.dart';
@@ -268,6 +269,8 @@ class RufletCoreExtension extends RufletExtension {
         return NavigationDrawerControl(key: key, control: control);
       case "NavigationRail":
         return NavigationRailControl(key: key, control: control);
+      case "NestedScrollView":
+        return NestedScrollViewControl(key: key, control: control);
       case "Page":
         return PageControl(key: key, control: control);
       case "Pagelet":
