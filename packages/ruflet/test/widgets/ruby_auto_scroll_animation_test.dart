@@ -101,12 +101,15 @@ ScrollPosition _position(WidgetTester tester) => tester
         .first)
     .position;
 
-Future<Control> _mount(
-    WidgetTester tester, HarnessDesign design, Map<String, dynamic> wire) async {
+Future<Control> _mount(WidgetTester tester, HarnessDesign design,
+    Map<String, dynamic> wire) async {
   final backend = HarnessBackend(design);
   final control = Control.fromMap(copyWire(wire), backend);
-  await tester.pumpWidget(harnessApp(backend, design,
-      SizedBox(width: 300, height: 200, child: ControlWidget(control: control))));
+  await tester.pumpWidget(harnessApp(
+      backend,
+      design,
+      SizedBox(
+          width: 300, height: 200, child: ControlWidget(control: control))));
   await tester.pumpAndSettle();
   expect(tester.takeException(), isNull);
   return control;
@@ -138,8 +141,9 @@ Future<Control> _mountView(WidgetTester tester, HarnessDesign design) async {
 
 /// Turns auto_scroll on (from the top) with [animation] and checks how the
 /// position reaches the end: by [mid] it is under way, by [end] it is there.
-Future<void> _expectAutoScroll(WidgetTester tester, Control control,
-    Object? animation, {required Duration mid, required Duration end}) async {
+Future<void> _expectAutoScroll(
+    WidgetTester tester, Control control, Object? animation,
+    {required Duration mid, required Duration end}) async {
   final position = _position(tester);
   position.jumpTo(0);
   await tester.pump();
@@ -201,7 +205,8 @@ void main() {
     });
 
     for (final type in ['ResponsiveRow', 'ExpansionPanelList']) {
-      testWidgets('${design.name}: $type scrolls, answers scroll_to and '
+      testWidgets(
+          '${design.name}: $type scrolls, answers scroll_to and '
           'reports on_scroll', (tester) async {
         final wire = _fixture(type)..['on_scroll'] = true;
         final mount = await mountWire(

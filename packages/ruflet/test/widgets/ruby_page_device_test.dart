@@ -268,8 +268,9 @@ void main() {
       debugDeviceInfoSource = () async => _linux();
       final backend = await _mountPage(tester, design);
 
-      final outcome = await invokeOutcome(tester, backend.page,
-          'get_device_info', timeout: const Duration(seconds: 1));
+      final outcome = await invokeOutcome(
+          tester, backend.page, 'get_device_info',
+          timeout: const Duration(seconds: 1));
 
       expect(outcome.error, isNull);
       final record = outcome.value as Map<String, dynamic>;
@@ -286,9 +287,9 @@ void main() {
       final calls = _recordOrientationCalls(tester);
       final backend = await _mountPage(tester, design);
 
-      Future<InvokeOutcome> set(Object? args) => invokeOutcome(
-          tester, backend.page, 'set_allowed_device_orientations',
-          args: args, timeout: const Duration(seconds: 1));
+      Future<InvokeOutcome> set(Object? args) =>
+          invokeOutcome(tester, backend.page, 'set_allowed_device_orientations',
+              args: args, timeout: const Duration(seconds: 1));
 
       expect(
           (await set({
