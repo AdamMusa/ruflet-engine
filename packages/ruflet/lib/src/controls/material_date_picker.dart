@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/control.dart';
 import '../utils/numbers.dart';
+import '../utils/presentation.dart';
 import '../utils/time.dart';
 import 'base_controls.dart';
 import 'date_picker.dart';
@@ -11,10 +12,12 @@ class MaterialDatePickerRenderer extends StatelessWidget {
   const MaterialDatePickerRenderer({super.key, required this.control});
 
   @override
-  // `inline` renders the calendar in place; otherwise it is a dialog.
-  Widget build(BuildContext context) => control.getBool("inline", false)!
-      ? MaterialInlineDatePickerControl(control: control)
-      : DatePickerControl(control: control);
+  // `inline` renders the calendar in place; otherwise it is a dialog. A
+  // picker the page presents (show_dialog / open) is always a dialog.
+  Widget build(BuildContext context) =>
+      control.getBool("inline", false)! && !control.presentedByPage
+          ? MaterialInlineDatePickerControl(control: control)
+          : DatePickerControl(control: control);
 }
 
 class MaterialInlineDatePickerControl extends StatelessWidget {
