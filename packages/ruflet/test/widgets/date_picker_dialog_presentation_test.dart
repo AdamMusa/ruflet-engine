@@ -235,6 +235,33 @@ void main() {
         expect(find.byType(material.Dialog), findsNothing);
       });
 
+      testWidgets(
+          'a picker laid out and shown with show_dialog under one wire id: '
+          'the view copy stays in place, the Dialogs copy is modal',
+          (tester) async {
+        // Ruby sends a picker that is laid out (in a view, or captured by a
+        // DSL block) and then shown with page.show_dialog in both places
+        // under one wire id, as v0.0.23 did. Each place gets its own control.
+        final backend = await _pumpPage(tester, design, controls: [
+          _rubyCupertinoDatePicker(20, extra: {'height': 216})
+        ]);
+        expect(_inlinePicker(design), findsOneWidget);
+
+        await _showDialogs(tester, backend, [
+          _rubyCupertinoDatePicker(20, extra: {'height': 216, 'open': true})
+        ]);
+        expect(_modalPicker(design), findsOneWidget);
+        expect(_inlinePicker(design), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        await _patchOpen(tester, backend, 20, open: false);
+        expect(_inlinePicker(design), findsOneWidget);
+        if (design == PageDesign.cupertino) {
+          expect(_modalPicker(design), findsNothing);
+        }
+        expect(tester.takeException(), isNull);
+      });
+
       testWidgets('an inline picker as bottom sheet content stays in place',
           (tester) async {
         final backend = await _pumpPage(tester, design);
