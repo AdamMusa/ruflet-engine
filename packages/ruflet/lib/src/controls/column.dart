@@ -16,9 +16,15 @@ import 'scrollable_control.dart';
 class ColumnControl extends StatelessWidget {
   final Control control;
 
+  /// Wraps the laid-out (and scrolling) column before the common layout
+  /// keywords apply, e.g. a Form's FocusTraversalGroup. LayoutControl stays
+  /// outermost so `expand` and positioning still reach the parent.
+  final Widget Function(Widget child)? contentWrapper;
+
   const ColumnControl({
     super.key,
     required this.control,
+    this.contentWrapper,
   });
 
   @override
@@ -86,6 +92,10 @@ class ColumnControl extends StatelessWidget {
 
     if (control.getBool("on_end_reached", false)!) {
       child = EndReachedListener(control: control, child: child);
+    }
+
+    if (contentWrapper != null) {
+      child = contentWrapper!(child);
     }
 
     return LayoutControl(control: control, child: child);

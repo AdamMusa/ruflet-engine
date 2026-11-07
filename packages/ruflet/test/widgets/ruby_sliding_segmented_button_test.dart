@@ -124,4 +124,71 @@ void main() {
         {'sliding': true});
     expect(controlTypeAliasProperties('SegmentedButton'), isEmpty);
   });
+
+  // Ruby's canonical segmented_button sends `segments` and `selected`;
+  // sliding: true must render those too, not only the legacy `controls`.
+  Map<String, dynamic> canonical(Map<String, dynamic> props) => {
+        '_c': 'SegmentedButton',
+        '_i': 2010,
+        'on_change': true,
+        'sliding': true,
+        'selected': ['day'],
+        'segments': [
+          {'_c': 'Segment', '_i': 2011, 'value': 'day', 'label': 'Day'},
+          {'_c': 'Segment', '_i': 2012, 'value': 'week', 'label': 'Week'},
+          {
+            '_c': 'Segment',
+            '_i': 2013,
+            'value': 'month',
+            'label': 'Month',
+            'disabled': true
+          },
+        ],
+        ...props,
+      };
+
+  testWidgets('iOS slides between canonical segments', (tester) async {
+    final (backend, control) =
+        await _pump(tester, TargetPlatform.iOS, canonical({}));
+    expect(find.byType(ErrorControl), findsNothing);
+    final sliding = tester.widget<CupertinoSlidingSegmentedControl<String>>(
+        find.byType(CupertinoSlidingSegmentedControl<String>));
+    expect(sliding.groupValue, 'day');
+    expect(sliding.children.keys, ['day', 'week', 'month']);
+    expect(sliding.disabledChildren, {'month'});
+
+    await tester.tap(find.text('Week'));
+    await tester.pumpAndSettle();
+    expect(control.get('selected'), ['week']);
+    expect(backend.events, hasLength(1));
+    final (id, name, data) = backend.events.single;
+    expect((id, name), (2010, 'change'));
+    expect(data, ['week']);
+
+    // A disabled segment is not picked.
+    await tester.tap(find.text('Month'));
+    await tester.pumpAndSettle();
+    expect(control.get('selected'), ['week']);
+    expect(backend.events, hasLength(1));
+  });
+
+  testWidgets('iOS sliding needs two visible canonical segments',
+      (tester) async {
+    await _pump(
+        tester,
+        TargetPlatform.iOS,
+        canonical({
+          'segments': [
+            {'_c': 'Segment', '_i': 2011, 'value': 'day', 'label': 'Day'},
+            {
+              '_c': 'Segment',
+              '_i': 2012,
+              'value': 'week',
+              'label': 'Week',
+              'visible': false
+            },
+          ],
+        }));
+    expect(find.byType(ErrorControl), findsOneWidget);
+  });
 }

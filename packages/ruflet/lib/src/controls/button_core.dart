@@ -24,6 +24,8 @@ const _sharedProps = [
   PropSpec('clip_behavior', PropType.enumName, 'clipBehavior'),
   PropSpec('autofocus', PropType.boolean, 'autofocus'),
   PropSpec('url', PropType.raw, 'url', consumer: PropConsumer.core),
+  // Client actions run in the tap, before `click` (Flet's `action`).
+  PropSpec('action', PropType.raw, 'action', consumer: PropConsumer.core),
   PropSpec('alignment', PropType.alignment, 'alignment',
       skins: {Skin.cupertino}, reason: _cupertinoStyle),
   PropSpec('border_radius', PropType.borderRadius, 'borderRadius',
@@ -72,6 +74,7 @@ const _buttonEvents = [
   EventSpec('hover', source: EventSource.core),
   EventSpec('focus', source: EventSource.core),
   EventSpec('blur', source: EventSource.core),
+  EventSpec('action_result', source: EventSource.core),
 ];
 
 const _buttonMethods = [MethodSpec('focus'), MethodSpec('blur')];
@@ -123,6 +126,7 @@ class ButtonProps {
         clipBehavior = r.enumValue(Clip.values, 'clip_behavior', Clip.none),
         autofocus = r.boolean('autofocus'),
         url = r.raw('url'),
+        action = r.raw('action'),
         alignment = r.alignment('alignment'),
         borderRadius = r.borderRadius('border_radius'),
         padding = r.edgeInsets('padding'),
@@ -149,6 +153,7 @@ class ButtonProps {
   final Clip clipBehavior;
   final bool autofocus;
   final RawProp url;
+  final RawProp action;
   final Alignment? alignment;
   final BorderRadius? borderRadius;
   final EdgeInsets? padding;
@@ -163,9 +168,9 @@ class ButtonProps {
   final TextStyle? textStyle;
 }
 
-/// The shared button: click (and its `url`), long press, hover and pressed
-/// state, focus and the `focus`/`blur` methods, identical on Material and
-/// Cupertino. One core serves the five Button wire types; it picks its spec
+/// The shared button: click (and its `action` and `url`), long press, hover
+/// and pressed state, focus and the `focus`/`blur` methods, identical on
+/// Material and Cupertino. One core serves the five Button wire types; it picks its spec
 /// and variant from its wire type.
 class ButtonCore extends ControlCore<ButtonProps>
     with FocusableCore<ButtonProps> {
@@ -204,8 +209,9 @@ class ButtonCore extends ControlCore<ButtonProps>
         if (_pressed) WidgetState.pressed,
       };
 
-  /// Opens `url` (if any) and fires `click`. Non-null while enabled, with or
-  /// without a Ruby handler, so the button keeps its enabled look.
+  /// Runs the client `action`s, opens `url` (if any) and fires `click`.
+  /// Non-null while enabled, with or without a Ruby handler, so the button
+  /// keeps its enabled look.
   VoidCallback? get onClick => enabled ? _click : null;
 
   /// Fires `long_press`. Non-null while enabled, so a long press never falls
@@ -214,6 +220,7 @@ class ButtonCore extends ControlCore<ButtonProps>
       enabled ? () => events.fire('long_press') : null;
 
   void _click() {
+    runClientActions(props.action);
     final Url? url = parseUrl(props.url.value);
     if (url != null) openWebBrowser(url);
     events.fire('click');

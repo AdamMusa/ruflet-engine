@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart'
         CupertinoRadio,
         CupertinoSwitch;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
+import 'package:flutter/services.dart' show SystemChannels;
 import 'package:flutter/material.dart'
     show
         AppBar,
@@ -234,6 +235,7 @@ final List<MigratedControl> migratedControls = [
       },
       parityScript: [
         SnapshotStep.tapNative(),
+        _tapWithClientAction(),
         SnapshotStep.tapText('Press'),
         _longPress('Press'),
         _hover(),
@@ -275,6 +277,7 @@ final List<MigratedControl> migratedControls = [
       },
       parityScript: [
         SnapshotStep.tapNative(),
+        _tapWithClientAction(),
         _longPressCenter(),
         _hover(),
         SnapshotStep.tab(),
@@ -314,6 +317,7 @@ final List<MigratedControl> migratedControls = [
     },
     parityScript: [
       SnapshotStep.tapNative(),
+      _tapWithClientAction(),
       _longPressCenter(),
       SnapshotStep.unfocus(),
     ],
@@ -386,6 +390,32 @@ final List<MigratedControl> migratedControls = [
     parityScript: [SnapshotStep.tapNative(), SnapshotStep.unfocus()],
   ),
 ];
+
+/// Gives the control a client action (a clipboard copy, with the platform
+/// clipboard mocked), taps the native widget and takes the action off again:
+/// the core performs it inside the tap and reports `action_result` the same
+/// way on both designs.
+SnapshotStep _tapWithClientAction() =>
+    SnapshotStep('tap native with a client action', (c) async {
+      final messenger = c.tester.binding.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(
+          SystemChannels.platform, (call) async => null);
+      try {
+        c.target.update({
+          'action': {
+            'service': 'Clipboard',
+            'method': 'set',
+            'args': {'data': 'copied'},
+          },
+        }, shouldNotify: true);
+        await c.tester.pumpAndSettle();
+        await SnapshotStep.tapNative().run(c);
+      } finally {
+        c.target.update({'action': null}, shouldNotify: true);
+        await c.tester.pumpAndSettle();
+        messenger.setMockMethodCallHandler(SystemChannels.platform, null);
+      }
+    });
 
 SnapshotStep _longPressCenter() => SnapshotStep('long press', (c) async {
   await c.tester.longPress(c.finder.first);

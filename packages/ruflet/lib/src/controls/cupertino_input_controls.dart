@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../extensions/control.dart';
 import '../models/control.dart';
 import '../models/ruflet_time.dart';
+import '../utils/borders.dart';
 import '../utils/colors.dart';
 import '../utils/edge_insets.dart';
 import '../utils/numbers.dart';
@@ -66,7 +67,8 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
     final selected = await showCupertinoModalPopup<int>(
       context: context,
       barrierDismissible: true,
-      builder: (context) => CupertinoPopupSurface(
+      builder: (context) => _DropdownMenuSurface(
+        borderRadius: control.getBorderRadius("menu_border_radius"),
         child: SafeArea(
           top: false,
           child: SizedBox(
@@ -169,6 +171,24 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
   }
 }
 
+/// The Dropdown options sheet: a [CupertinoPopupSurface], rounded by Ruby's
+/// menu_border_radius (Flet's DropdownM2) like the Material menu.
+class _DropdownMenuSurface extends StatelessWidget {
+  final BorderRadius? borderRadius;
+  final Widget child;
+
+  const _DropdownMenuSurface({required this.borderRadius, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = CupertinoPopupSurface(child: child);
+    final radius = borderRadius;
+    return radius == null
+        ? surface
+        : ClipRRect(borderRadius: radius, child: surface);
+  }
+}
+
 class CupertinoSearchBarControl extends StatefulWidget {
   final Control control;
 
@@ -263,6 +283,9 @@ class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
     final showSuggestions = _focusNode.hasFocus &&
         suggestions.isNotEmpty &&
         (_viewOpen || _controller.text.isNotEmpty);
+    // The inline counterpart of Material's search view: opened by
+    // open_view, or listing suggestions for the query.
+    final viewShown = _viewOpen || showSuggestions;
     final leading = control.buildWidget("bar_leading");
     final trailing = control.buildWidgets("bar_trailing");
 
@@ -275,9 +298,10 @@ class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
             Expanded(
               // CupertinoSearchTextField has no onTapOutside; like the
               // Material SearchBar's text field, report outside taps while
-              // the bar has focus.
+              // the bar has focus and the view is closed.
               child: TextFieldTapRegion(
                 onTapOutside: _focusNode.hasFocus &&
+                        !viewShown &&
                         control.getBool("on_tap_outside_bar", false)!
                     ? (event) => control.triggerEvent("tap_outside_bar")
                     : null,
@@ -318,7 +342,17 @@ class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
           ),
       ],
     );
-    return LayoutControl(control: control, child: search);
+    // A tap outside the field and its suggestions while the view is shown
+    // is Ruby's tap_outside_view, as a tap on Material's view barrier.
+    return LayoutControl(
+        control: control,
+        child: TapRegion(
+          onTapOutside:
+              viewShown && control.getBool("on_tap_outside_view", false)!
+                  ? (event) => control.triggerEvent("tap_outside_view")
+                  : null,
+          child: search,
+        ));
   }
 }
 

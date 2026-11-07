@@ -167,6 +167,42 @@ void main() {
     expect(backend.selectPayload()['b'], 'tertiary');
   });
 
+  // Ruby sends `primary_trigger: "long_press"`; the Dart name is longPress.
+  // Both spellings bind a touch long press to `primary_items` on both
+  // designs and report the trigger as Material names it.
+  for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
+    for (final trigger in ['long_press', 'longPress']) {
+      testWidgets('$platform primary_trigger "$trigger" opens on long press', (
+        tester,
+      ) async {
+        final backend = await _pump(tester, platform, {
+          'primary_trigger': trigger,
+          'primary_items': _list(20, ['Primary']),
+          'secondary_items': _list(30, ['Inspect']),
+        });
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.text('Target')),
+        );
+        await tester.pump(kLongPressTimeout + kPressTimeout);
+        await tester.pumpAndSettle();
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(find.text('Primary'), findsOneWidget);
+        expect(find.text('Inspect'), findsNothing);
+
+        await tester.tap(find.text('Primary'));
+        await tester.pumpAndSettle();
+        expect(_ids(backend.selectPayload()), {
+          'b': 'primary',
+          'tr': 'longPress',
+          'id': 20,
+          'idx': 0,
+          'ic': 1,
+        });
+      });
+    }
+  }
+
   testWidgets('iOS select payload matches a Material right-click', (
     tester,
   ) async {

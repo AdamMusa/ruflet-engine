@@ -11,6 +11,8 @@ import '../utils/numbers.dart';
 import '../widgets/error.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
+import 'nested_scroll_body.dart';
+import 'scrollable_control.dart';
 
 class CupertinoChipControl extends StatelessWidget {
   final Control control;
@@ -283,7 +285,8 @@ class CupertinoExpansionPanelListControl extends StatelessWidget {
         );
       }).toList(),
     );
-    return LayoutControl(control: control, child: result);
+    return LayoutControl(
+        control: control, child: wrapInScrollableControl(control, result));
   }
 }
 
@@ -476,10 +479,13 @@ class CupertinoTabBarViewControl extends StatelessWidget {
     if (controls.isEmpty) {
       return const ErrorControl("TabBarView.controls must not be empty");
     }
-    final view = IndexedStack(
-      index: tabs.selectedIndex.clamp(0, controls.length - 1),
-      children: controls,
-    );
+    final index = tabs.selectedIndex.clamp(0, controls.length - 1);
+    // As a NestedScrollView body, only the selected page is built (like the
+    // Material PageView): every built page's list would scroll with it.
+    final pages = control.children("controls");
+    final view = NestedScrollBody.scrollsAny(context, pages)
+        ? KeyedSubtree(key: ValueKey(pages[index].id), child: controls[index])
+        : IndexedStack(index: index, children: controls);
     return LayoutControl(control: control, child: view);
   }
 }

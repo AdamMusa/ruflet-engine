@@ -66,6 +66,7 @@ import 'controls/navigation_bar.dart';
 import 'controls/navigation_bar_destination.dart';
 import 'controls/navigation_drawer.dart';
 import 'controls/navigation_rail.dart';
+import 'controls/nested_scroll_view.dart';
 import 'controls/page.dart';
 import 'controls/page_view.dart';
 import 'controls/pagelet.dart';
@@ -97,6 +98,19 @@ import 'controls/transparent_pointer.dart';
 import 'controls/vertical_divider.dart';
 import 'controls/view.dart';
 import 'controls/window_drag_area.dart';
+import 'controls/absorb_pointer.dart';
+import 'controls/form.dart';
+import 'controls/fractionally_sized_box.dart';
+import 'controls/ignore_pointer.dart';
+import 'controls/intrinsic_height.dart';
+import 'controls/intrinsic_width.dart';
+import 'controls/clip_oval.dart';
+import 'controls/clip_rsuperellipse.dart';
+import 'controls/fade_transition.dart';
+import 'controls/rotation_transition.dart';
+import 'controls/scale_transition.dart';
+import 'controls/size_transition.dart';
+import 'controls/slide_transition.dart';
 import 'ruflet_extension.dart';
 import 'ruflet_service.dart';
 import 'models/control.dart';
@@ -129,6 +143,8 @@ class RufletCoreExtension extends RufletExtension {
   @override
   Widget? createWidget(Key? key, Control control) {
     switch (control.canonicalType) {
+      case "AbsorbPointer":
+        return AbsorbPointerControl(key: key, control: control);
       case "FilledButton":
       case "FilledTonalButton":
       case "OutlinedButton":
@@ -170,6 +186,10 @@ class RufletCoreExtension extends RufletExtension {
         return ChipControl(key: key, control: control);
       case "CircleAvatar":
         return CircleAvatarControl(key: key, control: control);
+      case "ClipOval":
+        return ClipOvalControl(key: key, control: control);
+      case "ClipRSuperellipse":
+        return ClipRSuperellipseControl(key: key, control: control);
       case "Column":
         return ColumnControl(key: key, control: control);
       case "Container":
@@ -204,10 +224,30 @@ class RufletCoreExtension extends RufletExtension {
         return ExpansionTileControl(key: key, control: control);
       case "FittedBox":
         return FittedBoxControl(key: key, control: control);
+      case "FractionallySizedBox":
+        return FractionallySizedBoxControl(key: key, control: control);
+      case "IgnorePointer":
+        return IgnorePointerControl(key: key, control: control);
+      case "IntrinsicHeight":
+        return IntrinsicHeightControl(key: key, control: control);
+      case "IntrinsicWidth":
+        return IntrinsicWidthControl(key: key, control: control);
+      case "FadeTransition":
+        return FadeTransitionControl(key: key, control: control);
+      case "RotationTransition":
+        return RotationTransitionControl(key: key, control: control);
+      case "ScaleTransition":
+        return ScaleTransitionControl(key: key, control: control);
+      case "SizeTransition":
+        return SizeTransitionControl(key: key, control: control);
+      case "SlideTransition":
+        return SlideTransitionControl(key: key, control: control);
       case "RufletApp":
         return RufletAppControl(key: key, control: control);
       case "FloatingActionButton":
         return FloatingActionButtonControl(key: key, control: control);
+      case "Form":
+        return FormControl(key: key, control: control);
       case "FormRow":
         return AdaptiveFormRowControl(key: key, control: control);
       case "GestureDetector":
@@ -253,6 +293,8 @@ class RufletCoreExtension extends RufletExtension {
         return NavigationDrawerControl(key: key, control: control);
       case "NavigationRail":
         return NavigationRailControl(key: key, control: control);
+      case "NestedScrollView":
+        return NestedScrollViewControl(key: key, control: control);
       case "Page":
         return PageControl(key: key, control: control);
       case "Pagelet":

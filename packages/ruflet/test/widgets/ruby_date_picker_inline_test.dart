@@ -66,4 +66,23 @@ void main() {
     expect(find.byType(material.CalendarDatePicker), findsOneWidget);
     expect(find.byType(material.Dialog), findsNothing);
   });
+
+  // Ruby's cupertino_date_picker always sends its mode (date_and_time by
+  // default), in snake_case, on the canonical DatePicker wire type.
+  for (final (mode, expected) in [
+    ('date_and_time', CupertinoDatePickerMode.dateAndTime),
+    ('time', CupertinoDatePickerMode.time),
+    ('date', CupertinoDatePickerMode.date),
+  ]) {
+    testWidgets('iOS inline picker honors date_picker_mode $mode',
+        (tester) async {
+      await _pump(tester, TargetPlatform.iOS, 'DatePicker',
+          {'inline': true, 'date_picker_mode': mode});
+      expect(
+          tester
+              .widget<CupertinoDatePicker>(find.byType(CupertinoDatePicker))
+              .mode,
+          expected);
+    });
+  }
 }

@@ -21,6 +21,7 @@ const Set<String> sliverChildTypes = {
   "SliverFillRemaining",
   "SliverGrid",
   "SliverList",
+  "SliverPadding",
   "SliverToBoxAdapter",
   sliverAppBarType,
 };
@@ -78,6 +79,8 @@ class SliverChildControl extends StatelessWidget {
           return _section(context, control, _grid(control));
         case "SliverFillRemaining":
           return _fillRemaining(control, host);
+        case "SliverPadding":
+          return _paddingGroup(control, host);
         case sliverAppBarType:
           return AdaptiveSliverAppBarControl(control: control);
         default:
@@ -88,6 +91,22 @@ class SliverChildControl extends StatelessWidget {
 }
 
 Widget _item(Control item) => ControlWidget(key: _keyOf(item), control: item);
+
+/// A Ruby `sliver_padding`: `padding` around its slivers (`slivers:`, or block
+/// children in `controls`), which scroll as one group. Each child is built
+/// like a CustomScrollView entry, so a box among them scrolls as a box and a
+/// SliverAppBar keeps its flexible space sibling.
+Widget _paddingGroup(Control control, SliverHost host) {
+  final slivers = control.get("slivers") != null
+      ? control.children("slivers")
+      : control.children("controls");
+  return SliverPadding(
+    padding: control.getPadding("padding") ?? EdgeInsets.zero,
+    sliver: SliverMainAxisGroup(slivers: [
+      for (final sliver in slivers) ...buildSlivers(sliver, host),
+    ]),
+  );
+}
 
 Widget _padded(Control sliver, Widget body) {
   final padding = sliver.getPadding("padding");

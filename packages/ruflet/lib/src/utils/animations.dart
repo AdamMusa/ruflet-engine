@@ -69,6 +69,7 @@ Curve? parseCurve(String? value, [Curve? defaultValue]) {
     "elasticin": Curves.elasticIn,
     "elasticinout": Curves.elasticInOut,
     "elasticout": Curves.elasticOut,
+    "fasteaseintosloweaseout": Curves.fastEaseInToSlowEaseOut,
     "fastlineartosloweasein": Curves.fastLinearToSlowEaseIn,
     "fastoutslowin": Curves.fastOutSlowIn,
     "linear": Curves.linear,

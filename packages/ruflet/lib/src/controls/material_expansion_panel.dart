@@ -6,6 +6,7 @@ import '../utils/colors.dart';
 import '../utils/edge_insets.dart';
 import '../utils/numbers.dart';
 import 'base_controls.dart';
+import 'scrollable_control.dart';
 
 class MaterialExpansionPanelListControl extends StatelessWidget {
   final Control control;
@@ -55,6 +56,7 @@ class MaterialExpansionPanelListControl extends StatelessWidget {
           );
         }).toList());
 
-    return LayoutControl(control: control, child: panelList);
+    return LayoutControl(
+        control: control, child: wrapInScrollableControl(control, panelList));
   }
 }

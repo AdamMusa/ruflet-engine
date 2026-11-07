@@ -14,6 +14,7 @@ import 'base_controls.dart';
 import 'end_reached_listener.dart';
 import 'control_widget.dart';
 import 'list_view_sliver.dart';
+import 'nested_scroll_body.dart';
 import 'scroll_notification_control.dart';
 import 'scrollable_control.dart';
 
@@ -122,23 +123,44 @@ class _ListViewControlState extends State<ListViewControl>
         var shrinkWrap =
             (!horizontal && constraints.maxHeight == double.infinity) ||
                 (horizontal && constraints.maxWidth == double.infinity);
-        if (refreshable) {
+        // A NestedScrollView body list scrolls with its inner controller and
+        // starts after the pinned header's overlap, so it is built from
+        // slivers like the refreshable list.
+        final nested = NestedScrollBody.of(context, widget.control);
+        if (refreshable || nested != null) {
+          final controller = nested?.controller ?? _controller;
+          final handle = nested?.handle;
+          final slivers = [
+            if (handle != null) SliverOverlapInjector(handle: handle),
+            listViewSliver(context, widget.control, controls, prototypeItem,
+                itemBuilder: item)
+          ];
           return _scrollable(
-              AdaptiveRefreshScrollView(
-                control: widget.control,
-                controller: _controller,
-                shrinkWrap: shrinkWrap,
-                cacheExtent: cacheExtent,
-                clipBehavior: clipBehavior,
-                keyboardDismissBehavior: keyboardDismissBehavior,
-                semanticChildCount: semanticChildCount ?? controls.length,
-                slivers: [
-                  listViewSliver(
-                      context, widget.control, controls, prototypeItem,
-                      itemBuilder: item)
-                ],
-              ),
-              scrollDirection);
+              refreshable
+                  ? AdaptiveRefreshScrollView(
+                      control: widget.control,
+                      controller: controller,
+                      shrinkWrap: shrinkWrap,
+                      cacheExtent: cacheExtent,
+                      clipBehavior: clipBehavior,
+                      keyboardDismissBehavior: keyboardDismissBehavior,
+                      semanticChildCount: semanticChildCount ?? controls.length,
+                      slivers: slivers,
+                    )
+                  : CustomScrollView(
+                      key: PageStorageKey("nested_body_${widget.control.id}"),
+                      controller: controller,
+                      scrollDirection: scrollDirection,
+                      reverse: reverse,
+                      shrinkWrap: shrinkWrap,
+                      cacheExtent: cacheExtent,
+                      clipBehavior: clipBehavior,
+                      keyboardDismissBehavior: keyboardDismissBehavior,
+                      semanticChildCount: semanticChildCount ?? controls.length,
+                      slivers: slivers,
+                    ),
+              scrollDirection,
+              controller);
         }
         Widget child = !buildControlsOnDemand
             ? ListView(
@@ -207,7 +229,7 @@ class _ListViewControlState extends State<ListViewControl>
                   "a control with bounded height.");
         }
 
-        return _scrollable(child, scrollDirection);
+        return _scrollable(child, scrollDirection, _controller);
       },
     );
 
@@ -216,11 +238,12 @@ class _ListViewControlState extends State<ListViewControl>
 
   /// Ruby scroll features shared by the box list and the refreshable list:
   /// `scroll`/`auto_scroll`/`scroll_to` (same controller) and `on_scroll`.
-  Widget _scrollable(Widget child, Axis scrollDirection) {
+  Widget _scrollable(
+      Widget child, Axis scrollDirection, ScrollController controller) {
     child = ScrollableControl(
         control: widget.control,
         scrollDirection: scrollDirection,
-        scrollController: _controller,
+        scrollController: controller,
         child: child);
 
     if (widget.control.getBool("on_scroll", false)!) {

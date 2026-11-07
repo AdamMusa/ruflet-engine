@@ -7,6 +7,7 @@ import '../utils/misc.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
 import 'base_controls.dart';
+import 'nested_scroll_body.dart';
 import 'scroll_notification_control.dart';
 import 'scrollable_control.dart';
 import 'sliver_children.dart';
@@ -80,9 +81,17 @@ class _CustomScrollViewControlState extends State<CustomScrollViewControl> {
             ? constraints.maxWidth == double.infinity
             : constraints.maxHeight == double.infinity;
         final host = SliverHost(axis: axis, shrinkWrap: shrinkWrap);
+        // A NestedScrollView body scrolls with its inner controller and
+        // starts after the pinned header's overlap.
+        final nested = NestedScrollBody.of(context, control);
+        final controller = nested?.controller ?? _controller;
+        final overlap = nested?.handle;
 
         Widget child = CustomScrollView(
-          controller: _controller,
+          key: nested == null
+              ? null
+              : PageStorageKey("nested_body_${control.id}"),
+          controller: controller,
           scrollDirection: axis,
           reverse: reverse,
           anchor: anchor,
@@ -92,6 +101,7 @@ class _CustomScrollViewControlState extends State<CustomScrollViewControl> {
           semanticChildCount: semanticChildCount,
           shrinkWrap: shrinkWrap,
           slivers: [
+            if (overlap != null) SliverOverlapInjector(handle: overlap),
             for (final sliver in slivers) ...buildSlivers(sliver, host)
           ],
         );
@@ -101,7 +111,7 @@ class _CustomScrollViewControlState extends State<CustomScrollViewControl> {
         child = ScrollableControl(
             control: control,
             scrollDirection: axis,
-            scrollController: _controller,
+            scrollController: controller,
             child: child);
 
         if (control.getBool("on_scroll", false)!) {

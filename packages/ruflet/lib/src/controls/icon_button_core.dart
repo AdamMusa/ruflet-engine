@@ -28,6 +28,8 @@ const _iconButtonProps = [
   PropSpec('enable_feedback', PropType.boolean, 'enableFeedback'),
   PropSpec('style', PropType.raw, 'style'),
   PropSpec('url', PropType.raw, 'url', consumer: PropConsumer.core),
+  // Client actions run in the tap, before `click` (Flet's `action`).
+  PropSpec('action', PropType.raw, 'action', consumer: PropConsumer.core),
   PropSpec('bgcolor', PropType.color, 'bgcolor',
       skins: {Skin.cupertino},
       reason: 'CupertinoButton background; Material icon buttons take it '
@@ -54,6 +56,7 @@ const _iconButtonEvents = [
   EventSpec('hover', source: EventSource.core),
   EventSpec('focus', source: EventSource.core),
   EventSpec('blur', source: EventSource.core),
+  EventSpec('action_result', source: EventSource.core),
 ];
 
 const _iconButtonMethods = [MethodSpec('focus'), MethodSpec('blur')];
@@ -99,6 +102,7 @@ class IconButtonProps {
         enableFeedback = r.optionalBoolean('enable_feedback'),
         style = r.raw('style'),
         url = r.raw('url'),
+        action = r.raw('action'),
         bgcolor = r.color('bgcolor'),
         highlightColor = r.color('highlight_color'),
         hoverColor = r.color('hover_color'),
@@ -124,6 +128,7 @@ class IconButtonProps {
   final bool? enableFeedback;
   final RawProp style;
   final RawProp url;
+  final RawProp action;
   final Color? bgcolor;
   final Color? highlightColor;
   final Color? hoverColor;
@@ -133,9 +138,9 @@ class IconButtonProps {
   final RawProp sizeConstraints;
 }
 
-/// The shared icon button: click (and its `url`), long press, hover and
-/// pressed state, the selected state, focus and the `focus`/`blur` methods,
-/// identical on Material and Cupertino. One core serves the four IconButton
+/// The shared icon button: click (and its `action` and `url`), long press,
+/// hover and pressed state, the selected state, focus and the `focus`/`blur`
+/// methods, identical on Material and Cupertino. One core serves the four IconButton
 /// wire types; it picks its spec and variant from its wire type.
 class IconButtonCore extends ControlCore<IconButtonProps>
     with FocusableCore<IconButtonProps> {
@@ -156,10 +161,13 @@ class IconButtonCore extends ControlCore<IconButtonProps>
         _ => IconButtonVariant.standard,
       };
 
-  /// The leading button of an AppBar (iOS shows its native back chevron for
-  /// a Material back arrow there).
+  /// A plain IconButton leading an AppBar: iOS shows its native back
+  /// chevron for a Material back arrow there. The filled, tonal and outlined
+  /// variants keep their glyph, as before the move onto the core.
   bool get isAppBarLeading =>
-      parentWireType == 'AppBar' && parentSlot == 'leading';
+      variant == IconButtonVariant.standard &&
+      parentWireType == 'AppBar' &&
+      parentSlot == 'leading';
 
   @override
   IconButtonProps parse(PropReader r) => IconButtonProps.parse(r);
@@ -177,7 +185,8 @@ class IconButtonCore extends ControlCore<IconButtonProps>
         if (_pressed) WidgetState.pressed,
       };
 
-  /// Opens `url` (if any) and fires `click`. Non-null while enabled.
+  /// Runs the client `action`s, opens `url` (if any) and fires `click`.
+  /// Non-null while enabled.
   VoidCallback? get onClick => enabled ? _click : null;
 
   /// Fires `long_press`. Non-null while enabled.
@@ -185,6 +194,7 @@ class IconButtonCore extends ControlCore<IconButtonProps>
       enabled ? () => events.fire('long_press') : null;
 
   void _click() {
+    runClientActions(props.action);
     final Url? url = parseUrl(props.url.value);
     if (url != null) openWebBrowser(url);
     events.fire('click');

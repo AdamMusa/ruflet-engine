@@ -25,7 +25,14 @@ class MaterialIconButtonSkin extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = core.props;
     // Without an icon the native button stays (empty), as on iOS.
-    final icon = _colored(p.icon, p.iconColor) ?? const SizedBox.shrink();
+    // Same rule as the iOS skin: `disabled_color` while disabled, else
+    // `selected_icon_color` while selected, else `icon_color`. The colour
+    // goes on the Icon itself, so IconButton's own disabledColor could not
+    // reach an icon Ruby coloured.
+    final iconColor = (core.disabled ? p.disabledColor : null) ??
+        (core.selected ? p.selectedIconColor : null) ??
+        p.iconColor;
+    final icon = _colored(p.icon, iconColor) ?? const SizedBox.shrink();
     final theme = Theme.of(context);
     final style = parseButtonStyle(p.style.value, theme,
         defaultForegroundColor: theme.colorScheme.primary,
@@ -39,7 +46,7 @@ class MaterialIconButtonSkin extends StatelessWidget {
         defaultShape: theme.useMaterial3
             ? const StadiumBorder()
             : RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)));
-    final selectedIcon = _colored(p.selectedIcon, p.selectedIconColor);
+    final selectedIcon = _colored(p.selectedIcon, iconColor);
     final constraints = parseBoxConstraints(p.sizeConstraints.value);
     final visualDensity = parseVisualDensity(p.visualDensity.string);
     final enableFeedback = p.enableFeedback ?? true;
