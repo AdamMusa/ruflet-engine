@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../models/control.dart';
 import '../utils/numbers.dart';
+import '../utils/presentation.dart';
 import '../utils/time.dart';
 import 'cupertino_date_picker.dart';
 
@@ -12,10 +13,12 @@ class CupertinoDatePickerRenderer extends StatelessWidget {
 
   @override
   // `inline` (Ruby's cupertino_date_picker, or the legacy CupertinoDatePicker
-  // wire name) renders the picker in place; otherwise it is a dialog.
-  Widget build(BuildContext context) => control.getBool("inline", false)!
-      ? CupertinoDatePickerControl(control: control)
-      : CupertinoDatePickerDialogControl(control: control);
+  // wire name) renders the picker in place; otherwise it is a dialog. A
+  // picker the page presents (show_dialog / open) is always a dialog.
+  Widget build(BuildContext context) =>
+      control.getBool("inline", false)! && !control.presentedByPage
+          ? CupertinoDatePickerControl(control: control)
+          : CupertinoDatePickerDialogControl(control: control);
 }
 
 class CupertinoDatePickerDialogControl extends StatelessWidget {
