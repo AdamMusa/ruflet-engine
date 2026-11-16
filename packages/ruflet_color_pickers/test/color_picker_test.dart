@@ -138,6 +138,20 @@ void main() {
         expect(shownColor(tester), picked.toColor());
       });
 
+      testWidgets('ColorPicker writes a pick back to Ruby color',
+          (tester) async {
+        // Ruby sends and reads `color`; the renderer used to write the pick
+        // to `picker_color`, which Ruby never sends, leaving `color` stale.
+        final m = await mountWire(tester, platform, wire({'color': '#ff0000'}));
+        await tester.tapAt(tester.getCenter(byTypeName('ColorPickerArea')));
+        await tester.pumpAndSettle();
+        final picked =
+            const HSVColor.fromAHSV(1, 0, 0.5, 0.5).toColor().toHex();
+        expect(m.backend.lastWriteBack('color'), picked);
+        expect(m.root.get('color'), picked);
+        expect(m.backend.writtenBack, isNot(contains('picker_color')));
+      });
+
       testWidgets('ColorPicker sends no event unless Ruby subscribed',
           (tester) async {
         final m = await mountWire(tester, platform, wire({'color': '#ff0000'}));

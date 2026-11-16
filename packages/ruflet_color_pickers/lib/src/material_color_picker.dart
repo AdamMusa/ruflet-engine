@@ -23,7 +23,8 @@ class _MaterialColorPickerControlState
       _pickerColor = color;
     });
     final colorHex = color.toHex();
-    widget.control.updateProperties({"picker_color": colorHex}, notify: true);
+    // `color` is the property Ruby sends and this control reads.
+    widget.control.updateProperties({"color": colorHex}, notify: true);
     widget.control.triggerEvent("color_change", colorHex);
   }
 
