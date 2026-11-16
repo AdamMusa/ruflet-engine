@@ -114,6 +114,25 @@ void main() {
         expect(m.backend.lastWriteBack('color'), '#ff00ff00');
       });
 
+      testWidgets('BlockPicker follows a Ruby color update', (tester) async {
+        // The picker kept the selection of its first build, so a Ruby
+        // `color` update left the old swatch checked.
+        final m = await mountWire(tester, platform, {
+          '_c': 'BlockPicker',
+          '_i': 1,
+          'color': '#ff0000',
+          'available_colors': ['#ff0000', '#00ff00', '#0000ff'],
+          'on_color_change': true,
+        });
+        await rubyPatch(tester, m.root, {'color': '#0000ff'});
+        expect(checkedSwatches(tester, 'BlockPicker'), [2]);
+
+        // Picking still works after the update.
+        await tapSwatch(tester, 'BlockPicker', 1);
+        expect(m.backend.eventData('color_change'), ['#ff00ff00']);
+        expect(checkedSwatches(tester, 'BlockPicker'), [1]);
+      });
+
       testWidgets(
           'MultipleChoiceBlockPicker checks every Ruby color in its palette',
           (tester) async {
@@ -160,6 +179,28 @@ void main() {
         await tapSwatch(tester, 'MultipleChoiceBlockPicker', 0);
         expect(m.backend.eventData('colors_change').last, ['#ff00ff00']);
         expect(m.backend.lastWriteBack('colors'), ['#ff00ff00']);
+        expect(checkedSwatches(tester, 'MultipleChoiceBlockPicker'), [1]);
+      });
+
+      testWidgets('MultipleChoiceBlockPicker follows a Ruby colors update',
+          (tester) async {
+        final m = await mountWire(tester, platform, {
+          '_c': 'MultipleChoiceBlockPicker',
+          '_i': 1,
+          'colors': ['#ff0000'],
+          'available_colors': ['#ff0000', '#00ff00', '#0000ff'],
+          'on_colors_change': true,
+        });
+        await rubyPatch(tester, m.root, {
+          'colors': ['#00ff00', '#0000ff']
+        });
+        expect(checkedSwatches(tester, 'MultipleChoiceBlockPicker'), [1, 2]);
+
+        // Toggling continues from Ruby's selection.
+        await tapSwatch(tester, 'MultipleChoiceBlockPicker', 2);
+        expect(m.backend.eventData('colors_change'), [
+          ['#ff00ff00']
+        ]);
         expect(checkedSwatches(tester, 'MultipleChoiceBlockPicker'), [1]);
       });
 

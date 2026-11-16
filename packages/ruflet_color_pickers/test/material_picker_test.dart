@@ -109,6 +109,27 @@ void main() {
         expect(m.backend.writtenBack, isEmpty);
       });
 
+      testWidgets('MaterialPicker follows a Ruby color update', (tester) async {
+        // The swatch kept the shade of its first build, so a Ruby `color`
+        // update left the old shade list and selection.
+        final m = await mountWire(tester, platform, {
+          '_c': 'MaterialPicker',
+          '_i': 1,
+          'color': '#2196f3',
+          'enable_label': true,
+          'on_color_change': true,
+        });
+        await rubyPatch(tester, m.root, {'color': '#f44336'}); // red 500
+        expect(find.text('#F44336  '), findsOneWidget);
+        expect(find.text('#2196F3  '), findsNothing);
+        expect(shadeWidth(tester, 0xfff44336), 250);
+
+        await tester.tap(find.text('#E53935  ')); // red 600
+        await tester.pumpAndSettle();
+        expect(m.backend.eventData('color_change'), ['#ffe53935']);
+        expect(shadeWidth(tester, 0xffe53935), 250);
+      });
+
       testWidgets('MaterialPicker sends no event unless Ruby subscribed',
           (tester) async {
         final m = await mountWire(tester, platform, {
