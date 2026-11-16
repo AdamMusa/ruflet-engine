@@ -79,7 +79,7 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
     _languageName = widget.control.get("language", "")!;
     return RufletCodeController(
       text: _initialValueFromControl(),
-      language: allLanguages[_languageName!.toLowerCase()],
+      language: highlightEntry(allLanguages, _languageName),
     );
   }
 
