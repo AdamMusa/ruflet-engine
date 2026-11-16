@@ -254,4 +254,38 @@ void main() {
     expect(find.text('Bad src'), findsOneWidget);
     await unmount(tester);
   }, variant: bothDesigns);
+
+  testWidgets('a Ruby update that keeps src keeps the loaded composition',
+      (tester) async {
+    final mounted = await mountWire(
+        tester, _wire(_animationBase64, {'on_load': true}), Extension(),
+        settle: false);
+    await _load(tester);
+    final loaded = tester.widget<Lottie>(find.byType(Lottie)).composition;
+    expect(loaded, isNotNull);
+
+    // Ruby: lottie.animate = false; page.update (pause it)
+    mounted.control.update({'animate': false}, shouldNotify: true);
+    await _load(tester);
+
+    final paused = tester.widget<Lottie>(find.byType(Lottie));
+    expect(paused.animate, isFalse);
+    expect(paused.composition, same(loaded));
+    expect(mounted.backend.eventData('load'), [null],
+        reason: 'the animation was not loaded again');
+    expect(tester.hasRunningAnimations, isFalse);
+
+    // A src Ruby replaces is loaded.
+    mounted.control.update({'src': base64.encode(utf8.encode(_animationJson))},
+        shouldNotify: true);
+    await _load(tester);
+    expect(mounted.backend.eventData('load'), [null],
+        reason: 'the same base64 text is the same animation');
+    mounted.control.update({'src': _animationBytes}, shouldNotify: true);
+    await _load(tester);
+    expect(tester.widget<Lottie>(find.byType(Lottie)).composition,
+        isNot(same(loaded)));
+    expect(mounted.backend.eventData('load'), [null, null]);
+    await unmount(tester);
+  }, variant: bothDesigns);
 }
