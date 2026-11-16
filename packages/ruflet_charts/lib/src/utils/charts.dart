@@ -40,6 +40,29 @@ AxisSpotIndicator chartTouchIndicator(RufletStyleTheme theme) {
   );
 }
 
+/// A chart's `tooltip` map configures fl_chart's touch tooltip, not the
+/// generic control tooltip LayoutControl adds. Flet's Python says so with
+/// `_internals.skip_properties: ["tooltip"]`; Ruby sends no `_internals`, so
+/// the chart marks its own configuration before LayoutControl reads it.
+/// Without this, Material wraps the chart in a Tooltip with no message,
+/// which fails to build. A text tooltip stays the generic control tooltip.
+void skipControlTooltipForChartConfig(Control control) {
+  if (control.get("tooltip") is! Map) return;
+  final internals = control.internals;
+  final skip = internals?["skip_properties"];
+  if (skip is List && skip.contains("tooltip")) return;
+  control.properties["_internals"] = <dynamic, dynamic>{
+    ...?internals,
+    "skip_properties": [if (skip is List) ...skip, "tooltip"],
+  };
+}
+
+/// The chart-level touch tooltip configuration Ruby sent, if any.
+Map<dynamic, dynamic>? chartTooltipConfig(Control control) {
+  final tooltip = control.get("tooltip");
+  return tooltip is Map ? tooltip : null;
+}
+
 FlDotPainter invisibleDotPainter =
     FlDotCirclePainter(radius: 0, strokeWidth: 0);
 FlLine invisibleLine = const FlLine(strokeWidth: 0);

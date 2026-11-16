@@ -82,7 +82,7 @@ LineTooltipItem? parseLineTooltipItem(
 LineTouchTooltipData? parseLineTouchTooltipData(
     BuildContext context, Control control,
     [LineTouchTooltipData? defaultValue]) {
-  final tooltip = control.get("tooltip");
+  final tooltip = chartTooltipConfig(control);
   if (tooltip == null) return defaultValue;
 
   final theme = RufletStyleTheme.of(context);

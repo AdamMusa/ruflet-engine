@@ -60,7 +60,7 @@ BarTouchTooltipData? parseBarTouchTooltipData(
   Control control, [
   BarTouchTooltipData? defaultValue,
 ]) {
-  var tooltip = control.get("tooltip");
+  var tooltip = chartTooltipConfig(control);
   if (tooltip == null) return defaultValue;
 
   final theme = RufletStyleTheme.of(context);

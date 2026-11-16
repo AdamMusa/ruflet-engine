@@ -66,6 +66,7 @@ class _LineChartControlState extends State<LineChartControl> {
   @override
   Widget build(BuildContext context) {
     debugPrint("LineChart build: ${widget.control.id}");
+    skipControlTooltipForChartConfig(widget.control);
     final theme = RufletStyleTheme.of(context);
     var animation = widget.control.getAnimation(
         "animation",

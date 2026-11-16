@@ -21,6 +21,7 @@ class _BarChartControlState extends State<BarChartControl> {
   @override
   Widget build(BuildContext context) {
     debugPrint("BarChart build: ${widget.control.id}");
+    skipControlTooltipForChartConfig(widget.control);
     final theme = RufletStyleTheme.of(context);
 
     var animation = widget.control.getAnimation(

@@ -26,7 +26,7 @@ class ScatterChartEventData extends Equatable {
 
 ScatterTouchTooltipData parseScatterTouchTooltipData(
     BuildContext context, Control control, List<ScatterSpot> spots) {
-  var tooltip = control.get("tooltip") ?? {};
+  var tooltip = chartTooltipConfig(control) ?? {};
 
   final theme = RufletStyleTheme.of(context);
 
