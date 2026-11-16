@@ -3,7 +3,8 @@
 // colors and state on the rendered table, and every event reaching Ruby only
 // when it subscribed.
 //
-// ruflet-coverage: DataTable2 DataColumn2 DataRow2 DataCell
+// ruflet-coverage: DataTable2 DataColumn2 DataRow2
+// (DataCell is exercised here too; packages/ruflet owns its declaration.)
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
