@@ -148,8 +148,13 @@ void main() {
         await tapPoint(tester);
         final events = mounted.backend.events;
         expect(events.map((e) => (e.id, e.name)).toSet(), {(1, 'event')});
-        expect((events.last.data as Map)['type'], 'tapUp');
-        expect((events.last.data as Map)['spots'], hasLength(1));
+        // The touched spots reach Ruby as plain maps the wire can encode.
+        expect(events.last.data, {
+          'type': 'tapUp',
+          'spots': [
+            {'bar_index': 0, 'spot_index': 1},
+          ],
+        });
         expect(tester.takeException(), isNull);
       });
     });

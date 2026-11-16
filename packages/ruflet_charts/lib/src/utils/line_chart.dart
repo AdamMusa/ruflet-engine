@@ -23,9 +23,11 @@ class LineChartEventData extends Equatable {
             : []);
   }
 
+  // Spots go to Ruby as plain maps: the wire encoder cannot serialize
+  // LineChartEventDataSpot objects.
   Map<String, dynamic> toMap() => <String, dynamic>{
         'type': eventType,
-        'spots': barSpots,
+        'spots': barSpots.map((spot) => spot.toMap()).toList(),
       };
 
   @override
