@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
 import '../models/control.dart';
@@ -61,12 +63,15 @@ class ResponsiveRowControl extends StatelessWidget with RufletStoreMixin {
         }
 
         var wrap = (totalCols > bpColumns);
+        // A hair less than the spacing keeps rounding from pushing the last
+        // child to a new run; it must not go negative when Ruby asks for 0.
+        final gap = math.max(0.0, bpSpacing - 0.1);
 
         try {
           return wrap
               ? Wrap(
                   direction: Axis.horizontal,
-                  spacing: bpSpacing - 0.1,
+                  spacing: gap,
                   runSpacing: getBreakpointNumber(
                       runSpacing, view.size.width, view.breakpoints),
                   alignment: control.getWrapAlignment(
@@ -76,7 +81,7 @@ class ResponsiveRowControl extends StatelessWidget with RufletStoreMixin {
                   children: controls,
                 )
               : Row(
-                  spacing: bpSpacing - 0.1,
+                  spacing: gap,
                   mainAxisAlignment: control.getMainAxisAlignment(
                       "alignment", MainAxisAlignment.start)!,
                   mainAxisSize: MainAxisSize.max,

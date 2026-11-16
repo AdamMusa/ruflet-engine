@@ -2,6 +2,7 @@
 // wrapping and positioned children, measured on both designs.
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ruflet/ruflet.dart';
 
 import '../support/control_harness.dart';
 
@@ -358,6 +359,40 @@ void main() {
         expect(_rect(tester, 'rest').right, closeTo(400, 0.3));
         expect(_rect(tester, 'quarter').left,
             closeTo(_rect(tester, 'half').right + 10, 0.11));
+      });
+
+      testWidgets('spacing 0 packs the columns edge to edge', (tester) async {
+        // The row shaved 0.1 off the spacing, so 0 became a negative Flex
+        // spacing: an assertion in debug builds, an overlap in release.
+        await mountWire(
+            tester,
+            design,
+            row({
+              'spacing': 0,
+              'controls': [
+                cell('half', 6),
+                cell('quarter', 3),
+                cell('rest', 3),
+              ],
+            }));
+        expect(tester.takeException(), isNull);
+        expect(find.byType(ErrorControl), findsNothing);
+        expect(_rect(tester, 'half'), const Rect.fromLTWH(0, 0, 200, 20));
+        expect(_rect(tester, 'quarter'), const Rect.fromLTWH(200, 0, 100, 20));
+        expect(_rect(tester, 'rest'), const Rect.fromLTWH(300, 0, 100, 20));
+
+        // Wrapped runs too.
+        await mountWire(
+            tester,
+            design,
+            row({
+              'spacing': 0,
+              'run_spacing': 0,
+              'controls': [cell('a', 8), cell('b', 8)],
+            }));
+        expect(tester.takeException(), isNull);
+        expect(
+            _rect(tester, 'b'), const Rect.fromLTWH(0, 20, 400 * 8 / 12, 20));
       });
 
       testWidgets('columns and per-breakpoint col follow the page width',
