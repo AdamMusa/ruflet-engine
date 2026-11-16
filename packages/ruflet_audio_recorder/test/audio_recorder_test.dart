@@ -288,6 +288,29 @@ void main() {
             const IosRecordConfig().categoryOptions);
       });
 
+      test('ios_configuration without options keeps the default categories',
+          () async {
+        final service = await recorder(platform: design);
+
+        for (final ios in <Map<String, dynamic>>[
+          {'manage_audio_session': false},
+          {},
+        ]) {
+          expect(
+              await service.invoke('start_recording', {
+                'output_path': '/data/memo.wav',
+                'configuration': {'ios_configuration': ios},
+              }),
+              isTrue,
+              reason: '$ios');
+          final config = platform.startConfig!.iosConfig;
+          expect(
+              config.categoryOptions, const IosRecordConfig().categoryOptions);
+          // ignore: deprecated_member_use
+          expect(config.manageAudioSession, ios.isEmpty);
+        }
+      });
+
       test('start_recording without permission or a path does not start',
           () async {
         final service = await recorder(platform: design);

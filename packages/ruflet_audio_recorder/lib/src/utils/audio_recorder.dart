@@ -37,10 +37,13 @@ IosAudioCategoryOption? parseIosAudioCategoryOption(String? value,
 IosRecordConfig? parseIosRecordConfig(dynamic value,
     [IosRecordConfig? defaultValue]) {
   if (value == null) return defaultValue;
-  var options = (value["options"] as List)
-      .map((o) => parseIosAudioCategoryOption(o))
-      .nonNulls
-      .toList();
+  // Without "options" the recorder keeps record's default categories.
+  final options = value["options"] is List
+      ? (value["options"] as List)
+          .map((o) => parseIosAudioCategoryOption(o?.toString()))
+          .nonNulls
+          .toList()
+      : const IosRecordConfig().categoryOptions;
   return IosRecordConfig(
     // Moving to AudioRecorder.ios.manageAudioSession changes behavior.
     // ignore: deprecated_member_use
