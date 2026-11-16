@@ -393,6 +393,21 @@ void main() {
     await unmount(tester);
   }, variant: bothDesigns);
 
+  testWidgets(
+      'macOS renders the native view but skips the scroll handler '
+      'webview_flutter does not surface there', (tester) async {
+    await mountWire(tester,
+        _wire({'on_scroll': true, 'on_console_message': true}), Extension());
+
+    final controller = platform.controller;
+    expect(
+        controller.requests.single.uri, Uri.parse('https://ruflet.test/start'));
+    expect(controller.calls, contains('setOnConsoleMessage'));
+    expect(controller.calls, isNot(contains('setOnScrollPositionChange')));
+    expect(find.byKey(FakeWebViewWidget.viewKey), findsOneWidget);
+    await unmount(tester);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.macOS));
+
   testWidgets('desktop hosts without a web view show an error, not a crash',
       (tester) async {
     await mountWire(tester, _wire(), Extension());
