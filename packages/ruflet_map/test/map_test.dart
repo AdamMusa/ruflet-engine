@@ -360,6 +360,25 @@ void main() {
         expect(camera(tester).zoom, 15.0);
       });
 
+      testWidgets('animation_duration and animation_curve set the default',
+          (tester) async {
+        final m = await mountMap(tester, design, {
+          'animation_duration': 2000,
+          'animation_curve': 'linear',
+        });
+        var done = false;
+        unawaited(m.root
+            .invokeMethod('zoom_to', {'zoom': 17}, const Duration(seconds: 5))
+            .then((_) => done = true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 1000));
+        expect(done, isFalse);
+        expect(camera(tester).zoom, closeTo(15, 0.1));
+        await tester.pumpAndSettle();
+        expect(done, isTrue);
+        expect(camera(tester).zoom, 17.0);
+      });
+
       testWidgets('move_to offsets the destination by the pixel offset',
           (tester) async {
         final m = await mountMap(tester, design);
