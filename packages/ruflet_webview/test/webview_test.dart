@@ -5,13 +5,19 @@
 // The native view cannot render in widget tests, so webview_flutter's
 // platform interface is faked: the tests assert what the control hands the
 // plugin, the values invokes return to Ruby and the events Ruby receives.
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ruflet/ruflet.dart';
 import 'package:ruflet_webview/ruflet_webview.dart';
+import 'package:ruflet_webview/src/webview.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
 
 import 'support/fake_webview_platform.dart';
 import 'support/harness.dart';
+
+const _timeout = Duration(seconds: 2);
 
 Map<String, dynamic> _wire([Map<String, dynamic> props = const {}]) => {
       '_c': 'WebView',
@@ -28,6 +34,29 @@ void main() {
     WebViewPlatform.instance = platform;
   });
 
+  /// Runs [name] the way the backend does for a Ruby `page.invoke`, letting
+  /// the plugin's futures complete.
+  Future<({Object? value, Object? error})> invoke(
+      WidgetTester tester, Control control, String name,
+      [Object? args]) async {
+    ({Object? value, Object? error})? outcome;
+    unawaited(control.invokeMethod(name, args, _timeout).then(
+        (value) => outcome = (value: value, error: null),
+        onError: (Object error) => outcome = (value: null, error: error)));
+    await tester.pump();
+    return outcome!;
+  }
+
+  test('the extension creates WebView for its wire type only', () {
+    final backend = HarnessBackend(TargetPlatform.android, extensions: []);
+    Control control(String type) =>
+        Control(id: 1, type: type, properties: {}, backend: backend);
+
+    expect(Extension().createWidget(null, control('WebView')),
+        isA<WebViewControl>());
+    expect(Extension().createWidget(null, control('Text')), isNull);
+  });
+
   testWidgets('loads url with GET and fills the size Ruby gives it',
       (tester) async {
     final mounted = await mountWire(
@@ -36,18 +65,19 @@ void main() {
     expect(tester.takeException(), isNull);
     final controller = platform.controller;
     expect(controller.requests, hasLength(1));
-    expect(controller.requests.single.uri,
-        Uri.parse('https://ruflet.test/start'));
+    expect(
+        controller.requests.single.uri, Uri.parse('https://ruflet.test/start'));
     expect(controller.requests.single.method, LoadRequestMethod.get);
     expect(controller.navigationDelegate, same(platform.delegates.single));
     expect(tester.getSize(find.byKey(FakeWebViewWidget.viewKey)),
         const Size(320, 240));
-    expect(tester.getTopLeft(find.byKey(FakeWebViewWidget.viewKey)),
-        Offset.zero);
+    expect(
+        tester.getTopLeft(find.byKey(FakeWebViewWidget.viewKey)), Offset.zero);
     // Nothing was subscribed, so no optional plugin handler is installed.
     expect(
         controller.calls,
-        isNot(anyOf(contains('setOnScrollPositionChange'),
+        isNot(anyOf(
+            contains('setOnScrollPositionChange'),
             contains('setOnConsoleMessage'),
             contains('setOnJavaScriptAlertDialog'))));
     expect(mounted.backend.events, isEmpty);
@@ -61,4 +91,287 @@ void main() {
     expect(platform.controller.requests.single.method, LoadRequestMethod.post);
     await unmount(tester);
   }, variant: bothDesigns);
+
+  testWidgets('bgcolor sets the plugin background color', (tester) async {
+    await mountWire(tester, _wire({'bgcolor': '#336699'}), Extension());
+
+    expect(platform.controller.backgroundColor, const Color(0xff336699));
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets('navigation callbacks reach Ruby only when it subscribed',
+      (tester) async {
+    final subscribed = await mountWire(
+        tester,
+        _wire({
+          'on_page_started': true,
+          'on_page_ended': true,
+          'on_progress': true,
+          'on_url_change': true,
+          'on_web_resource_error': true,
+        }),
+        Extension());
+    final delegate = platform.controller.delegate;
+
+    delegate.onPageStarted!('https://ruflet.test/a');
+    delegate.onProgress!(42);
+    delegate.onUrlChange!(const UrlChange(url: 'https://ruflet.test/b'));
+    delegate.onPageFinished!('https://ruflet.test/b');
+    delegate.onWebResourceError!(
+        const WebResourceError(errorCode: -2, description: 'host not found'));
+
+    expect(subscribed.backend.events, [
+      [7, 'page_started', 'https://ruflet.test/a'],
+      [7, 'progress', 42],
+      [7, 'url_change', 'https://ruflet.test/b'],
+      [7, 'page_ended', 'https://ruflet.test/b'],
+      [7, 'web_resource_error', 'host not found'],
+    ]);
+    await unmount(tester);
+
+    final unsubscribed = await mountWire(tester, _wire(), Extension());
+    final quiet = platform.controllers.last.delegate;
+    quiet.onPageStarted!('https://ruflet.test/a');
+    quiet.onProgress!(10);
+    quiet.onPageFinished!('https://ruflet.test/a');
+    expect(unsubscribed.backend.events, isEmpty);
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets('prevent_links blocks navigations to those prefixes only',
+      (tester) async {
+    await mountWire(
+        tester,
+        _wire({
+          'prevent_links': ['https://blocked.test/', 'mailto:']
+        }),
+        Extension());
+    final decide = platform.controller.delegate.onNavigationRequest!;
+
+    NavigationDecision decision(String url) =>
+        decide(NavigationRequest(url: url, isMainFrame: true))
+            as NavigationDecision;
+
+    expect(decision('https://blocked.test/page'), NavigationDecision.prevent);
+    expect(decision('mailto:someone@ruflet.test'), NavigationDecision.prevent);
+    expect(decision('https://ruflet.test/page'), NavigationDecision.navigate);
+    await unmount(tester);
+
+    await mountWire(tester, _wire(), Extension());
+    final open = platform.controllers.last.delegate.onNavigationRequest!;
+    expect(
+        open(const NavigationRequest(
+            url: 'https://blocked.test/page', isMainFrame: true)),
+        NavigationDecision.navigate);
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets(
+      'scroll, console and alert handlers install when Ruby subscribes '
+      'and send their payloads', (tester) async {
+    final mounted = await mountWire(
+        tester,
+        _wire({
+          'on_scroll': true,
+          'on_console_message': true,
+          'on_javascript_alert_dialog': true,
+        }),
+        Extension());
+    final controller = platform.controller;
+
+    controller.onScrollPositionChange!(const ScrollPositionChange(12, 340));
+    controller.onConsoleMessage!(const JavaScriptConsoleMessage(
+        level: JavaScriptLogLevel.warning, message: 'careful'));
+    await controller.onAlertDialog!(const JavaScriptAlertDialogRequest(
+        message: 'Hello from JS', url: 'https://ruflet.test/start'));
+
+    expect(mounted.backend.events, [
+      [
+        7,
+        'scroll',
+        {'x': 12.0, 'y': 340.0}
+      ],
+      [
+        7,
+        'console_message',
+        {'message': 'careful', 'severity_level': 'warning'}
+      ],
+      [
+        7,
+        'javascript_alert_dialog',
+        {'message': 'Hello from JS', 'url': 'https://ruflet.test/start'}
+      ],
+    ]);
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets('a handler Ruby subscribes after mounting is installed once',
+      (tester) async {
+    final mounted = await mountWire(tester, _wire(), Extension());
+    final controller = platform.controller;
+    expect(controller.calls, isNot(contains('setOnConsoleMessage')));
+
+    mounted.control.update({'on_console_message': true}, shouldNotify: true);
+    await tester.pump();
+    mounted.control.update({'width': 200}, shouldNotify: true);
+    await tester.pump();
+
+    expect(controller.calls.where((c) => c == 'setOnConsoleMessage'),
+        hasLength(1));
+    controller.onConsoleMessage!(const JavaScriptConsoleMessage(
+        level: JavaScriptLogLevel.log, message: 'late'));
+    expect(mounted.backend.eventData('console_message'), [
+      {'message': 'late', 'severity_level': 'log'}
+    ]);
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets('invoke methods drive the plugin and return its values to Ruby',
+      (tester) async {
+    final mounted = await mountWire(tester, _wire(), Extension());
+    final control = mounted.control;
+    final controller = platform.controller;
+    controller.calls.clear();
+
+    // (method, args, plugin calls, value returned to Ruby)
+    final cases = <(String, Map<String, dynamic>?, List<String>, Object?)>[
+      ('reload', null, ['reload'], null),
+      ('can_go_back', null, ['canGoBack'], false),
+      ('can_go_forward', null, ['canGoForward'], false),
+      // Nothing to go back or forward to: only the check reaches the plugin.
+      ('go_back', null, ['canGoBack'], null),
+      ('go_forward', null, ['canGoForward'], null),
+      ('enable_zoom', null, ['enableZoom(true)'], null),
+      ('disable_zoom', null, ['enableZoom(false)'], null),
+      ('clear_cache', null, ['clearCache'], null),
+      ('clear_local_storage', null, ['clearLocalStorage'], null),
+      ('get_current_url', null, ['currentUrl'], 'https://ruflet.test/current'),
+      ('get_title', null, ['getTitle'], 'Ruflet test page'),
+      ('get_user_agent', null, ['getUserAgent'], 'RufletTestAgent/1.0'),
+      (
+        'load_file',
+        {'path': '/data/page.html'},
+        ['loadFile(/data/page.html)'],
+        null
+      ),
+      (
+        'load_html',
+        {'value': '<p>Hi</p>', 'base_url': 'https://ruflet.test/'},
+        ['loadHtmlString(<p>Hi</p>, baseUrl: https://ruflet.test/)'],
+        null
+      ),
+      (
+        'load_html',
+        {'value': '<p>Bare</p>'},
+        ['loadHtmlString(<p>Bare</p>, baseUrl: null)'],
+        null
+      ),
+      (
+        'load_request',
+        {'url': 'https://ruflet.test/next', 'method': 'get'},
+        ['loadRequest(get https://ruflet.test/next)'],
+        null
+      ),
+      (
+        'load_request',
+        {'url': 'https://ruflet.test/form', 'method': 'post'},
+        ['loadRequest(post https://ruflet.test/form)'],
+        null
+      ),
+      (
+        'run_javascript',
+        {'value': "document.title = 'x'"},
+        ["runJavaScript(document.title = 'x')"],
+        null
+      ),
+      ('scroll_to', {'x': 10, 'y': 20}, ['scrollTo(10, 20)'], null),
+      ('scroll_by', {'x': -5, 'y': 15}, ['scrollBy(-5, 15)'], null),
+      (
+        'set_javascript_mode',
+        {'mode': 'unrestricted'},
+        ['setJavaScriptMode(unrestricted)'],
+        null
+      ),
+      (
+        'set_javascript_mode',
+        {'mode': 'disabled'},
+        ['setJavaScriptMode(disabled)'],
+        null
+      ),
+    ];
+
+    for (final (method, args, calls, value) in cases) {
+      controller.calls.clear();
+      final outcome = await invoke(tester, control, method, args);
+      expect(outcome.error, isNull, reason: method);
+      expect(outcome.value, value, reason: method);
+      expect(controller.calls, calls, reason: '$method($args)');
+    }
+
+    // With history, go_back/go_forward navigate and the checks report it.
+    controller
+      ..canGoBackValue = true
+      ..canGoForwardValue = true
+      ..calls.clear();
+    expect((await invoke(tester, control, 'can_go_back')).value, isTrue);
+    expect((await invoke(tester, control, 'can_go_forward')).value, isTrue);
+    await invoke(tester, control, 'go_back');
+    await invoke(tester, control, 'go_forward');
+    expect(controller.calls, [
+      'canGoBack',
+      'canGoForward',
+      'canGoBack',
+      'goBack',
+      'canGoForward',
+      'goForward'
+    ]);
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets('invokes missing a required argument fail back to Ruby',
+      (tester) async {
+    final mounted = await mountWire(tester, _wire(), Extension());
+    final controller = platform.controller..calls.clear();
+
+    final noPath = await invoke(tester, mounted.control, 'load_file', {});
+    expect(noPath.error, isA<ArgumentError>());
+    expect('${noPath.error}', contains('"path"'));
+
+    final noValue = await invoke(tester, mounted.control, 'load_html');
+    expect(noValue.error, isA<ArgumentError>());
+    expect('${noValue.error}', contains('"value"'));
+
+    final unknown = await invoke(tester, mounted.control, 'print_page');
+    expect('${unknown.error}', contains('Unknown WebView method: print_page'));
+
+    expect(controller.calls, isEmpty);
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets('disposing stops handling Ruby invokes', (tester) async {
+    final mounted = await mountWire(tester, _wire(), Extension());
+    await unmount(tester);
+    final controller = platform.controller..calls.clear();
+
+    // The control is no longer rendered, so the invoke waits for a listener
+    // that never comes and times out (on the test's fake clock).
+    Object? error;
+    unawaited(mounted.control
+        .invokeMethod('reload', null, const Duration(milliseconds: 10))
+        .catchError((Object e) => error = e));
+    await tester.pump(const Duration(milliseconds: 20));
+
+    expect(error, isA<TimeoutException>());
+    expect(controller.calls, isEmpty);
+  }, variant: bothDesigns);
+
+  testWidgets('desktop hosts without a web view show an error, not a crash',
+      (tester) async {
+    await mountWire(tester, _wire(), Extension());
+
+    expect(tester.takeException(), isNull);
+    expect(platform.controllers, isEmpty);
+    expect(find.textContaining('Webview is not yet supported'), findsOneWidget);
+    await unmount(tester);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

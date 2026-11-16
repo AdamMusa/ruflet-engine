@@ -29,8 +29,10 @@ class HarnessBackend extends RufletBackend {
   final List<Map<String, dynamic>> updates = [];
 
   /// The data of every [name] event sent to Ruby, in order.
-  List<Object?> eventData(String name) =>
-      [for (final e in events) if (e[1] == name) e[2]];
+  List<Object?> eventData(String name) => [
+        for (final e in events)
+          if (e[1] == name) e[2]
+      ];
 
   @override
   void triggerControlEvent(Control control, String eventName,

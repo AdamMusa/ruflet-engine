@@ -41,8 +41,7 @@ class FakeWebViewWidget extends PlatformWebViewWidget {
   static const viewKey = ValueKey('fake-native-webview');
 
   @override
-  Widget build(BuildContext context) =>
-      const SizedBox.expand(key: viewKey);
+  Widget build(BuildContext context) => const SizedBox.expand(key: viewKey);
 }
 
 class FakeNavigationDelegate extends PlatformNavigationDelegate {
@@ -128,8 +127,7 @@ class FakeWebViewController extends PlatformWebViewController {
   @override
   Future<void> loadRequest(LoadRequestParams params) {
     requests.add(params);
-    return _record(
-        'loadRequest(${params.method.name} ${params.uri})', null);
+    return _record('loadRequest(${params.method.name} ${params.uri})', null);
   }
 
   @override
