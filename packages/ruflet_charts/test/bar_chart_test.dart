@@ -123,6 +123,21 @@ void main() {
         expect(tester.takeException(), isNull);
       });
 
+      testWidgets('spaces groups by the group_spacing Ruby sends',
+          (tester) async {
+        // Ruflet.bar_chart(group_spacing: 12, group_alignment: :start, ...)
+        await mountWire(tester, platform,
+            barChart(props: {'group_spacing': 12, 'group_alignment': 'start'}),
+            extensions: [Extension()]);
+        expect(barData(tester).groupsSpace, 12);
+        expect(barData(tester).alignment, BarChartAlignment.start);
+
+        // The name this renderer read before stays a fallback.
+        await mountWire(tester, platform, barChart(props: {'spacing': 9}),
+            extensions: [Extension()]);
+        expect(barData(tester).groupsSpace, 9);
+      });
+
       testWidgets('renders stack items Ruby markup sends as rod_stack_items',
           (tester) async {
         // ruflet_rails routes <bar-chart-rod-stack-item> into the rod's
