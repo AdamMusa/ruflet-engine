@@ -194,6 +194,27 @@ void main() {
             find.text("Made with 'flutter_map'").hitTestable(), findsOneWidget);
       });
 
+      testWidgets('RichAttribution popup shows for its initial duration',
+          (tester) async {
+        await mountAttribution(tester, design, {
+          '_c': 'RichAttribution',
+          '_i': 2,
+          'popup_initial_display_duration': 1000,
+          'show_flutter_map_attribution': false,
+          'attributions': [
+            {'_c': 'TextSourceAttribution', '_i': 3, 'text': 'Source'},
+          ],
+        });
+        // Open after the map's layout events (which used to dismiss it on
+        // iOS at once) until its timer ends.
+        expect(find.text('© Source').hitTestable(), findsOneWidget);
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(find.text('© Source').hitTestable(), findsOneWidget);
+        await tester.pump(const Duration(milliseconds: 600));
+        await tester.pumpAndSettle();
+        expect(find.text('© Source').hitTestable(), findsNothing);
+      });
+
       testWidgets('RichAttribution popup closes when the map moves',
           (tester) async {
         final m = await mountAttribution(tester, design, {
