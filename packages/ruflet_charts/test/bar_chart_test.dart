@@ -123,6 +123,39 @@ void main() {
         expect(tester.takeException(), isNull);
       });
 
+      testWidgets('renders stack items Ruby markup sends as rod_stack_items',
+          (tester) async {
+        // ruflet_rails routes <bar-chart-rod-stack-item> into the rod's
+        // `rod_stack_items`.
+        await mountWire(
+            tester,
+            platform,
+            barChart(groups: [
+              wire('BarChartGroup', 2, {
+                'x': 0,
+                'rods': [
+                  wire('BarChartRod', 3, {
+                    'to_y': 6,
+                    'rod_stack_items': [
+                      wire('BarChartRodStackItem', 4,
+                          {'from_y': 0, 'to_y': 2, 'color': '#0000ff'}),
+                      wire('BarChartRodStackItem', 5,
+                          {'from_y': 2, 'to_y': 6, 'color': '#ffff00'}),
+                    ],
+                  }),
+                ],
+              }),
+            ]),
+            extensions: [Extension()]);
+
+        final rod = barData(tester).barGroups.single.barRods.single;
+        expect(
+            rod.rodStackItems.map((s) => (s.fromY, s.toY, s.color)).toList(), [
+          (0.0, 2.0, const Color(0xFF0000FF)),
+          (2.0, 6.0, const Color(0xFFFFFF00)),
+        ]);
+      });
+
       testWidgets('renders axes, axis labels, grid lines and border',
           (tester) async {
         await mountWire(

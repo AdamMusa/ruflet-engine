@@ -197,8 +197,11 @@ BarChartRodData parseBarChartRodData(
       color: bgcolor,
       gradient: backgroundGradient,
     ),
+    // Ruby's markup (<bar-chart-rod-stack-item>) and older Flet send the
+    // items as `rod_stack_items`; current Flet as `stack_items`.
     rodStackItems: rod
-        .children("stack_items")
+        .children(
+            rod.get("stack_items") != null ? "stack_items" : "rod_stack_items")
         .map(
           (rodStackItem) => parseBarChartRodStackItem(
             rodStackItem,
