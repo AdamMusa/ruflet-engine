@@ -181,6 +181,47 @@ void main() {
         expect(byTypeName('ColorIndicator'), findsNWidgets(3));
       });
 
+      testWidgets('ColorPicker follows a Ruby color update after a pick',
+          (tester) async {
+        // A pick writes back hsv_color too; a later Ruby `color` must still
+        // win over that written-back HSV value.
+        final m = await mountWire(tester, platform, wire({'color': '#ff0000'}));
+        await tester.tapAt(tester.getCenter(byTypeName('ColorPickerArea')));
+        await tester.pumpAndSettle();
+        expect(shownColor(tester), isNot(_red));
+
+        await rubyPatch(tester, m.root, {'color': '#0000ff'});
+        expect(shownColor(tester), _blue);
+        expect(colorPicker(tester).pickerColor, _blue);
+
+        // An unrelated update keeps Ruby's color.
+        await rubyPatch(tester, m.root, {'enable_alpha': false});
+        expect(shownColor(tester), _blue);
+
+        // A later pick is HSV-exact again.
+        await tester.tapAt(tester.getCenter(byTypeName('ColorPickerArea')));
+        await tester.pumpAndSettle();
+        expect(colorPicker(tester).pickerHsvColor,
+            const HSVColor.fromAHSV(1, 240, 0.5, 0.5));
+      });
+
+      testWidgets('ColorPicker follows a Ruby color sent with hsv_color',
+          (tester) async {
+        final m = await mountWire(
+            tester,
+            platform,
+            wire({
+              'color': '#ff0000',
+              'hsv_color': {'alpha': 1, 'hue': 0, 'saturation': 1, 'value': 1},
+            }));
+        await rubyPatch(tester, m.root, {'color': '#00ff00'});
+        expect(shownColor(tester), _green);
+        await rubyPatch(tester, m.root, {
+          'hsv_color': {'alpha': 1, 'hue': 240, 'saturation': 1, 'value': 1}
+        });
+        expect(shownColor(tester), _blue);
+      });
+
       testWidgets('ColorPicker follows a Ruby hsv_color update',
           (tester) async {
         final m = await mountWire(
