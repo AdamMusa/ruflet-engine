@@ -365,6 +365,34 @@ void main() {
     expect(controller.calls, isEmpty);
   }, variant: bothDesigns);
 
+  testWidgets('a url or method Ruby changes after mounting is loaded',
+      (tester) async {
+    final mounted = await mountWire(
+        tester, _wire({'width': 320, 'height': 240}), Extension());
+    final controller = platform.controller;
+
+    // Ruby: webview.url = "..."; page.update
+    mounted.control
+        .update({'url': 'https://ruflet.test/second'}, shouldNotify: true);
+    await tester.pump();
+    // Other changes do not reload the page the user may have navigated on.
+    mounted.control
+        .update({'width': 300, 'bgcolor': '#112233'}, shouldNotify: true);
+    await tester.pump();
+    mounted.control.update({'method': 'post'}, shouldNotify: true);
+    await tester.pump();
+
+    expect([
+      for (final r in controller.requests) '${r.method.name} ${r.uri}'
+    ], [
+      'get https://ruflet.test/start',
+      'get https://ruflet.test/second',
+      'post https://ruflet.test/second',
+    ]);
+    expect(platform.controllers, hasLength(1));
+    await unmount(tester);
+  }, variant: bothDesigns);
+
   testWidgets('desktop hosts without a web view show an error, not a crash',
       (tester) async {
     await mountWire(tester, _wire(), Extension());

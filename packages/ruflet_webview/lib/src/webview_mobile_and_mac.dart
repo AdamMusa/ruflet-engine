@@ -17,6 +17,8 @@ class _WebviewMobileAndMacState extends State<WebviewMobileAndMac> {
   bool _scrollHandlerRegistered = false;
   bool _consoleHandlerRegistered = false;
   bool _alertHandlerRegistered = false;
+  String? _loadedUrl;
+  String? _loadedMethod;
 
   bool _shouldPreventNavigation(String url) {
     final links = widget.control.get<List>("prevent_links");
@@ -107,13 +109,27 @@ class _WebviewMobileAndMacState extends State<WebviewMobileAndMac> {
       ),
     );
 
-    // request
-    controller.loadRequest(
-        Uri.parse(widget.control.getString("url", "https://flet.dev")!),
-        method: parseLoadRequestMethod(
-            widget.control.getString("method"), LoadRequestMethod.get)!);
-
+    _loadUrlIfChanged();
     _setOptionalEventHandlers();
+  }
+
+  @override
+  void didUpdateWidget(covariant WebviewMobileAndMac oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _loadUrlIfChanged();
+  }
+
+  /// Loads the control's `url` with its `method` when either differs from
+  /// the last request made for them, so a `url` Ruby changes after mounting
+  /// is navigated to, while other updates keep the page the user is on.
+  void _loadUrlIfChanged() {
+    final url = widget.control.getString("url", "https://flet.dev")!;
+    final method = widget.control.getString("method");
+    if (url == _loadedUrl && method == _loadedMethod) return;
+    _loadedUrl = url;
+    _loadedMethod = method;
+    controller.loadRequest(Uri.parse(url),
+        method: parseLoadRequestMethod(method, LoadRequestMethod.get)!);
   }
 
   Future<dynamic> _invokeMethod(String name, dynamic args) async {
