@@ -311,6 +311,37 @@ void main() {
         }
       });
 
+      test('device is an id from get_input_devices, or a map with an id',
+          () async {
+        final service = await recorder(platform: design);
+        final devices = await service.invoke('get_input_devices') as Map;
+
+        for (final (device, id, label) in [
+          (devices.keys.last, 'usb-1', ''),
+          ({'id': 'usb-1'}, 'usb-1', ''),
+          ({'id': 'builtin', 'label': 'Mic'}, 'builtin', 'Mic'),
+        ]) {
+          expect(
+              await service.invoke('start_recording', {
+                'output_path': '/data/memo.wav',
+                'configuration': {'device': device},
+              }),
+              isTrue,
+              reason: '$device');
+          expect(platform.startConfig!.device!.id, id, reason: '$device');
+          expect(platform.startConfig!.device!.label, label, reason: '$device');
+        }
+
+        // Without an id the platform's default input records.
+        for (final device in [<String, dynamic>{}, '']) {
+          await service.invoke('start_recording', {
+            'output_path': '/data/memo.wav',
+            'configuration': {'device': device},
+          });
+          expect(platform.startConfig!.device, isNull, reason: '$device');
+        }
+      });
+
       test('start_recording without permission or a path does not start',
           () async {
         final service = await recorder(platform: design);

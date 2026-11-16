@@ -6,9 +6,17 @@ AudioEncoder? parseAudioEncoder(String? value, [AudioEncoder? defaultValue]) {
   return parseEnum(AudioEncoder.values, value, defaultValue);
 }
 
+/// The input device to record from: a map with an "id" (and optional
+/// "label"), or just the id, i.e. a key of the get_input_devices result.
 InputDevice? parseInputDevice(dynamic value, [InputDevice? defaultValue]) {
-  if (value == null) return defaultValue;
-  return InputDevice(id: value["id"], label: value["label"]);
+  if (value is Map) {
+    final id = value["id"];
+    if (id == null) return defaultValue;
+    return InputDevice(
+        id: id.toString(), label: value["label"]?.toString() ?? "");
+  }
+  if (value == null || value.toString().isEmpty) return defaultValue;
+  return InputDevice(id: value.toString(), label: "");
 }
 
 AndroidAudioSource? parseAndroidAudioSource(String? value,
