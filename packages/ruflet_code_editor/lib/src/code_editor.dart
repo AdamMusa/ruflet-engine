@@ -24,6 +24,7 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
   TextSelection? _selection;
   String _value = "";
   String? _languageName;
+  bool _applyingRubyChange = false;
 
   @override
   void initState() {
@@ -99,7 +100,22 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
     _controller.fullText = value;
   }
 
+  /// Applies a value, selection or controller Ruby set. It is Ruby's own
+  /// change, so it is neither written back nor reported as on_change /
+  /// on_selection_change (as the core TextField does).
+  void _applyRubyChange(VoidCallback change) {
+    _applyingRubyChange = true;
+    try {
+      change();
+    } finally {
+      _applyingRubyChange = false;
+      _value = _readValue();
+      _selection = _controller.selection;
+    }
+  }
+
   void _handleControllerChange() {
+    if (_applyingRubyChange) return;
     final value = _readValue();
     final selection = _controller.selection;
     final selectionChanged = selection != _selection;
@@ -153,18 +169,18 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
       _controller.removeListener(_handleControllerChange);
       _controller.dispose();
       _controller = _createController();
-      _value = _readValue();
       _controller.addListener(_handleControllerChange);
-      if (previousSelection.isValid) {
-        _controller.selection = previousSelection;
-      }
+      _applyRubyChange(() {
+        if (previousSelection.isValid) {
+          _controller.selection = previousSelection;
+        }
+      });
     }
 
     final value = widget.control.getString("value");
     final controllerValue = _readValue();
     if (value != null && value != controllerValue) {
-      _setValue(value);
-      _value = value;
+      _applyRubyChange(() => _setValue(value));
     }
 
     final explicitSelection = widget.control.getTextSelection(
@@ -174,7 +190,7 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
     );
     if (explicitSelection != null &&
         explicitSelection != _controller.selection) {
-      _controller.selection = explicitSelection;
+      _applyRubyChange(() => _controller.selection = explicitSelection);
     }
 
     final autofocus = widget.control.getBool("autofocus", false)!;
