@@ -257,6 +257,33 @@ void main() {
     expect(perCall.containsKey('groupId'), isFalse);
   });
 
+  test('keychain dates Ruby sends as strings reach the platform', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    final (control, _) = storage({
+      // A Ruby Time on the wire is its to_s.
+      'ios_options': {'creation_date': '2024-05-01 10:00:00 +0000'},
+    });
+
+    await control.invokeMethod('get_all', null, _timeout);
+    await control.invokeMethod(
+        'get_all',
+        {
+          'ios': {
+            'creation_date': DateTime.utc(2024, 1, 2),
+            'last_modified_date': '2024-06-01T08:30:00Z',
+          },
+        },
+        _timeout);
+
+    expect(platformCalls, hasLength(2));
+    expect(optionsOf(platformCalls[0])['creationDate'],
+        '2024-05-01T10:00:00.000Z');
+    expect(optionsOf(platformCalls[1])['creationDate'],
+        '2024-01-02T00:00:00.000Z');
+    expect(optionsOf(platformCalls[1])['lastModifiedDate'],
+        '2024-06-01T08:30:00.000Z');
+  });
+
   test('on macOS macos_options and a call\'s "macos" reach the platform',
       () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
