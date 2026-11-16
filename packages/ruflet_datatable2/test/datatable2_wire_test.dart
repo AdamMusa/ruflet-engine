@@ -165,6 +165,46 @@ void main() {
             closeTo(tester.getCenter(find.text('Price')).dy, 2));
       });
 
+      testWidgets('the sort arrow animates for sort_arrow_animation_duration',
+          (tester) async {
+        // Regression: Material defaulted to 150 microseconds, not the 150
+        // milliseconds data_table_2 and the Cupertino renderer use, so the
+        // arrow flipped instantly when Ruby left the duration out.
+        Duration arrowDuration() => platform == TargetPlatform.iOS
+            ? tester
+                .widget<AnimatedRotation>(find.byType(AnimatedRotation))
+                .duration
+            : tester
+                .widget<material.AnimatedDefaultTextStyle>(find
+                    .ancestor(
+                        of: find.text('A'),
+                        matching:
+                            find.byType(material.AnimatedDefaultTextStyle))
+                    .first)
+                .duration;
+        for (final (wire, expected) in [
+          (<String, dynamic>{}, const Duration(milliseconds: 150)),
+          (
+            <String, dynamic>{'sort_arrow_animation_duration': 400},
+            const Duration(milliseconds: 400)
+          ),
+        ]) {
+          await mount(
+              tester,
+              platform,
+              table(props: {
+                'sort_column_index': 0,
+                'sort_ascending': true,
+                ...wire,
+              }, columns: [
+                column(10, 'A', {'on_sort': true}),
+              ], rows: [
+                row(20, [cell(30, 'a')]),
+              ]));
+          expect(arrowDuration(), expected, reason: '$wire');
+        }
+      });
+
       testWidgets('rows take heading, data and specific heights and colors',
           (tester) async {
         await mount(
