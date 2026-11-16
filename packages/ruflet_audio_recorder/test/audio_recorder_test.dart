@@ -207,6 +207,29 @@ void main() {
         expect(platform.queriedEncoder, AudioEncoder.aacLc);
       });
 
+      test('is_supported_encoder without a known encoder is an error',
+          () async {
+        final service = await recorder(platform: design);
+
+        for (final args in [null, <String, dynamic>{}]) {
+          expect(
+              await service.invokeError('is_supported_encoder', args),
+              isA<ArgumentError>().having((e) => e.message, 'message',
+                  'AudioRecorder.is_supported_encoder requires a "encoder" argument'),
+              reason: '$args');
+        }
+        expect(
+            await service
+                .invokeError('is_supported_encoder', {'encoder': 'mp3'}),
+            isA<ArgumentError>().having(
+                (e) => e.message,
+                'message',
+                'AudioRecorder.is_supported_encoder: unknown encoder "mp3", '
+                    'expected one of aacLc, aacEld, aacHe, amrNb, amrWb, opus, '
+                    'flac, wav, pcm16bits'));
+        expect(platform.calls, isEmpty);
+      });
+
       test('start_recording hands Ruby\'s configuration to the platform',
           () async {
         final service = await recorder(platform: design);
