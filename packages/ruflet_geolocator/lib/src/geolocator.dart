@@ -109,8 +109,10 @@ class GeolocatorService extends RufletService {
           );
           return currentPosition.toMap();
         } catch (error) {
+          // on_error handlers hear about it, and the invoke fails too, so
+          // Ruby's on_result gets the error instead of a nil position.
           control.triggerEvent("error", error.toString());
-          break;
+          rethrow;
         }
       case "distance_between":
         var p = [

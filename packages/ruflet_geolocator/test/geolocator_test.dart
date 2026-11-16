@@ -213,6 +213,28 @@ void main() {
             _positionMap(52.52, 13.405));
       });
 
+      test('a get_current_position failure is the invoke error and on_error',
+          () async {
+        final quiet = geolocator(platform: design);
+        final listening =
+            geolocator(platform: design, props: {'on_error': true});
+        platform.error = const LocationServiceDisabledException();
+
+        for (final service in [quiet, listening]) {
+          expect(await service.invokeError('get_current_position'),
+              isA<LocationServiceDisabledException>());
+        }
+        expect(quiet.backend.events, isEmpty);
+        expect(listening.backend.events.single.name, 'error');
+        expect(listening.backend.events.single.data,
+            'The location service on the device is disabled.');
+
+        // Other methods already returned their platform errors to Ruby.
+        expect(await listening.invokeError('get_permission_status'),
+            isA<LocationServiceDisabledException>());
+        expect(listening.backend.events, hasLength(1));
+      });
+
       test('distance_between measures between the four coordinates', () async {
         final service = geolocator(platform: design);
 
