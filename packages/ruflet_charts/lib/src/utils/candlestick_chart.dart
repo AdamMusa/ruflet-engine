@@ -83,7 +83,7 @@ CandlestickTooltipItem? parseCandlestickTooltipItem(
     return null;
   }
 
-  final tooltip = spotControl.internals?["tooltip"];
+  final tooltip = chartItemTooltip(spotControl);
   if (tooltip == null) {
     return null;
   }

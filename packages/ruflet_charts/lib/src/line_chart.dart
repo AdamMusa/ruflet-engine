@@ -206,8 +206,8 @@ class _LineChartControlState extends State<LineChartControl> {
                 );
               }).toList();
             },
-            touchTooltipData: parseLineTouchTooltipData(
-                context, widget.control, const LineTouchTooltipData())!,
+            touchTooltipData:
+                parseLineTouchTooltipData(context, widget.control),
             touchCallback: widget.control.getBool("on_event", false)!
                 ? (evt, resp) {
                     var eventData = LineChartEventData.fromDetails(evt, resp);

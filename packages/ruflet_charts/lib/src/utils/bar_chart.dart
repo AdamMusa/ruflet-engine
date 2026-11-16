@@ -55,13 +55,13 @@ TooltipDirection? parseTooltipDirection(
   return parseEnum(TooltipDirection.values, value, defaultValue);
 }
 
-BarTouchTooltipData? parseBarTouchTooltipData(
+/// The touch tooltip, also without a chart `tooltip` (Flet's Python always
+/// sends one; Ruby only when the app sets it), so rod tooltips still apply.
+BarTouchTooltipData parseBarTouchTooltipData(
   BuildContext context,
-  Control control, [
-  BarTouchTooltipData? defaultValue,
-]) {
-  var tooltip = chartTooltipConfig(control);
-  if (tooltip == null) return defaultValue;
+  Control control,
+) {
+  var tooltip = chartTooltipConfig(control) ?? const {};
 
   final theme = RufletStyleTheme.of(context);
 
@@ -102,8 +102,8 @@ BarTouchTooltipData? parseBarTouchTooltipData(
 BarTooltipItem? parseBarTooltipItem(Control rod, BuildContext context) {
   if (!rod.getBool("show_tooltip", true)!) return null;
 
-  var tooltip = rod.internals?["tooltip"];
-  if (tooltip == null) return null;
+  // A rod without a tooltip of its own shows its value.
+  var tooltip = chartItemTooltip(rod) ?? const {};
 
   final theme = RufletStyleTheme.of(context);
   var tooltipTextStyle = parseTextStyle(

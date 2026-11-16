@@ -63,6 +63,16 @@ Map<dynamic, dynamic>? chartTooltipConfig(Control control) {
   return tooltip is Map ? tooltip : null;
 }
 
+/// The tooltip of one data item (bar rod, line point, scatter or candlestick
+/// spot). Ruby sends it as the item's own `tooltip`: a text, or a map of
+/// tooltip options (`text`, `text_style`, ...). Flet's Python sent it as
+/// `_internals.tooltip`, still read when present.
+Map<dynamic, dynamic>? chartItemTooltip(Control item) {
+  final value = item.get("tooltip") ?? item.internals?["tooltip"];
+  if (value is String) return {"text": value};
+  return value is Map ? value : null;
+}
+
 FlDotPainter invisibleDotPainter =
     FlDotCirclePainter(radius: 0, strokeWidth: 0);
 FlLine invisibleLine = const FlLine(strokeWidth: 0);

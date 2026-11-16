@@ -54,8 +54,8 @@ LineTooltipItem? parseLineTooltipItem(
     Control dataPoint, LineBarSpot spot, BuildContext context) {
   if (!dataPoint.getBool("show_tooltip", true)!) return null;
 
-  var tooltip = dataPoint.internals?["tooltip"];
-  if (tooltip == null) return null;
+  // A point without a tooltip of its own shows its value.
+  var tooltip = chartItemTooltip(dataPoint) ?? const {};
 
   final theme = RufletStyleTheme.of(context);
   var style = parseTextStyle(tooltip["text_style"], theme, const TextStyle())!;
@@ -79,11 +79,11 @@ LineTooltipItem? parseLineTooltipItem(
           : null);
 }
 
-LineTouchTooltipData? parseLineTouchTooltipData(
-    BuildContext context, Control control,
-    [LineTouchTooltipData? defaultValue]) {
-  final tooltip = chartTooltipConfig(control);
-  if (tooltip == null) return defaultValue;
+/// The touch tooltip, also without a chart `tooltip` (Flet's Python always
+/// sends one; Ruby only when the app sets it), so point tooltips still apply.
+LineTouchTooltipData parseLineTouchTooltipData(
+    BuildContext context, Control control) {
+  final tooltip = chartTooltipConfig(control) ?? const {};
 
   final theme = RufletStyleTheme.of(context);
 
