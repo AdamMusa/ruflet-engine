@@ -101,6 +101,23 @@ void main() {
         expect(tester.getSize(find.byType(FlutterMap)), const Size(400, 300));
       });
 
+      testWidgets('interaction configuration keeps unset thresholds',
+          (tester) async {
+        // Ruby sends only the keys the app set; this used to throw a null
+        // check on the missing pinch_move_threshold.
+        await mountMap(tester, design, {
+          'interaction_configuration': {'flags': InteractiveFlag.drag},
+        });
+        expect(tester.takeException(), isNull);
+        final interaction = flutterMap(tester).options.interactionOptions;
+        expect(interaction.flags, InteractiveFlag.drag);
+        expect(interaction.pinchMoveThreshold, 40.0);
+        expect(interaction.pinchZoomThreshold, 0.5);
+        expect(interaction.rotationThreshold, 20.0);
+        expect(interaction.scrollWheelVelocity, 0.005);
+        expect(interaction.enableMultiFingerGestureRace, isFalse);
+      });
+
       testWidgets('defaults when Ruby sends only the center', (tester) async {
         await mountMap(tester, design);
         final options = flutterMap(tester).options;

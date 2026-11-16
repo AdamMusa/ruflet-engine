@@ -76,9 +76,7 @@ InteractionOptions? parseInteractionOptions(dynamic value,
   return InteractionOptions(
     enableMultiFingerGestureRace:
         parseBool(value["enable_multi_finger_gesture_race"], false)!,
-    pinchMoveThreshold: parseDouble(
-      value["pinch_move_threshold"],
-    )!,
+    pinchMoveThreshold: parseDouble(value["pinch_move_threshold"], 40.0)!,
     scrollWheelVelocity: parseDouble(value["scroll_wheel_velocity"], 0.005)!,
     pinchZoomThreshold: parseDouble(value["pinch_zoom_threshold"], 0.5)!,
     rotationThreshold: parseDouble(value["rotation_threshold"], 20.0)!,
