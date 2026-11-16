@@ -73,7 +73,7 @@ class ResponsiveRowControl extends StatelessWidget with RufletStoreMixin {
                   direction: Axis.horizontal,
                   spacing: gap,
                   runSpacing: getBreakpointNumber(
-                      runSpacing, view.size.width, view.breakpoints),
+                      runSpacing, view.size.width, breakpoints),
                   alignment: control.getWrapAlignment(
                       "alignment", WrapAlignment.start)!,
                   crossAxisAlignment: control.getWrapCrossAlignment(

@@ -422,6 +422,30 @@ void main() {
         expect(_rect(tester, 'b').top, 0);
       });
 
+      testWidgets('custom breakpoints select run_spacing like the rest',
+          (tester) async {
+        // run_spacing was resolved against the page's default breakpoints,
+        // so a Ruby-named breakpoint never matched and it stayed 10.
+        final mount = await mountWire(
+            tester,
+            design,
+            row({
+              'breakpoints': {'narrow': 0, 'wide': 600},
+              'spacing': {'narrow': 0, 'wide': 10},
+              'run_spacing': {'narrow': 4, 'wide': 16},
+              'controls': [cell('a', 8), cell('b', 8)],
+            }));
+        expect(tester.takeException(), isNull);
+        expect(find.byType(ErrorControl), findsNothing);
+        expect(_rect(tester, 'b').top, 24);
+
+        mount.backend.pageSize = const Size(800, 600);
+        mount.backend.notifyListeners();
+        await tester.pumpAndSettle();
+        expect(find.byType(ErrorControl), findsNothing);
+        expect(_rect(tester, 'b').top, 36);
+      });
+
       testWidgets('children past the columns wrap into a run below',
           (tester) async {
         await mountWire(
