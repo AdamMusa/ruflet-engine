@@ -259,6 +259,36 @@ void main() {
         expect(platform.distances.last, [0.0, 0.0, 0.0, 0.0]);
       });
 
+      test('distance_between without a number for every coordinate fails',
+          () async {
+        final service = geolocator(platform: design);
+        const complete = {
+          'start_latitude': 52.52,
+          'start_longitude': 13.405,
+          'end_latitude': 48.8566,
+          'end_longitude': 2.3522,
+        };
+
+        expect(
+            await service.invokeError('distance_between'),
+            isA<ArgumentError>().having((e) => e.message, 'message',
+                'Geolocator.distance_between requires a "start_latitude" argument'));
+        for (final key in complete.keys) {
+          expect(
+              await service.invokeError(
+                  'distance_between', {...complete}..remove(key)),
+              isA<ArgumentError>().having((e) => e.message, 'message',
+                  'Geolocator.distance_between requires a "$key" argument'),
+              reason: key);
+        }
+        expect(
+            await service.invokeError(
+                'distance_between', {...complete, 'end_longitude': 'east'}),
+            isA<ArgumentError>().having((e) => e.message, 'message',
+                'Geolocator.distance_between "end_longitude" must be a number, got "east"'));
+        expect(platform.distances, isEmpty);
+      });
+
       test('an unknown method fails fast without reaching the platform',
           () async {
         final service = geolocator(platform: design);

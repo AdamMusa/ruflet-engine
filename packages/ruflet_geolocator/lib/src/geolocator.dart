@@ -115,20 +115,31 @@ class GeolocatorService extends RufletService {
           rethrow;
         }
       case "distance_between":
-        var p = [
-          parseDouble(args["start_latitude"]),
-          parseDouble(args["start_longitude"]),
-          parseDouble(args["end_latitude"]),
-          parseDouble(args["end_longitude"])
+        final p = [
+          for (final key in const [
+            "start_latitude",
+            "start_longitude",
+            "end_latitude",
+            "end_longitude",
+          ])
+            _coordinate(args, key)
         ];
-
-        if (p.every((e) => e != null)) {
-          return Geolocator.distanceBetween(p[0]!, p[1]!, p[2]!, p[3]!);
-        }
-        break;
+        return Geolocator.distanceBetween(p[0], p[1], p[2], p[3]);
       default:
         throw Exception("Unknown Geolocator method: $name");
     }
+  }
+
+  /// The coordinate [key] of a distance_between invoke, which cannot be
+  /// measured without all four.
+  static double _coordinate(Map args, String key) {
+    const method = "Geolocator.distance_between";
+    final value = requireInvokeArg(args, key, method);
+    final coordinate = parseDouble(value);
+    if (coordinate == null) {
+      throw ArgumentError('$method "$key" must be a number, got "$value"');
+    }
+    return coordinate;
   }
 
   @override
