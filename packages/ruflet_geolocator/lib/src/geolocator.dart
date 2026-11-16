@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:ruflet/ruflet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,26 +12,47 @@ class GeolocatorService extends RufletService {
 
   StreamSubscription<Position>? _onPositionChangedSubscription;
 
+  /// A copy of the configuration the running position stream was started
+  /// with.
+  Object? _streamConfiguration;
+
   @override
   void init() {
     super.init();
     debugPrint("Geolocator(${control.id}).init: ${control.properties}");
     control.addInvokeMethodListener(_invokeMethod);
-    registerEvents();
+    _updatePositionStream();
   }
 
   @override
   void update() {
     debugPrint("Geolocator(${control.id}).update: ${control.properties}");
-    registerEvents();
+    _updatePositionStream();
   }
 
-  void registerEvents() {
+  /// Streams positions while Ruby handles `on_position_change`, with one
+  /// subscription at most, restarted when the `configuration` changes.
+  ///
+  /// A Geolocator used only for one-off queries starts no location updates
+  /// (nor the permission prompt they trigger).
+  void _updatePositionStream() {
+    final subscribed = control.getBool("on_position_change") == true;
+    final configuration = control.get("configuration");
+    if (subscribed &&
+        _onPositionChangedSubscription != null &&
+        const DeepCollectionEquality()
+            .equals(configuration, _streamConfiguration)) {
+      return;
+    }
+    _onPositionChangedSubscription?.cancel();
+    _onPositionChangedSubscription = null;
+    if (!subscribed) return;
+
+    // Ruby's patches merge into the property's map in place, so compare the
+    // next configuration with a copy.
+    _streamConfiguration = _copy(configuration);
     _onPositionChangedSubscription = Geolocator.getPositionStream(
-      locationSettings: parseLocationSettings(
-        control.get("configuration"),
-        // Theme.of(context),
-      ),
+      locationSettings: parseLocationSettings(configuration),
     ).listen(
       (Position? position) {
         if (position != null) {
@@ -42,11 +64,16 @@ class GeolocatorService extends RufletService {
       onError: (Object error, StackTrace stackTrace) {
         control.triggerEvent("error", error.toString());
       },
-      onDone: () {
-        // done
-      },
     );
   }
+
+  static Object? _copy(Object? value) => switch (value) {
+        Map() => {
+            for (final entry in value.entries) entry.key: _copy(entry.value)
+          },
+        List() => [for (final item in value) _copy(item)],
+        _ => value,
+      };
 
   Future<dynamic> _invokeMethod(String name, dynamic args) async {
     debugPrint("Geolocator.$name($args)");

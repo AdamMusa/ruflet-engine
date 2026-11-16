@@ -472,5 +472,72 @@ void main() {
           isA<UnsupportedError>());
       expect(platform.calls, isNot(contains('checkPermission')));
     });
+
+    test('without on_position_change no location updates start', () async {
+      final service = geolocator(props: {
+        'on_error': true,
+        'configuration': {'accuracy': 'high'},
+      });
+      service.patch({'data': 'query only'});
+
+      expect(platform.calls, isNot(contains('getPositionStream')));
+      expect(platform.streams, isEmpty);
+      expect(await service.invoke('get_permission_status'), 'whileInUse');
+    });
+
+    test('subscribing later starts the stream; unsubscribing stops it',
+        () async {
+      final service = geolocator();
+      expect(platform.streams, isEmpty);
+
+      service.patch({'on_position_change': true});
+      final stream = platform.streams.single;
+      expect(stream.hasListener, isTrue);
+
+      service.patch({'on_position_change': false});
+      expect(stream.hasListener, isFalse);
+      expect(platform.streams, hasLength(1));
+    });
+
+    test('unrelated patches keep one stream, so a position reaches Ruby once',
+        () async {
+      final service = geolocator(props: {
+        'on_position_change': true,
+        'configuration': {'accuracy': 'high'},
+      });
+      service.patch({'data': 'first'});
+      service.patch({'data': 'second'});
+      service.patch({
+        'configuration': {'accuracy': 'high'}
+      });
+      expect(platform.streams, hasLength(1));
+
+      platform.streams.single.add(_position(3, 4));
+      await pumpEventQueue();
+      expect(service.backend.events.map((e) => e.name), ['position_change']);
+    });
+
+    test('a configuration change restarts the stream with the new settings',
+        () async {
+      final service = geolocator(props: {
+        'on_position_change': true,
+        'configuration': {'accuracy': 'high'},
+      });
+      final first = platform.streams.single;
+
+      // Ruby patches one key; it merges into the existing configuration.
+      service.patch({
+        'configuration': {'distance_filter': 50}
+      });
+      expect(platform.streams, hasLength(2));
+      expect(first.hasListener, isFalse);
+      expect(platform.streamSettings.last!.accuracy, LocationAccuracy.high);
+      expect(platform.streamSettings.last!.distanceFilter, 50);
+
+      platform.streams.last.add(_position(5, 6));
+      await pumpEventQueue();
+      expect(
+          service.backend.events.single.data, {'position': _positionMap(5, 6)});
+    });
   });
 }
