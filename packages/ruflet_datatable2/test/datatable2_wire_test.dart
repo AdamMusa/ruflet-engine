@@ -202,6 +202,35 @@ void main() {
             rowBackground(tester, platform, 'Cy', 22), const Color(0xff00ff00));
       });
 
+      testWidgets(
+          'rows start right under the heading when they do not fill the '
+          'table', (tester) async {
+        // Regression: the Cupertino body centered short tables vertically,
+        // leaving a gap between the heading and the first row.
+        for (final fixedColumns in [0, 1]) {
+          await mount(
+              tester,
+              platform,
+              table(props: {
+                'heading_row_height': 40.0,
+                'data_row_height': 30.0,
+                'fixed_left_columns': fixedColumns,
+              }, columns: [
+                column(10, 'Name'),
+                column(11, 'Note'),
+              ], rows: [
+                row(20, [cell(30, 'Ada'), cell(31, 'a')]),
+                row(21, [cell(32, 'Bob'), cell(33, 'b')],
+                    {'specific_row_height': 50.0}),
+                row(22, [cell(34, 'Cy'), cell(35, 'c')]),
+              ]));
+          expect(tester.getCenter(find.text('Ada')).dy, closeTo(40 + 15, .5));
+          expect(tester.getCenter(find.text('Bob')).dy, closeTo(70 + 25, .5));
+          expect(tester.getCenter(find.text('Cy')).dy, closeTo(120 + 15, .5));
+          expect(tester.getCenter(find.text('c')).dy, closeTo(120 + 15, .5));
+        }
+      });
+
       testWidgets('cells render placeholder dimming and the edit icon',
           (tester) async {
         await mount(

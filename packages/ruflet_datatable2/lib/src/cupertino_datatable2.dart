@@ -476,21 +476,28 @@ class _CupertinoDataTable2ControlState
                   ])),
             SizedBox(
                 height: bodyHeight,
-                child: Row(children: [
-                  if (fixedColumns > 0)
-                    SizedBox(
-                        width: fixedWidth,
-                        child: SingleChildScrollView(
-                          controller: _fixedVertical,
-                          child:
-                              Column(mainAxisSize: MainAxisSize.min, children: [
-                            pane(fixedRows, rowHeights.length, 0, fixedColumns),
-                            SizedBox(
-                                height: control.getDouble('bottom_margin', 0)!),
-                          ]),
-                        )),
-                  Expanded(child: body),
-                ])),
+                // The body panes fill the height below the heading so rows
+                // start right under it instead of floating mid-table.
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (fixedColumns > 0)
+                        SizedBox(
+                            width: fixedWidth,
+                            child: SingleChildScrollView(
+                              controller: _fixedVertical,
+                              child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    pane(fixedRows, rowHeights.length, 0,
+                                        fixedColumns),
+                                    SizedBox(
+                                        height: control.getDouble(
+                                            'bottom_margin', 0)!),
+                                  ]),
+                            )),
+                      Expanded(child: body),
+                    ])),
           ]));
     });
     table = Container(
