@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -116,6 +117,50 @@ void main() {
         expect(interaction.rotationThreshold, 20.0);
         expect(interaction.scrollWheelVelocity, 0.005);
         expect(interaction.enableMultiFingerGestureRace, isFalse);
+      });
+
+      testWidgets('cursor rotation triggers on the keys Ruby names',
+          (tester) async {
+        await mountMap(tester, design, {
+          'interaction_configuration': {
+            'cursor_keyboard_rotation_configuration': {
+              'trigger_keys': ['Shift Left', 'alt_right'],
+              'behaviour': 'set_north',
+              'set_north_on_click': false,
+            },
+          },
+        });
+        final rotation = flutterMap(tester)
+            .options
+            .interactionOptions
+            .cursorKeyboardRotationOptions;
+        expect(rotation.behaviour, CursorRotationBehaviour.setNorth);
+        expect(rotation.setNorthOnClick, isFalse);
+        final isTrigger = rotation.isKeyTrigger!;
+        expect(isTrigger(LogicalKeyboardKey.shiftLeft), isTrue);
+        expect(isTrigger(LogicalKeyboardKey.altRight), isTrue);
+        expect(isTrigger(LogicalKeyboardKey.shiftRight), isFalse);
+        expect(isTrigger(LogicalKeyboardKey.controlLeft), isFalse);
+      });
+
+      testWidgets('cursor rotation without trigger keys uses Control',
+          (tester) async {
+        await mountMap(tester, design, {
+          'interaction_configuration': {
+            'cursor_keyboard_rotation_configuration': {
+              'set_north_on_click': true
+            },
+          },
+        });
+        final rotation = flutterMap(tester)
+            .options
+            .interactionOptions
+            .cursorKeyboardRotationOptions;
+        // flutter_map's default trigger: any Control key.
+        expect(rotation.isKeyTrigger, isNull);
+        expect(rotation.behaviour, CursorRotationBehaviour.offset);
+        expect(CursorKeyboardRotationOptions.defaultTriggerKeys,
+            contains(LogicalKeyboardKey.controlLeft));
       });
 
       testWidgets('defaults when Ruby sends only the center', (tester) async {

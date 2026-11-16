@@ -169,14 +169,25 @@ CursorRotationBehaviour? parseCursorRotationBehaviour(String? value,
 CursorKeyboardRotationOptions? parseCursorKeyboardRotationOptions(dynamic value,
     [CursorKeyboardRotationOptions? defaultValue]) {
   if (value == null) return defaultValue;
+  // The wire names keys by label ("Control Left", as Flet's KeyboardKey and
+  // LogicalKeyboardKey.keyLabel do), never as Dart key objects.
+  final triggerKeys = (value["trigger_keys"] as List?)
+      ?.map((key) => _keyName(key.toString()))
+      .toSet();
   return CursorKeyboardRotationOptions(
       setNorthOnClick: parseBool(value["set_north_on_click"], true)!,
       behaviour: parseCursorRotationBehaviour(
           value["behaviour"], CursorRotationBehaviour.offset)!,
-      isKeyTrigger: (LogicalKeyboardKey key) {
-        return (value["trigger_keys"] as List).contains(key);
-      });
+      // Without trigger keys, flutter_map triggers on the Control keys.
+      isKeyTrigger: triggerKeys == null
+          ? null
+          : (LogicalKeyboardKey key) =>
+              triggerKeys.contains(_keyName(key.keyLabel)));
 }
+
+/// "Control Left", "control_left" and "CONTROL_LEFT" name the same key.
+String _keyName(String name) =>
+    name.trim().toLowerCase().replaceAll(RegExp(r'[\s_]+'), ' ');
 
 // Crs? parseCrs(dynamic value, [Crs? defaultValue]) {
 //   if (value == null) return defaultValue;
