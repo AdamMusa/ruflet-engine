@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 
+import 'package:data_table_2/data_table_2.dart' show ColumnSize;
 import 'package:ruflet/ruflet.dart';
 import 'package:ruflet/src/controls/cupertino_control_chrome.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+
+import 'utils/datatable.dart';
 
 /// Cupertino's table renderer owns its cells, selection controls and scrolling.
 /// No Material DataTable, theme, ink response or checkbox is mounted here.
@@ -294,10 +297,10 @@ class _CupertinoDataTable2ControlState
       final explicitWidths = columns.fold(
           0.0, (sum, c) => sum + (c.getDouble('fixed_width') ?? 0));
       double weight(Control column) =>
-          switch (column.getString('size', 's')!.toLowerCase()) {
-            'm' => 1,
-            'l' => control.getDouble('lm_ratio', 1.2)!,
-            _ => control.getDouble('sm_ratio', .67)!,
+          switch (parseColumnSize(column.getString('size'), ColumnSize.S)!) {
+            ColumnSize.M => 1,
+            ColumnSize.L => control.getDouble('lm_ratio', 1.2)!,
+            ColumnSize.S => control.getDouble('sm_ratio', .67)!,
           };
       final flexibleColumns =
           columns.where((c) => c.getDouble('fixed_width') == null);

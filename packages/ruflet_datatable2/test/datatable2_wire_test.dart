@@ -4,6 +4,7 @@
 // when it subscribed.
 //
 // ruflet-coverage: DataTable2 DataColumn2 DataRow2 DataCell
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' as material;
@@ -257,6 +258,44 @@ void main() {
             closeTo(tester.getCenter(find.text('tbd')).dy, 1));
         expect(tester.getCenter(find.byIcon(editIcon)).dx,
             greaterThan(tester.getTopRight(find.text('tbd')).dx));
+      });
+
+      testWidgets('column size takes the names Ruby sends', (tester) async {
+        // Regression: Ruby sends `size: :medium` as "medium"; only "m" was
+        // read, so medium and large columns rendered as small ones.
+        await mount(
+            tester,
+            platform,
+            table(columns: [
+              column(10, 'First'),
+              column(11, 'Mid', {'size': 'medium'}),
+              column(12, 'Sm', {'size': 'small'}),
+              column(13, 'Lg', {'size': 'large'}),
+              column(14, 'Last'),
+            ], rows: [
+              row(20, [
+                for (var i = 0; i < 5; i++) cell(30 + i, 'c$i'),
+              ]),
+            ]));
+        double left(String text) => tester.getTopLeft(find.text(text)).dx;
+        final mid = left('Sm') - left('Mid');
+        final small = left('Lg') - left('Sm');
+        final large = left('Last') - left('Lg');
+        expect(mid / small, closeTo(1 / .67, .01));
+        expect(large / small, closeTo(1.2 / .67, .01));
+        if (platform == TargetPlatform.android) {
+          final columns =
+              tester.widget<DataTable2>(find.byType(DataTable2)).columns;
+          expect([
+            for (final c in columns) (c as DataColumn2).size
+          ], [
+            ColumnSize.S,
+            ColumnSize.M,
+            ColumnSize.S,
+            ColumnSize.L,
+            ColumnSize.S,
+          ]);
+        }
       });
 
       testWidgets('a table without rows shows the empty control',
