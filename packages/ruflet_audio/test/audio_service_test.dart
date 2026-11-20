@@ -537,6 +537,27 @@ void main() {
     await audio.unmount(tester);
   });
 
+  testWidgets('disposing sends no position the stopping player reports',
+      (tester) async {
+    final audio = await mount(
+        tester, {'src_base64': 'AAEC', 'on_position_change': true});
+    // Loading the source reports position 0.
+    expect(audio.backend.dataOf('position_change'), [
+      {'position': 0}
+    ]);
+    audio.backend.events.clear();
+    // player.dispose() stops the player, which reads the position once
+    // more and sends it on onPositionChanged.
+    players.positionMs = 7000;
+    audio.disposeService();
+    for (var i = 0; i < 5; i++) {
+      await tester.pump();
+    }
+    expect(players.calls.last, ['release']);
+    expect(audio.backend.dataOf('position_change'), isEmpty);
+    await audio.unmount(tester);
+  });
+
   testWidgets('state, duration, position and seek events reach Ruby',
       (tester) async {
     players.positionMs = 1400;
