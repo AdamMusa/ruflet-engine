@@ -27,6 +27,19 @@ Run the tests in each extension package when changing its renderer. Add layout
 and attribute assertions, not just successful mount checks. Check both platform
 designs and preserve application-specified geometry.
 
+Every control and service type a `createWidget`/`createService` registers, in
+the core and in every extension, needs a test that declares it:
+
+```dart
+// ruflet-coverage: Button FilledButton
+```
+
+`packages/ruflet/test/contract/control_test_coverage_test.dart` fails for an
+undeclared type, for a declaration in a file that never builds that wire type
+or (for a rendered control) never runs both the Cupertino and Material designs,
+and for any type Ruby's control surface and the engine registry disagree on
+without an explanation.
+
 This repository is the source of truth for the Flutter engine and extensions.
 `ruflet-template` carries a generated, commit-pinned distribution. Do not patch
 an application's `build/client` directory or change Ruby application layouts
