@@ -12,15 +12,18 @@ String rubyEncoderName(AudioEncoder encoder) => encoder.name
 
 /// The input device to record from: a map with an "id" (and optional
 /// "label"), or just the id, i.e. a key of the get_input_devices result.
-/// A value that names no device is an error, not the default input.
+/// A value that names no device, or whose id is blank, is an error, not the
+/// default input. A map with a text "id" and "label" is passed on as before.
 InputDevice? parseInputDevice(dynamic value, [InputDevice? defaultValue]) {
   if (value == null) return defaultValue;
-  if (value is Map && value["id"] != null) {
-    return InputDevice(
-        id: value["id"].toString(), label: value["label"]?.toString() ?? "");
+  if (value is Map && value["id"] is String && value["label"] is String) {
+    return InputDevice(id: value["id"], label: value["label"]);
   }
-  if ((value is String && value.isNotEmpty) || value is num) {
-    return InputDevice(id: value.toString(), label: "");
+  final id = value is Map ? value["id"] : value;
+  if ((id is String && id.trim().isNotEmpty) || id is num) {
+    return InputDevice(
+        id: id.toString(),
+        label: value is Map ? value["label"]?.toString() ?? "" : "");
   }
   throw ArgumentError('AudioRecorder.start_recording: "device" must be a '
       'device id from get_input_devices or a map with an "id", got '
@@ -50,21 +53,30 @@ IosAudioCategoryOption? parseIosAudioCategoryOption(String? value,
   return parseEnum(IosAudioCategoryOption.values, value, defaultValue);
 }
 
+/// The iOS category options: a list of option names. Without one the
+/// recorder keeps record's default categories. Unknown names and nil entries
+/// are dropped, as before; anything else is an error.
+List<IosAudioCategoryOption> parseIosAudioCategoryOptions(dynamic value) {
+  if (value == null) return const IosRecordConfig().categoryOptions;
+  if (value is! List || value.any((o) => o != null && o is! String)) {
+    throw ArgumentError('AudioRecorder.start_recording: "options" in '
+        '"ios_configuration" must be a list of category option names, got '
+        '${value is String ? '"$value"' : value}');
+  }
+  return value
+      .map((o) => parseIosAudioCategoryOption(o as String?))
+      .nonNulls
+      .toList();
+}
+
 IosRecordConfig? parseIosRecordConfig(dynamic value,
     [IosRecordConfig? defaultValue]) {
   if (value == null) return defaultValue;
-  // Without "options" the recorder keeps record's default categories.
-  final options = value["options"] is List
-      ? (value["options"] as List)
-          .map((o) => parseIosAudioCategoryOption(o?.toString()))
-          .nonNulls
-          .toList()
-      : const IosRecordConfig().categoryOptions;
   return IosRecordConfig(
     // Moving to AudioRecorder.ios.manageAudioSession changes behavior.
     // ignore: deprecated_member_use
     manageAudioSession: parseBool(value["manage_audio_session"], true)!,
-    categoryOptions: options,
+    categoryOptions: parseIosAudioCategoryOptions(value["options"]),
   );
 }
 

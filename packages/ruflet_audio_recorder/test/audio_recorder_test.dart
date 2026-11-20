@@ -334,6 +334,54 @@ void main() {
         }
       });
 
+      test('ios_configuration options must be a list of option names',
+          () async {
+        final service = await recorder(platform: design);
+
+        // Unknown names and nil entries are dropped, as before.
+        expect(
+            await service.invoke('start_recording', {
+              'output_path': '/data/memo.wav',
+              'configuration': {
+                'ios_configuration': {
+                  'options': [null, 'default_to_speaker', 'not_an_option'],
+                },
+              },
+            }),
+            isTrue);
+        expect(platform.startConfig!.iosConfig.categoryOptions,
+            [IosAudioCategoryOption.defaultToSpeaker]);
+
+        // Anything else fails the invoke, as it did before, instead of
+        // recording with options Ruby did not ask for.
+        platform.calls.clear();
+        for (final (options, shown) in [
+          ('default_to_speaker', '"default_to_speaker"'),
+          (
+            <String, dynamic>{'default_to_speaker': true},
+            '{default_to_speaker: true}'
+          ),
+          (1, '1'),
+          ([1, 'default_to_speaker'], '[1, default_to_speaker]'),
+        ]) {
+          expect(
+              await service.invokeError('start_recording', {
+                'output_path': '/data/memo.wav',
+                'configuration': {
+                  'ios_configuration': {'options': options},
+                },
+              }),
+              isA<ArgumentError>().having(
+                  (e) => e.message,
+                  'message',
+                  'AudioRecorder.start_recording: "options" in '
+                      '"ios_configuration" must be a list of category option '
+                      'names, got $shown'),
+              reason: '$options');
+        }
+        expect(platform.calls, isNot(contains('start')));
+      });
+
       test('device is an id from get_input_devices, or a map with an id',
           () async {
         final service = await recorder(platform: design);
@@ -344,6 +392,10 @@ void main() {
           ({'id': 'usb-1'}, 'usb-1', ''),
           ({'id': 'builtin', 'label': 'Mic'}, 'builtin', 'Mic'),
           (7, '7', ''),
+          ({'id': 7}, '7', ''),
+          // A map with a text id and label is passed on as before, whatever
+          // the id; record then picks the input that has it.
+          ({'id': '', 'label': 'Mic'}, '', 'Mic'),
         ]) {
           expect(
               await service.invoke('start_recording', {
@@ -362,7 +414,10 @@ void main() {
         for (final (device, shown) in [
           (<String, dynamic>{}, '{}'),
           ({'label': 'Mic'}, '{label: Mic}'),
+          ({'id': ''}, '{id: }'),
+          ({'id': ' '}, '{id:  }'),
           ('', '""'),
+          (' ', '" "'),
           (['usb-1'], '[usb-1]'),
         ]) {
           expect(
