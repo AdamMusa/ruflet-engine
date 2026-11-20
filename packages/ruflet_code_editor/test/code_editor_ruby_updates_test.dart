@@ -1,6 +1,7 @@
 // A value, selection or language Ruby sets is Ruby's own change: the editor
-// applies it without echoing it back or firing Ruby's on_change /
-// on_selection_change, as the core TextField does.
+// applies it without firing Ruby's on_change / on_selection_change or writing
+// the value back. (The core TextField does not fire on_change for a Ruby
+// value either, but it does fire on_selection_change for a Ruby selection.)
 // ruflet-coverage: CodeEditor
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -93,9 +94,13 @@ void main() {
 
       testWidgets('a Ruby language change keeps the selection silently',
           (tester) async {
-        final m = await mount(tester, {
-          'selection': {'base_offset': 5, 'extent_offset': 8}
-        });
+        final m = await mount(tester);
+        editable(tester).controller.selection =
+            const TextSelection(baseOffset: 5, extentOffset: 8);
+        await tester.pump();
+        m.backend.events.clear();
+        m.backend.updates.clear();
+
         m.backend.updateControl(1, {'language': 'python'}, notify: true);
         m.backend.updates.clear();
         await tester.pumpAndSettle();

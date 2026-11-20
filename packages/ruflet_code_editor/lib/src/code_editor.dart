@@ -100,9 +100,11 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
     _controller.fullText = value;
   }
 
-  /// Applies a value, selection or controller Ruby set. It is Ruby's own
-  /// change, so it is neither written back nor reported as on_change /
-  /// on_selection_change (as the core TextField does).
+  /// Applies a value, selection or language Ruby set. It is Ruby's own
+  /// change, not the user's, so it is not reported as on_change or
+  /// on_selection_change and the value is not written back. (The core
+  /// TextField also does not report a Ruby value as on_change, but it does
+  /// report a selection Ruby sets as on_selection_change.)
   void _applyRubyChange(VoidCallback change) {
     _applyingRubyChange = true;
     try {
