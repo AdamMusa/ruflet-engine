@@ -507,6 +507,46 @@ void main() {
   }, variant: bothDesigns);
 
   testWidgets(
+      'a url Ruby echoes moves the last load, and a method change '
+      'with a reported url is loaded', (tester) async {
+    final mounted = await mountWire(
+        tester,
+        _wire({'width': 320, 'height': 240, 'on_url_change': true}),
+        Extension());
+    final controller = platform.controller;
+    final delegate = controller.delegate;
+    List<String> requests() =>
+        [for (final r in controller.requests) '${r.method.name} ${r.uri}'];
+
+    // The user goes to b and Ruby writes it back; Ruby then sets the url it
+    // mounted with, which the view is no longer on, so it is loaded.
+    delegate.onUrlChange!(const UrlChange(url: 'https://ruflet.test/b'));
+    mounted.control
+        .update({'url': 'https://ruflet.test/b'}, shouldNotify: true);
+    await tester.pump();
+    mounted.control
+        .update({'url': 'https://ruflet.test/start'}, shouldNotify: true);
+    await tester.pump();
+    expect(requests(), [
+      'get https://ruflet.test/start',
+      'get https://ruflet.test/start',
+    ]);
+
+    // A reported url sent with another method is a request Ruby asks for.
+    delegate.onUrlChange!(const UrlChange(url: 'https://ruflet.test/form'));
+    mounted.control.update(
+        {'url': 'https://ruflet.test/form', 'method': 'post'},
+        shouldNotify: true);
+    await tester.pump();
+    expect(requests(), [
+      'get https://ruflet.test/start',
+      'get https://ruflet.test/start',
+      'post https://ruflet.test/form',
+    ]);
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets(
       'a WebView Ruby puts in place of another in a parent that does not key '
       'its children handles its invokes and follows the url rule',
       (tester) async {
