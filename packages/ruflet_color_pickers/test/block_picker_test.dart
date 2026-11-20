@@ -134,6 +134,29 @@ void main() {
       });
 
       testWidgets(
+          'BlockPicker keeps its picker for a pick and rebuilds it for Ruby',
+          (tester) async {
+        // Rebuilding the inner picker drops its check-mark animation, so
+        // only a Ruby `color` update does, not the echo of the user's pick.
+        final m = await mountWire(tester, platform, {
+          '_c': 'BlockPicker',
+          '_i': 1,
+          'color': '#ff0000',
+          'available_colors': ['#ff0000', '#00ff00', '#0000ff'],
+          'width': 300,
+          'on_color_change': true,
+        });
+        final first = tester.state(byTypeName('BlockPicker'));
+        await tapSwatch(tester, 'BlockPicker', 1);
+        await rubyPatch(tester, m.root, {'width': 320});
+        expect(tester.state(byTypeName('BlockPicker')), same(first));
+
+        await rubyPatch(tester, m.root, {'color': '#0000ff'});
+        expect(tester.state(byTypeName('BlockPicker')), isNot(same(first)));
+        expect(checkedSwatches(tester, 'BlockPicker'), [2]);
+      });
+
+      testWidgets(
           'MultipleChoiceBlockPicker checks every Ruby color in its palette',
           (tester) async {
         await mountWire(tester, platform, {
@@ -202,6 +225,32 @@ void main() {
           ['#ff00ff00']
         ]);
         expect(checkedSwatches(tester, 'MultipleChoiceBlockPicker'), [1]);
+      });
+
+      testWidgets(
+          'MultipleChoiceBlockPicker keeps its picker for toggles and '
+          'rebuilds it for Ruby', (tester) async {
+        final m = await mountWire(tester, platform, {
+          '_c': 'MultipleChoiceBlockPicker',
+          '_i': 1,
+          'colors': ['#ff0000'],
+          'available_colors': ['#ff0000', '#00ff00', '#0000ff'],
+          'width': 300,
+          'on_colors_change': true,
+        });
+        final first = tester.state(byTypeName('MultipleChoiceBlockPicker'));
+        await tapSwatch(tester, 'MultipleChoiceBlockPicker', 1);
+        await tapSwatch(tester, 'MultipleChoiceBlockPicker', 0);
+        await rubyPatch(tester, m.root, {'width': 320});
+        expect(
+            tester.state(byTypeName('MultipleChoiceBlockPicker')), same(first));
+
+        await rubyPatch(tester, m.root, {
+          'colors': ['#0000ff']
+        });
+        expect(tester.state(byTypeName('MultipleChoiceBlockPicker')),
+            isNot(same(first)));
+        expect(checkedSwatches(tester, 'MultipleChoiceBlockPicker'), [2]);
       });
 
       testWidgets(

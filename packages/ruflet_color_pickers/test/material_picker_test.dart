@@ -130,6 +130,29 @@ void main() {
         expect(shadeWidth(tester, 0xffe53935), 250);
       });
 
+      testWidgets(
+          'MaterialPicker keeps its swatch for a pick and rebuilds it for Ruby',
+          (tester) async {
+        final m = await mountWire(tester, platform, {
+          '_c': 'MaterialPicker',
+          '_i': 1,
+          'color': '#2196f3',
+          'enable_label': true,
+          'width': 350,
+          'on_color_change': true,
+        });
+        final first = tester.state(byTypeName(swatchPicker(platform)));
+        await tester.tap(find.text('#1E88E5  ')); // blue 600
+        await tester.pumpAndSettle();
+        await rubyPatch(tester, m.root, {'width': 360});
+        expect(tester.state(byTypeName(swatchPicker(platform))), same(first));
+
+        await rubyPatch(tester, m.root, {'color': '#f44336'}); // red 500
+        expect(tester.state(byTypeName(swatchPicker(platform))),
+            isNot(same(first)));
+        expect(shadeWidth(tester, 0xfff44336), 250);
+      });
+
       testWidgets('MaterialPicker sends no event unless Ruby subscribed',
           (tester) async {
         final m = await mountWire(tester, platform, {
