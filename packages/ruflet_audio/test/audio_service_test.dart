@@ -422,22 +422,27 @@ void main() {
     final audio = await mount(tester, {
       'src_base64': 'AAEC',
       'autoplay': true,
+      'on_loaded': true,
       'on_state_change': true,
     });
+    int loads() => audio.backend.dataOf('loaded').length;
     expect(players.callsTo('resume'), hasLength(1));
     expect(players.calls.last, ['resume']);
     expect(audio.backend.dataOf('state_change'), [
       {'state': 'playing'}
     ]);
+    expect(loads(), 1);
 
-    // An unrelated update does not reload or replay.
+    // An unrelated update does not reload, replay or report loaded.
     await audio.update(tester, {'volume': 0.5});
     expect(players.callsTo('setSourceBytes'), hasLength(1));
     expect(players.callsTo('resume'), hasLength(1));
+    expect(loads(), 1);
 
     await audio.update(tester, {'src_base64': 'AQID'});
     expect(players.loadedBytes.last, [1, 2, 3]);
     expect(players.callsTo('resume'), hasLength(2));
+    expect(loads(), 2);
     await audio.unmount(tester);
   });
 
@@ -581,6 +586,28 @@ void main() {
     await tester.pump();
     expect(audio.backend.dataOf('state_change'), [
       {'state': 'completed'}
+    ]);
+    await audio.unmount(tester);
+  });
+
+  testWidgets('reaching the duration sends the position again in its second',
+      (tester) async {
+    final audio = await mount(
+        tester, {'src_base64': 'AAEC', 'on_position_change': true});
+    players.emit(const AudioEvent(
+        eventType: AudioEventType.duration,
+        duration: Duration(milliseconds: 5000)));
+    await tester.pump();
+    audio.backend.events.clear();
+
+    await audio.invoke(tester, 'seek', {'position': 4600});
+    // Same second, not the end: nothing new.
+    await audio.invoke(tester, 'seek', {'position': 4800});
+    // Same second, but the end of the track: sent again.
+    await audio.invoke(tester, 'seek', {'position': 5000});
+    expect(audio.backend.dataOf('position_change'), [
+      {'position': 5000},
+      {'position': 5000},
     ]);
     await audio.unmount(tester);
   });
