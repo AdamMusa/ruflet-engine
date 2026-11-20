@@ -569,6 +569,36 @@ void main() {
       expect(service.backend.events.map((e) => e.name), ['position_change']);
     });
 
+    test('a stream that failed or ended restarts on the next patch',
+        () async {
+      for (final fail in <void Function(StreamController<Position>)>[
+        (stream) =>
+            stream.addError(const PermissionDeniedException('not granted')),
+        (stream) => stream.close(),
+      ]) {
+        platform.streams.clear();
+        final service = geolocator(props: {
+          'on_position_change': true,
+          'configuration': {'accuracy': 'high'},
+        });
+        final first = platform.streams.single;
+        fail(first);
+        await pumpEventQueue();
+
+        service.patch({'data': 'after the failure'});
+        expect(platform.streams, hasLength(2));
+        expect(first.hasListener, isFalse);
+        expect(platform.streamSettings.last!.accuracy, LocationAccuracy.high);
+
+        // The restarted stream is healthy: later patches keep it.
+        service.patch({'data': 'later'});
+        expect(platform.streams, hasLength(2));
+        platform.streams.last.add(_position(7, 8));
+        await pumpEventQueue();
+        expect(service.backend.events.map((e) => e.name), ['position_change']);
+      }
+    });
+
     test('removing the configuration restarts the stream with the defaults',
         () async {
       final service = geolocator(props: {

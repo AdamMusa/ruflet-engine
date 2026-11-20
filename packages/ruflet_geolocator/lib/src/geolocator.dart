@@ -16,6 +16,10 @@ class GeolocatorService extends RufletService {
   /// with.
   Object? _streamConfiguration;
 
+  /// Whether the running position stream reported an error or ended, as
+  /// when location permission is missing, so the next patch restarts it.
+  bool _streamFailed = false;
+
   @override
   void init() {
     super.init();
@@ -31,15 +35,16 @@ class GeolocatorService extends RufletService {
   }
 
   /// Streams positions while Ruby handles `on_position_change`, with one
-  /// subscription at most, restarted when the `configuration` changes.
+  /// subscription at most, restarted when the `configuration` changes or
+  /// on the first patch after the stream failed.
   ///
-  /// A Geolocator used only for one-off queries starts no location updates
-  /// (nor the permission prompt they trigger).
+  /// A Geolocator used only for one-off queries starts no location updates.
   void _updatePositionStream() {
     final subscribed = control.getBool("on_position_change") == true;
     final configuration = control.get("configuration");
     if (subscribed &&
         _onPositionChangedSubscription != null &&
+        !_streamFailed &&
         const DeepCollectionEquality()
             .equals(configuration, _streamConfiguration)) {
       return;
@@ -51,6 +56,7 @@ class GeolocatorService extends RufletService {
     // Ruby's patches merge into the property's map in place, so compare the
     // next configuration with a copy.
     _streamConfiguration = _copy(configuration);
+    _streamFailed = false;
     _onPositionChangedSubscription = Geolocator.getPositionStream(
       locationSettings: parseLocationSettings(configuration),
     ).listen(
@@ -62,8 +68,10 @@ class GeolocatorService extends RufletService {
         }
       },
       onError: (Object error, StackTrace stackTrace) {
+        _streamFailed = true;
         control.triggerEvent("error", error.toString());
       },
+      onDone: () => _streamFailed = true,
     );
   }
 
