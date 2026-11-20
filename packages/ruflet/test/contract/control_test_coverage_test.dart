@@ -197,7 +197,6 @@ const knownGaps = <String>{
   'CircleAvatar',
   'CircleLayer',
   'CircleMarker',
-  'CodeEditor',
   'Color',
   'ColorPicker',
   'Column',
