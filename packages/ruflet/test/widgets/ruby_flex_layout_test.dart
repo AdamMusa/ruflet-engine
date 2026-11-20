@@ -399,6 +399,69 @@ void main() {
         expect(_rect(tester, 'c'), const Rect.fromLTWH(0, 20, 200, 20));
       });
 
+      testWidgets('spacing under 0.1 never becomes a negative gap',
+          (tester) async {
+        // 0.05 - 0.1 was a negative gap too: the Row's flex.dart assertion in
+        // debug builds, a 0.05 overlap in release.
+        await mountWire(
+            tester,
+            design,
+            row({
+              'spacing': 0.05,
+              'controls': [
+                cell('half', 6),
+                cell('quarter', 3),
+                cell('rest', 3),
+              ],
+            }));
+        expect(tester.takeException(), isNull);
+        expect(find.byType(ErrorControl), findsNothing);
+        // (400 - 11 * 0.05) / 12 per column, plus the spacing it spans.
+        const column = 399.45 / 12;
+        expect(_rect(tester, 'half').width, closeTo(column * 6 + 0.25, 1e-6));
+        expect(_rect(tester, 'quarter').left,
+            closeTo(_rect(tester, 'half').right, 1e-6));
+        expect(_rect(tester, 'rest').left,
+            closeTo(_rect(tester, 'quarter').right, 1e-6));
+
+        await mountWire(
+            tester,
+            design,
+            row({
+              'spacing': 0.05,
+              'controls': [cell('a', 6), cell('b', 6), cell('c', 6)],
+            }));
+        expect(tester.takeException(), isNull);
+        expect(find.byType(Wrap), findsOneWidget);
+        expect(_rect(tester, 'b').left, closeTo(column * 6 + 0.25, 1e-6));
+        expect(_rect(tester, 'b').top, 0);
+        expect(_rect(tester, 'c').top, 30);
+      });
+
+      testWidgets('negative spacing overlaps the columns like Flet',
+          (tester) async {
+        // Ruby sends a negative spacing as is. The child widths are sized for
+        // it, so the gap keeps Flet's spacing - 0.1 and two halves still
+        // share a run.
+        await mountWire(
+            tester,
+            design,
+            row({
+              'spacing': -3,
+              'controls': [cell('a', 6), cell('b', 6), cell('c', 6)],
+            }));
+        expect(tester.takeException(), isNull);
+        expect(find.byType(Wrap), findsOneWidget);
+        // (400 + 11 * 3) / 12 per column, less the spacing it spans.
+        const half = 433 / 12 * 6 - 15;
+        expect(_rect(tester, 'a').left, 0);
+        expect(_rect(tester, 'a').width, closeTo(half, 1e-6));
+        expect(_rect(tester, 'b').left, closeTo(half - 3.1, 1e-6));
+        expect(_rect(tester, 'b').top, 0);
+        expect(_rect(tester, 'c').left, 0);
+        expect(_rect(tester, 'c').top, 30);
+      });
+
       testWidgets('columns and per-breakpoint col follow the page width',
           (tester) async {
         final mount = await mountWire(

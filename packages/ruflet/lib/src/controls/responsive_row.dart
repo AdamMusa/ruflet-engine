@@ -64,8 +64,11 @@ class ResponsiveRowControl extends StatelessWidget with RufletStoreMixin {
 
         var wrap = (totalCols > bpColumns);
         // A hair less than the spacing keeps rounding from pushing the last
-        // child to a new run; it must not go negative when Ruby asks for 0.
-        final gap = math.max(0.0, bpSpacing - 0.1);
+        // child to a new run. A spacing from 0 up to 0.1 must not turn into a
+        // negative gap; a negative spacing is an overlap Ruby asked for, and
+        // keeps Flet's `spacing - 0.1` (the child widths are sized for it).
+        final gap =
+            bpSpacing < 0 ? bpSpacing - 0.1 : math.max(0.0, bpSpacing - 0.1);
 
         try {
           return wrap
