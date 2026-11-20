@@ -96,17 +96,23 @@ void main() {
       });
     }
 
-    testWidgets('a text tooltip stays the control tooltip ($platform)',
-        (tester) async {
-      await mountWire(tester, platform, chart('BarChart', 'Sales'),
-          extensions: [Extension()]);
+    for (final type in types) {
+      testWidgets('$type text tooltip stays the control tooltip ($platform)',
+          (tester) async {
+        // Reading a text as the touch tooltip map threw "type 'String' is
+        // not a subtype of type 'int' of 'index'" while building the chart.
+        await mountWire(tester, platform, chart(type, 'Sales'),
+            extensions: [Extension()]);
 
-      expect(tester.takeException(), isNull);
-      expect(find.byType(BarChart), findsOneWidget);
-      if (platform == TargetPlatform.android) {
-        expect(find.byTooltip('Sales'), findsOneWidget);
-      }
-    });
+        expect(tester.takeException(), isNull);
+        final rendered = find.byWidgetPredicate(
+            (widget) => widget.runtimeType.toString() == type);
+        expect(tester.getSize(rendered), const Size(300, 200));
+        if (platform == TargetPlatform.android) {
+          expect(find.byTooltip('Sales'), findsOneWidget);
+        }
+      });
+    }
 
     testWidgets(
         'a tooltip map Ruby replaces with a text becomes the control '

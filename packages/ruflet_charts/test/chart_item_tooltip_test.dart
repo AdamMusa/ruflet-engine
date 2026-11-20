@@ -105,6 +105,9 @@ void main() {
         expect(items.map((i) => i?.text).toList(),
             ['Start', 'Max', '2.0', null, 'Legacy']);
         expect(items[1]?.textStyle.color, const Color(0xFF00FF00));
+        // No chart tooltip: a point's own text keeps fl_chart's label style.
+        expect(items[0]?.textStyle, items[2]?.textStyle);
+        expect(items[2]?.textStyle.fontWeight, FontWeight.bold);
       });
 
       testWidgets('scatter spots show the tooltip Ruby sent', (tester) async {
