@@ -77,6 +77,14 @@ Color touchTooltipColor(WidgetTester tester, String type) {
   }
 }
 
+/// The control tooltip showing [message]: Material's Tooltip, or the
+/// Semantics tooltip of the Cupertino overlay.
+Finder controlTooltip(TargetPlatform platform, String message) =>
+    platform == TargetPlatform.android
+        ? find.byTooltip(message)
+        : find.byWidgetPredicate((widget) =>
+            widget is Semantics && widget.properties.tooltip == message);
+
 void main() {
   const types = ['BarChart', 'LineChart', 'ScatterChart', 'CandlestickChart'];
   for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
@@ -108,11 +116,57 @@ void main() {
         final rendered = find.byWidgetPredicate(
             (widget) => widget.runtimeType.toString() == type);
         expect(tester.getSize(rendered), const Size(300, 200));
-        if (platform == TargetPlatform.android) {
-          expect(find.byTooltip('Sales'), findsOneWidget);
-        }
+        expect(controlTooltip(platform, 'Sales'), findsOneWidget);
       });
     }
+
+    for (final type in types) {
+      testWidgets(
+          '$type tooltip map with a message is also the control tooltip '
+          '($platform)', (tester) async {
+        // Only a map without a message broke Material; one with a message
+        // already made a working control tooltip, and still does.
+        await mountWire(tester, platform,
+            chart(type, {'message': 'Sales', 'bgcolor': '#ff0000'}),
+            extensions: [Extension()]);
+
+        expect(tester.takeException(), isNull);
+        final rendered = find.byWidgetPredicate(
+            (widget) => widget.runtimeType.toString() == type);
+        expect(tester.getSize(rendered), const Size(300, 200));
+        expect(touchTooltipColor(tester, type), const Color(0xFFFF0000));
+        expect(controlTooltip(platform, 'Sales'), findsOneWidget);
+      });
+    }
+
+    testWidgets(
+        'a tooltip map Ruby gives a message becomes the control tooltip '
+        '($platform)', (tester) async {
+      final mounted = await mountWire(
+          tester, platform, chart('BarChart', {'bgcolor': '#ff0000'}),
+          extensions: [Extension()]);
+      expect(find.byType(Tooltip), findsNothing);
+
+      // Ruby's page sends a changed property as a whole-value replace op.
+      Future<void> rubySets(Map<String, dynamic> tooltip) async {
+        mounted.root.applyPatch([
+          [0],
+          [0, 0, 'tooltip', tooltip]
+        ], mounted.backend);
+        await tester.pumpAndSettle();
+      }
+
+      await rubySets({'message': 'Sales', 'bgcolor': '#00ff00'});
+      expect(tester.takeException(), isNull);
+      expect(controlTooltip(platform, 'Sales'), findsOneWidget);
+      expect(touchTooltipColor(tester, 'BarChart'), const Color(0xFF00FF00));
+
+      await rubySets({'bgcolor': '#0000ff'});
+      expect(tester.takeException(), isNull);
+      expect(find.byType(Tooltip), findsNothing);
+      expect(controlTooltip(platform, 'Sales'), findsNothing);
+      expect(touchTooltipColor(tester, 'BarChart'), const Color(0xFF0000FF));
+    });
 
     testWidgets(
         'a tooltip map Ruby replaces with a text becomes the control '

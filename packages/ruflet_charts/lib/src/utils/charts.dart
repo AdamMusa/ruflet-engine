@@ -45,13 +45,15 @@ AxisSpotIndicator chartTouchIndicator(RufletStyleTheme theme) {
 /// `_internals.skip_properties: ["tooltip"]`; Ruby sends no `_internals`, so
 /// the chart marks its own configuration before LayoutControl reads it.
 /// Without this, Material wraps the chart in a Tooltip with no message,
-/// which fails to build. A text tooltip stays the generic control tooltip,
-/// also when Ruby later replaces a map with a text.
+/// which fails to build. A map with a `message` already made a working
+/// control tooltip and still does, and a text tooltip stays the generic
+/// control tooltip, also when Ruby later replaces a map with one of those.
 void skipControlTooltipForChartConfig(Control control) {
   final internals = control.internals;
   final skip = internals?["skip_properties"];
   final skipping = skip is List && skip.contains("tooltip");
-  if (control.get("tooltip") is Map) {
+  final tooltip = control.get("tooltip");
+  if (tooltip is Map && tooltip["message"] == null) {
     if (skipping) return;
     control.properties["_internals"] = <dynamic, dynamic>{
       ...?internals,
