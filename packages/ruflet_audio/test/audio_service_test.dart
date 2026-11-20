@@ -22,7 +22,7 @@ class _FakePlayers extends AudioplayersPlatformInterface {
   final calls = <List<Object?>>[];
   final loadedBytes = <Uint8List>[];
   PlatformException? loadError;
-  int positionMs = 0;
+  int? positionMs = 0;
   int? durationMs = 5000;
 
   void emit(AudioEvent event) => _events.add(event);
@@ -127,7 +127,7 @@ class _FakeGlobal implements GlobalAudioplayersPlatformInterface {
 class _Backend extends RufletBackend {
   final events = <(String, dynamic)>[];
 
-  _Backend({super.assetsDir = ''})
+  _Backend({super.assetsDir = '', super.assetsBundlePath})
       : super(
             pageUri: Uri.parse('ruflet://audio-test'),
             extensions: [Extension()],
@@ -240,8 +240,9 @@ void main() {
   });
 
   Future<_Mounted> mount(WidgetTester tester, Map<String, dynamic> props,
-      {String assetsDir = ''}) async {
-    final backend = _Backend(assetsDir: assetsDir);
+      {String assetsDir = '', String? assetsBundlePath}) async {
+    final backend =
+        _Backend(assetsDir: assetsDir, assetsBundlePath: assetsBundlePath);
     final control =
         Control.fromMap({'_c': 'Audio', '_i': 1, ...props}, backend);
     final service = Extension().createService(control)! as AudioService;
@@ -356,6 +357,50 @@ void main() {
       ['${dir.path}/sounds/beep.wav', true]
     ]);
     await asset.unmount(tester);
+  });
+
+  testWidgets('a src bundled with the app loads from its asset bundle',
+      (tester) async {
+    final messenger = tester.binding.defaultBinaryMessenger;
+    const pathProvider = MethodChannel('plugins.flutter.io/path_provider');
+    final cache = io.Directory.systemTemp.createTempSync('ruflet_audio_cache');
+    final requested = <String>[];
+    messenger.setMockMessageHandler('flutter/assets', (message) async {
+      final key = utf8.decode(message!.buffer
+          .asUint8List(message.offsetInBytes, message.lengthInBytes));
+      requested.add(key);
+      return key == 'assets/demo/assets/sounds/beep.wav'
+          ? ByteData.sublistView(Uint8List.fromList([7, 8, 9]))
+          : null;
+    });
+    messenger.setMockMethodCallHandler(pathProvider,
+        (call) async => call.method == 'getTemporaryDirectory' ? cache.path : null);
+    addTearDown(() {
+      messenger.setMockMessageHandler('flutter/assets', null);
+      messenger.setMockMethodCallHandler(pathProvider, null);
+      cache.deleteSync(recursive: true);
+    });
+
+    // The bundle path the template passes for an in-process app.
+    final audio = await mount(tester, {'src': 'sounds/beep.wav', ..._allEvents},
+        assetsBundlePath: 'assets/demo/assets');
+    // The player copies the asset to a cache file, on the real file system.
+    for (var i = 0; i < 100 && audio.backend.names.isEmpty; i++) {
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump();
+    }
+
+    // The bundle key is used as is, without audioplayers' "assets/" prefix.
+    expect(requested, ['assets/demo/assets/sounds/beep.wav']);
+    final cacheId = audio.service.player.audioCache.cacheId;
+    final copy = '${cache.path}/$cacheId/assets/demo/assets/sounds/beep.wav';
+    expect(players.callsTo('setSourceUrl'), [
+      [copy, true]
+    ]);
+    expect(io.File(copy).readAsBytesSync(), [7, 8, 9]);
+    expect(audio.backend.names, ['loaded', 'position_change']);
+    await audio.unmount(tester);
   });
 
   testWidgets('volume, balance, playback_rate and release_mode reach the player',
@@ -498,7 +543,7 @@ void main() {
     await audio.unmount(tester);
   });
 
-  testWidgets('get_duration and get_current_position return Durations',
+  testWidgets('get_duration and get_current_position return Durations or nil',
       (tester) async {
     final audio = await mount(tester, {'src_base64': 'AAEC'});
     players.durationMs = 184000;
@@ -509,9 +554,11 @@ void main() {
     expect(await audio.invoke(tester, 'get_current_position'),
         const Duration(minutes: 1, seconds: 1, milliseconds: 500));
 
-    // Nothing loaded yet: the platform has no duration.
+    // Nothing loaded yet: the platform has no duration or position.
     players.durationMs = null;
+    players.positionMs = null;
     expect(await audio.invoke(tester, 'get_duration'), isNull);
+    expect(await audio.invoke(tester, 'get_current_position'), isNull);
     await audio.unmount(tester);
   });
 
@@ -589,6 +636,14 @@ void main() {
     await audio.invoke(tester, 'seek', {'position': 3100});
     expect(audio.backend.events, [('seek_complete', null)]);
 
+    // Seeking back sends the earlier position.
+    audio.backend.events.clear();
+    await audio.invoke(tester, 'seek', {'position': 1200});
+    expect(audio.backend.names, ['seek_complete', 'position_change']);
+    expect(audio.backend.dataOf('position_change'), [
+      {'position': 1000}
+    ]);
+
     audio.backend.events.clear();
     await audio.invoke(tester, 'pause');
     await audio.invoke(tester, 'resume');
@@ -643,7 +698,7 @@ void main() {
     await audio.unmount(tester);
   });
 
-  testWidgets('a duration stream error is reported once as on_error',
+  testWidgets('each player stream error is reported once as on_error',
       (tester) async {
     final audio =
         await mount(tester, {'src_base64': 'AAEC', 'on_error': true});
@@ -652,6 +707,13 @@ void main() {
     await tester.pump();
     expect(audio.backend.names, ['error']);
     expect(audio.backend.events.single.$2, contains('lost'));
+
+    // A later, different failure is reported too.
+    players._events
+        .addError(PlatformException(code: 'AudioError', message: 'gone'));
+    await tester.pump();
+    expect(audio.backend.names, ['error', 'error']);
+    expect(audio.backend.events.last.$2, contains('gone'));
     await audio.unmount(tester);
   });
 }
