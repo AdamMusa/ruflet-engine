@@ -121,8 +121,9 @@ class _FakeGlobal implements GlobalAudioplayersPlatformInterface {
   dynamic noSuchMethod(Invocation invocation) => Future<void>.value();
 }
 
-/// Records events exactly as the real backend sends them: only when Ruby
-/// subscribed with `on_<name>: true`.
+/// Records the events sent to Ruby. Services fire events through the real
+/// [RufletBackend.triggerControlEvent], which sends only those Ruby
+/// subscribed to with `on_<name>: true`; this records what it sends.
 class _Backend extends RufletBackend {
   final events = <(String, dynamic)>[];
 
@@ -133,10 +134,9 @@ class _Backend extends RufletBackend {
             multiView: false);
 
   @override
-  void triggerControlEvent(Control control, String eventName, [dynamic data]) {
-    if (control.get("on_$eventName") == true) {
-      events.add((eventName, data));
-    }
+  void triggerControlEventById(int controlId, String eventName,
+      [dynamic eventData]) {
+    events.add((eventName, eventData));
   }
 
   /// The names of the events sent, in order.
@@ -204,10 +204,26 @@ class _Mounted {
     await tester.pump();
   }
 
-  Future<void> unmount(WidgetTester tester) async {
+  var _detached = false;
+  var _disposed = false;
+
+  /// Disposes the service, once, as ServiceBinding.dispose does.
+  void disposeService() {
+    if (_disposed) return;
+    _disposed = true;
     control.removeListener(service.update);
-    control.detach();
     service.dispose();
+  }
+
+  /// Unmounts the service, once. mount() also runs this on tear-down, so a
+  /// test that fails while the player is playing does not leave the
+  /// player's frame callback running into the tests after it.
+  Future<void> unmount(WidgetTester tester) async {
+    if (!_detached) {
+      _detached = true;
+      control.detach();
+    }
+    disposeService();
     await tester.pump();
   }
 }
@@ -232,9 +248,11 @@ void main() {
     service.init();
     control.attach();
     control.addListener(service.update);
+    final mounted = _Mounted(backend, control, service);
+    addTearDown(() => mounted.unmount(tester));
     await tester.pump();
     await tester.pump();
-    return _Mounted(backend, control, service);
+    return mounted;
   }
 
   Future<_Backend> run(WidgetTester tester, Map<String, dynamic> props) async {
@@ -498,7 +516,7 @@ void main() {
     expect((await audio.outcome(tester, 'stop')).error.toString(),
         'Exception: Unknown Audio method: stop');
 
-    audio.service.dispose();
+    audio.disposeService();
     for (var i = 0; i < 5; i++) {
       await tester.pump();
     }
@@ -511,7 +529,7 @@ void main() {
         (await audio.outcome(tester, 'play', {'position': 0})).error,
         isA<UnsupportedError>().having(
             (e) => e.message, 'message', contains('Audio(1).play')));
-    audio.control.detach();
+    await audio.unmount(tester);
   });
 
   testWidgets('state, duration, position and seek events reach Ruby',
