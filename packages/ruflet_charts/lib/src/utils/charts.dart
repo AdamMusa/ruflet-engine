@@ -45,17 +45,34 @@ AxisSpotIndicator chartTouchIndicator(RufletStyleTheme theme) {
 /// `_internals.skip_properties: ["tooltip"]`; Ruby sends no `_internals`, so
 /// the chart marks its own configuration before LayoutControl reads it.
 /// Without this, Material wraps the chart in a Tooltip with no message,
-/// which fails to build. A text tooltip stays the generic control tooltip.
+/// which fails to build. A text tooltip stays the generic control tooltip,
+/// also when Ruby later replaces a map with a text.
 void skipControlTooltipForChartConfig(Control control) {
-  if (control.get("tooltip") is! Map) return;
   final internals = control.internals;
   final skip = internals?["skip_properties"];
-  if (skip is List && skip.contains("tooltip")) return;
-  control.properties["_internals"] = <dynamic, dynamic>{
-    ...?internals,
-    "skip_properties": [if (skip is List) ...skip, "tooltip"],
-  };
+  final skipping = skip is List && skip.contains("tooltip");
+  if (control.get("tooltip") is Map) {
+    if (skipping) return;
+    control.properties["_internals"] = <dynamic, dynamic>{
+      ...?internals,
+      "skip_properties": [if (skip is List) ...skip, "tooltip"],
+    };
+    _chartSkippedTooltip[control] = true;
+  } else if (skipping && _chartSkippedTooltip[control] == true) {
+    // Only undo the skip this chart added, never one Flet sent.
+    control.properties["_internals"] = <dynamic, dynamic>{
+      ...internals!,
+      "skip_properties": [
+        for (final name in skip)
+          if (name != "tooltip") name
+      ],
+    };
+    _chartSkippedTooltip[control] = null;
+  }
 }
+
+/// The charts whose `tooltip` skip [skipControlTooltipForChartConfig] added.
+final _chartSkippedTooltip = Expando<bool>('chartSkippedTooltip');
 
 /// The chart-level touch tooltip configuration Ruby sent, if any.
 Map<dynamic, dynamic>? chartTooltipConfig(Control control) {

@@ -107,5 +107,69 @@ void main() {
         expect(find.byTooltip('Sales'), findsOneWidget);
       }
     });
+
+    testWidgets(
+        'a tooltip map Ruby replaces with a text becomes the control '
+        'tooltip ($platform)', (tester) async {
+      final mounted = await mountWire(
+          tester, platform, chart('BarChart', {'bgcolor': '#ff0000'}),
+          extensions: [Extension()]);
+      expect(find.byType(Tooltip), findsNothing);
+
+      mounted.backend.updateControl(1, {'tooltip': 'Sales'}, notify: true);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      if (platform == TargetPlatform.android) {
+        expect(find.byTooltip('Sales'), findsOneWidget);
+      }
+
+      mounted.backend
+          .updateControl(1, {'tooltip': {'bgcolor': '#00ff00'}}, notify: true);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(Tooltip), findsNothing);
+      expect(touchTooltipColor(tester, 'BarChart'), const Color(0xFF00FF00));
+    });
+
+    testWidgets(
+        'without a chart tooltip, bar and line charts keep fl_chart\'s '
+        'tooltip ($platform)', (tester) async {
+      // Ruby sends no chart `tooltip` unless the app sets one; fl_chart's
+      // own box and label style stay as they were.
+      await mountWire(tester, platform, chart('BarChart', null),
+          extensions: [Extension()]);
+      final bar = tester.widget<BarChart>(find.byType(BarChart)).data;
+      final barTooltip = bar.barTouchData.touchTooltipData;
+      const barDefaults = BarTouchTooltipData();
+      final group = bar.barGroups.single;
+      final rod = group.barRods.single;
+      expect(barTooltip.getTooltipColor(group), defaultBarTooltipColor(group));
+      expect(barTooltip.tooltipBorderRadius, barDefaults.tooltipBorderRadius);
+      expect(barTooltip.tooltipPadding, barDefaults.tooltipPadding);
+      expect(barTooltip.tooltipMargin, barDefaults.tooltipMargin);
+      expect(barTooltip.maxContentWidth, barDefaults.maxContentWidth);
+      final barItem = barTooltip.getTooltipItem(group, 0, rod, 0)!;
+      final barDefault = defaultBarTooltipItem(group, 0, rod, 0)!;
+      expect(barItem.text, barDefault.text);
+      expect(barItem.textStyle, barDefault.textStyle);
+      expect(barItem.textStyle.fontWeight, FontWeight.bold);
+
+      await mountWire(tester, platform, chart('LineChart', null),
+          extensions: [Extension()]);
+      final line = tester.widget<LineChart>(find.byType(LineChart)).data;
+      final lineTooltip = line.lineTouchData.touchTooltipData;
+      const lineDefaults = LineTouchTooltipData();
+      final series = line.lineBarsData.single;
+      final spot = LineBarSpot(series, 0, series.spots.single);
+      expect(lineTooltip.getTooltipColor(spot), defaultLineTooltipColor(spot));
+      expect(lineTooltip.tooltipBorderRadius, lineDefaults.tooltipBorderRadius);
+      expect(lineTooltip.tooltipPadding, lineDefaults.tooltipPadding);
+      expect(lineTooltip.tooltipMargin, lineDefaults.tooltipMargin);
+      expect(lineTooltip.maxContentWidth, lineDefaults.maxContentWidth);
+      final lineItem = lineTooltip.getTooltipItems([spot]).single!;
+      final lineDefault = defaultLineTooltipItem([spot]).single;
+      expect(lineItem.text, lineDefault.text);
+      expect(lineItem.textStyle, lineDefault.textStyle);
+    });
   }
 }
