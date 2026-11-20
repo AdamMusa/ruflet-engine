@@ -120,6 +120,17 @@ class _WebviewMobileAndMacState extends State<WebviewMobileAndMac> {
   @override
   void didUpdateWidget(covariant WebviewMobileAndMac oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.control, widget.control)) {
+      oldWidget.control.removeInvokeMethodListener(_invokeMethod);
+      widget.control.addInvokeMethodListener(_invokeMethod);
+    }
+    if (oldWidget.control.id != widget.control.id) {
+      // Ruby put another WebView control where this one was (the ruflet_rails
+      // shell does on root navigation): load its url as if it were mounted.
+      _loadedUrl = null;
+      _loadedMethod = null;
+      _reportedUrls.clear();
+    }
     _loadUrlIfChanged();
   }
 

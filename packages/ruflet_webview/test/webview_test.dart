@@ -504,6 +504,87 @@ void main() {
   }, variant: bothDesigns);
 
   testWidgets(
+      'a WebView Ruby puts in place of another loads its url and '
+      'handles its invokes', (tester) async {
+    // ruflet_rails root navigation (drawer, bottom nav) replaces the view's
+    // controls with a new Stack holding a new WebView, so Flutter reuses the
+    // web view state for the new control.
+    Map<String, dynamic> body(int id, String url) => {
+          '_c': 'Stack',
+          '_i': id,
+          'fit': 'expand',
+          'expand': true,
+          'controls': [
+            {
+              '_c': 'WebView',
+              '_i': id + 1,
+              'url': url,
+              'method': 'get',
+              'expand': true,
+              'on_page_started': true,
+              'on_page_ended': true,
+              'on_url_change': true,
+            },
+            {'_c': 'Container', '_i': id + 2, 'visible': false},
+          ],
+        };
+    final mounted = await mountWire(
+        tester,
+        {
+          '_c': 'Stack',
+          '_i': 100,
+          'width': 400,
+          'height': 600,
+          'controls': [body(101, 'https://myapp.com')],
+        },
+        Extension());
+    final controller = platform.controller;
+    List<String> requests() =>
+        [for (final r in controller.requests) '${r.method.name} ${r.uri}'];
+    Control webView(int id) => mounted.backend.controlsIndex.get(id)!;
+    void replaceBody(Map<String, dynamic> wire) => mounted.control.applyPatch([
+          [0],
+          [
+            0,
+            0,
+            'controls',
+            [wire]
+          ]
+        ], mounted.backend);
+
+    // The user followed links to /posts; the bottom nav goes Home again.
+    controller.delegate.onPageStarted!('https://myapp.com');
+    controller
+        .delegate.onUrlChange!(const UrlChange(url: 'https://myapp.com/posts'));
+    replaceBody(body(110, 'https://myapp.com'));
+    await tester.pumpAndSettle();
+    expect(requests(), ['get https://myapp.com', 'get https://myapp.com']);
+    expect(platform.controllers, hasLength(1));
+
+    // The shell enables JavaScript and injects its adapter through the new
+    // control; the old one no longer reaches the plugin.
+    controller.calls.clear();
+    expect((await invoke(tester, webView(111), 'get_title')).value,
+        'Ruflet test page');
+    unawaited(webView(102)
+        .invokeMethod('reload', null, const Duration(milliseconds: 10))
+        .catchError((Object _) {}));
+    await tester.pump(const Duration(milliseconds: 20));
+    expect(controller.calls, ['getTitle']);
+
+    // Ruby sending the same control again (same id) is not a new control:
+    // the page it writes back is still not reloaded.
+    controller.delegate
+        .onUrlChange!(const UrlChange(url: 'https://myapp.com/posts/2'));
+    replaceBody(body(110, 'https://myapp.com/posts/2'));
+    await tester.pumpAndSettle();
+    expect(requests(), ['get https://myapp.com', 'get https://myapp.com']);
+    expect((await invoke(tester, webView(111), 'get_title')).value,
+        'Ruflet test page');
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets(
       'macOS renders the native view but skips the scroll handler '
       'webview_flutter does not surface there', (tester) async {
     await mountWire(tester,
