@@ -257,31 +257,90 @@ void main() {
     expect(perCall.containsKey('groupId'), isFalse);
   });
 
+  /// The Apple targets and the control-level and per-call option keys
+  /// Ruby sends for them.
+  const apple = [
+    (TargetPlatform.iOS, 'ios_options', 'ios'),
+    (TargetPlatform.macOS, 'macos_options', 'macos'),
+  ];
+
   test('keychain dates Ruby sends as strings reach the platform', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    final (control, _) = storage({
-      // A Ruby Time on the wire is its to_s.
-      'ios_options': {'creation_date': '2024-05-01 10:00:00 +0000'},
-    });
+    for (final (target, options, perCall) in apple) {
+      debugDefaultTargetPlatformOverride = target;
+      platformCalls.clear();
+      final (control, _) = storage({
+        // A Ruby Time on the wire is its to_s.
+        options: {'creation_date': '2024-05-01 10:00:00 +0000'},
+      });
 
-    await control.invokeMethod('get_all', null, _timeout);
-    await control.invokeMethod(
-        'get_all',
-        {
-          'ios': {
-            'creation_date': DateTime.utc(2024, 1, 2),
-            'last_modified_date': '2024-06-01T08:30:00Z',
+      await control.invokeMethod('get_all', null, _timeout);
+      await control.invokeMethod(
+          'get_all',
+          {
+            perCall: {
+              'creation_date': DateTime.utc(2024, 1, 2),
+              'last_modified_date': '2024-06-01T08:30:00Z',
+            },
           },
-        },
-        _timeout);
+          _timeout);
 
-    expect(platformCalls, hasLength(2));
-    expect(optionsOf(platformCalls[0])['creationDate'],
-        '2024-05-01T10:00:00.000Z');
-    expect(optionsOf(platformCalls[1])['creationDate'],
-        '2024-01-02T00:00:00.000Z');
-    expect(optionsOf(platformCalls[1])['lastModifiedDate'],
-        '2024-06-01T08:30:00.000Z');
+      expect(platformCalls, hasLength(2), reason: target.name);
+      expect(optionsOf(platformCalls[0])['creationDate'],
+          '2024-05-01T10:00:00.000Z',
+          reason: target.name);
+      expect(optionsOf(platformCalls[1])['creationDate'],
+          '2024-01-02T00:00:00.000Z',
+          reason: target.name);
+      expect(optionsOf(platformCalls[1])['lastModifiedDate'],
+          '2024-06-01T08:30:00.000Z',
+          reason: target.name);
+    }
+  });
+
+  test('a keychain date that is not a date is left out, not an error',
+      () async {
+    for (final (target, options, _) in apple) {
+      debugDefaultTargetPlatformOverride = target;
+      platformCalls.clear();
+      final (control, _) = storage({
+        options: {
+          'creation_date': 'not a date',
+          'last_modified_date': 1714557600,
+        },
+      });
+
+      expect(await control.invokeMethod('get_all', null, _timeout),
+          {'k': 'stored'},
+          reason: target.name);
+      final sent = optionsOf(platformCalls.single);
+      expect(sent.containsKey('creationDate'), isFalse, reason: target.name);
+      expect(sent.containsKey('lastModifiedDate'), isFalse,
+          reason: target.name);
+    }
+  });
+
+  test('keychain items are "unlocked" unless Ruby sets accessibility',
+      () async {
+    for (final (target, options, perCall) in apple) {
+      debugDefaultTargetPlatformOverride = target;
+      platformCalls.clear();
+      final (control, _) = storage({
+        options: {'account_name': 'vault'},
+      });
+
+      await control.invokeMethod('get', {'key': 'k'}, _timeout);
+      await control.invokeMethod(
+          'get',
+          {
+            'key': 'k',
+            perCall: {'label': 'Vault'},
+          },
+          _timeout);
+
+      expect([for (final c in platformCalls) optionsOf(c)['accessibility']],
+          ['unlocked', 'unlocked'],
+          reason: target.name);
+    }
   });
 
   test('on macOS macos_options and a call\'s "macos" reach the platform',
