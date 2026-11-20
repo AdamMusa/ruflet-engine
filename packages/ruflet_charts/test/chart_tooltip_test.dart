@@ -131,6 +131,22 @@ void main() {
       expect(touchTooltipColor(tester, 'BarChart'), const Color(0xFF00FF00));
     });
 
+    testWidgets('a tooltip skip Flet sent is kept ($platform)', (tester) async {
+      await mountWire(
+          tester,
+          platform,
+          {
+            ...chart('BarChart', 'Sales'),
+            '_internals': {
+              'skip_properties': ['tooltip']
+            },
+          },
+          extensions: [Extension()]);
+      expect(tester.takeException(), isNull);
+      expect(find.byType(BarChart), findsOneWidget);
+      expect(find.byType(Tooltip), findsNothing);
+    });
+
     testWidgets(
         'without a chart tooltip, bar and line charts keep fl_chart\'s '
         'tooltip ($platform)', (tester) async {
