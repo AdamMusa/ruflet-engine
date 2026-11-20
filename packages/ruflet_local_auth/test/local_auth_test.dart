@@ -118,6 +118,7 @@ void main() {
         backend);
     final service = Extension().createService(control)!..init();
     control.attach();
+    addTearDown(control.detach);
 
     // Exactly what Ruby's authenticate(localized_reason:) sends by default.
     expect(
