@@ -569,6 +569,22 @@ void main() {
       expect(service.backend.events.map((e) => e.name), ['position_change']);
     });
 
+    test('removing the configuration restarts the stream with the defaults',
+        () async {
+      final service = geolocator(props: {
+        'on_position_change': true,
+        'configuration': {'accuracy': 'low'},
+      });
+      final first = platform.streams.single;
+
+      service.patch({'configuration': null});
+      expect(platform.streams, hasLength(2));
+      expect(first.hasListener, isFalse);
+      expect(platform.streams.last.hasListener, isTrue);
+      // Geolocator picks its platform defaults for null settings.
+      expect(platform.streamSettings.last, isNull);
+    });
+
     test('a configuration change restarts the stream with the new settings',
         () async {
       final service = geolocator(props: {

@@ -15,9 +15,11 @@ class SentEvent {
   String toString() => 'SentEvent($id, $name, $data)';
 }
 
-/// Records events exactly as the real backend sends them (only when Ruby
-/// subscribed, i.e. the control has `on_<event>: true`) and every property
-/// write-back, without a connection.
+/// Records the events sent to Ruby and every property write-back, without a
+/// connection. Services fire events through the real
+/// [RufletBackend.triggerControlEvent], which sends only those Ruby
+/// subscribed to (the control has `on_<event>: true`); this records what it
+/// sends.
 class RecordingBackend extends RufletBackend {
   RecordingBackend(RufletExtension extension, TargetPlatform platform)
       : super(
@@ -32,11 +34,9 @@ class RecordingBackend extends RufletBackend {
   final List<Map<String, dynamic>> updates = [];
 
   @override
-  void triggerControlEvent(Control control, String eventName,
+  void triggerControlEventById(int controlId, String eventName,
       [dynamic eventData]) {
-    if (control.get("on_$eventName") == true) {
-      events.add(SentEvent(control.id, eventName, eventData));
-    }
+    events.add(SentEvent(controlId, eventName, eventData));
   }
 
   @override
