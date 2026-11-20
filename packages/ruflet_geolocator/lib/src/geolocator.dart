@@ -16,8 +16,11 @@ class GeolocatorService extends RufletService {
   /// with.
   Object? _streamConfiguration;
 
-  /// Whether the running position stream reported an error or ended, as
-  /// when location permission is missing, so the next patch restarts it.
+  /// Whether the running position stream reported an error (as when
+  /// location permission is missing) or ended (a `time_limit`), so the next
+  /// patch restarts it. The plugins keep an errored stream until it is
+  /// cancelled, so the restart starts location updates on the device again,
+  /// and a restart that fails again is retried on the patch after.
   bool _streamFailed = false;
 
   @override

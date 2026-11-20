@@ -1,9 +1,11 @@
 // ruflet-coverage: Geolocator
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geolocator_android/geolocator_android.dart'
+    show GeolocatorAndroid;
 import 'package:ruflet/ruflet.dart';
 import 'package:ruflet_geolocator/ruflet_geolocator.dart';
 
@@ -117,6 +119,7 @@ Map<String, dynamic> _positionMap(double latitude, double longitude) => {
 const _designs = [TargetPlatform.iOS, TargetPlatform.android];
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late _FakeGeolocator platform;
   final mounted = <MountedService>[];
 
@@ -636,6 +639,150 @@ void main() {
       await pumpEventQueue();
       expect(
           service.backend.events.single.data, {'position': _positionMap(5, 6)});
+    });
+  });
+
+  /// The real geolocator_android plugin over a mocked updates channel. Like
+  /// geolocator_apple, it caches its position stream until the last
+  /// listener cancels. A listen on the channel is the device starting
+  /// location updates (and checking permission); a cancel stops them.
+  group('with the real Android plugin', () {
+    const updates =
+        EventChannel('flutter.baseflow.com/geolocator_updates_android');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    const devicePosition = {
+      'latitude': 1.0,
+      'longitude': 2.0,
+      'timestamp': 0,
+      'accuracy': 1.0,
+      'altitude': 0.0,
+      'heading': 0.0,
+      'speed': 0.0,
+      'speed_accuracy': 0.0,
+    };
+    late List<Object?> listens;
+    late int cancels;
+    late bool denied;
+    MockStreamHandlerEventSink? device;
+
+    setUp(() {
+      listens = [];
+      cancels = 0;
+      denied = false;
+      device = null;
+    });
+
+    MountedService onDevice(Map<String, dynamic> props) {
+      GeolocatorPlatform.instance = GeolocatorAndroid();
+      messenger.setMockStreamHandler(
+          updates,
+          MockStreamHandler.inline(
+            onListen: (arguments, events) {
+              listens.add(arguments);
+              device = events;
+              if (denied) {
+                events.error(code: 'PERMISSION_DENIED', message: 'not granted');
+              }
+            },
+            onCancel: (_) => cancels++,
+          ));
+      addTearDown(() => messenger.setMockStreamHandler(updates, null));
+      final service = mountService(Extension(), {'_c': 'Geolocator', ...props});
+      // Runs before the handler is removed, so the cancel reaches it.
+      addTearDown(service.dispose);
+      return service;
+    }
+
+    List<String> sent(MountedService service) =>
+        [for (final e in service.backend.events) e.name];
+
+    test('a failed stream restarts on the device on each patch until it works',
+        () async {
+      denied = true;
+      final service = onDevice({'on_position_change': true, 'on_error': true});
+      await pumpEventQueue();
+      expect(listens, hasLength(1));
+      expect(sent(service), ['error']);
+
+      // While permission stays denied, every patch restarts location
+      // updates once, and the failure reaches Ruby again.
+      service.patch({'data': 'first'});
+      await pumpEventQueue();
+      service.patch({'data': 'second'});
+      await pumpEventQueue();
+      expect(listens, hasLength(3));
+      expect(cancels, 2);
+      expect(sent(service), ['error', 'error', 'error']);
+
+      // Once permission is granted, the next patch's restart works and
+      // later patches keep it.
+      denied = false;
+      service.patch({'data': 'granted'});
+      await pumpEventQueue();
+      service.patch({'data': 'later'});
+      await pumpEventQueue();
+      expect(listens, hasLength(4));
+      expect(cancels, 3);
+      device!.success(devicePosition);
+      await pumpEventQueue();
+      expect(sent(service), ['error', 'error', 'error', 'position_change']);
+    });
+
+    test('a configuration change restarts location updates on the device',
+        () async {
+      final service = onDevice({
+        'on_position_change': true,
+        'configuration': {'distance_filter': 10},
+      });
+      await pumpEventQueue();
+      service.patch({
+        'configuration': {'distance_filter': 50}
+      });
+      await pumpEventQueue();
+      service.patch({'data': 'unrelated'});
+      await pumpEventQueue();
+
+      expect([for (final a in listens) (a as Map)['distanceFilter']], [10, 50]);
+      expect(cancels, 1);
+      device!.success(devicePosition);
+      await pumpEventQueue();
+      expect(sent(service), ['position_change']);
+    });
+
+    // testWidgets, for a fake clock to run out the time limit.
+    testWidgets('a stream the time limit ended restarts once, on the next patch',
+        (tester) async {
+      final service = onDevice({
+        'on_position_change': true,
+        'on_error': true,
+        'configuration': {'time_limit': 1000},
+      });
+      await tester.pump();
+      expect(listens, hasLength(1));
+
+      // No position within the time limit: the plugin reports a timeout,
+      // closes the stream and stops location updates.
+      await tester.pump(const Duration(seconds: 2));
+      expect(cancels, 1);
+      expect(sent(service), ['error']);
+
+      service.patch({'data': 'first'});
+      await tester.pump();
+      service.patch({'data': 'second'});
+      await tester.pump();
+      expect(listens, hasLength(2));
+      expect(cancels, 1);
+      device!.success(devicePosition);
+      await tester.pump();
+      expect(sent(service), ['error', 'position_change']);
+
+      // Unsubscribing stops the restarted stream and its time limit.
+      service.patch({'on_position_change': false});
+      await tester.pump();
+      expect(cancels, 2);
+      // testWidgets checks this before tear-down runs.
+      resetTargetPlatform();
     });
   });
 }
