@@ -215,6 +215,30 @@ void main() {
         expect(find.text('© Source').hitTestable(), findsNothing);
       });
 
+      testWidgets(
+          'RichAttribution popup stays open when the map moves during its '
+          'initial display', (tester) async {
+        final m = await mountAttribution(tester, design, {
+          '_c': 'RichAttribution',
+          '_i': 2,
+          'popup_initial_display_duration': 2000,
+          'show_flutter_map_attribution': false,
+          'attributions': [
+            {'_c': 'TextSourceAttribution', '_i': 3, 'text': 'Source'},
+          ],
+        });
+        // As flutter_map's widget does, only a popup the user opened closes
+        // when the map moves.
+        unawaited(m.root.invokeMethod(
+            'zoom_in', {'duration': 500}, const Duration(seconds: 1)));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(find.text('© Source').hitTestable(), findsOneWidget);
+        await tester.pump(const Duration(milliseconds: 1500));
+        await tester.pumpAndSettle();
+        expect(find.text('© Source').hitTestable(), findsNothing);
+      });
+
       testWidgets('RichAttribution popup closes when the map moves',
           (tester) async {
         final m = await mountAttribution(tester, design, {
