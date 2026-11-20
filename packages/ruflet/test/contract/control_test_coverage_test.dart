@@ -210,7 +210,6 @@ const knownGaps = <String>{
   'InterstitialAd',
   'Line',
   'LocalAuthentication',
-  'Lottie',
   'Magnetometer',
   'Map',
   'Markdown',
