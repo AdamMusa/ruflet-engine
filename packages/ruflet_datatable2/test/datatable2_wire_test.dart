@@ -408,6 +408,56 @@ void main() {
         }
       });
 
+      testWidgets('a table with rows does not show the empty control',
+          (tester) async {
+        for (final props in [
+          <String, dynamic>{},
+          <String, dynamic>{'bottom_margin': 20.0},
+        ]) {
+          await mount(
+              tester,
+              platform,
+              table(props: {
+                ...props,
+                'empty': textControl('No records')
+              }, columns: [
+                column(10, 'Name')
+              ], rows: [
+                row(20, [cell(30, 'Ada')])
+              ]));
+          expect(tester.takeException(), isNull);
+          expect(find.text('Ada'), findsOneWidget, reason: '$props');
+          expect(find.text('No records'), findsNothing, reason: '$props');
+        }
+      });
+
+      // data_table_2 needs a bounded height (it reports a layout error in a
+      // Column), so only the Cupertino renderer lays out a table without one.
+      if (platform == TargetPlatform.iOS) {
+        testWidgets(
+            'a table without a height sizes the empty control to its content',
+            (tester) async {
+          await mount(tester, platform, {
+            '_c': 'Column',
+            '_i': 2,
+            'controls': [
+              {
+                ...table(
+                    props: {'empty': textControl('No records')},
+                    columns: [column(10, 'Name')],
+                    rows: []),
+              }..remove('height'),
+            ],
+          });
+          expect(tester.takeException(), isNull);
+          final box = tester.getRect(find.text('No records'));
+          expect(box.top, closeTo(56, .5));
+          expect(
+              box.height, closeTo(tester.getSize(find.text('Name')).height, .5),
+              reason: 'one line of text, not the height of a bounded table');
+        });
+      }
+
       testWidgets(
           'the checkbox column reflects selection and sends select_all and '
           'select_change', (tester) async {
