@@ -121,15 +121,13 @@ class _WebviewMobileAndMacState extends State<WebviewMobileAndMac> {
   void didUpdateWidget(covariant WebviewMobileAndMac oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.control, widget.control)) {
+      // A parent that does not key its children by id (Stack, Column, Row,
+      // Container content) keeps this state for a new WebView control Ruby
+      // puts in the same slot, so Ruby's invokes on it must reach this view.
+      // Its url follows the same rule as a url update: the page the user is
+      // on is kept unless the url or method is one this view has not had.
       oldWidget.control.removeInvokeMethodListener(_invokeMethod);
       widget.control.addInvokeMethodListener(_invokeMethod);
-    }
-    if (oldWidget.control.id != widget.control.id) {
-      // Ruby put another WebView control where this one was (the ruflet_rails
-      // shell does on root navigation): load its url as if it were mounted.
-      _loadedUrl = null;
-      _loadedMethod = null;
-      _reportedUrls.clear();
     }
     _loadUrlIfChanged();
   }

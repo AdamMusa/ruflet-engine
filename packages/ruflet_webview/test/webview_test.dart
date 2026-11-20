@@ -507,82 +507,68 @@ void main() {
   }, variant: bothDesigns);
 
   testWidgets(
-      'a WebView Ruby puts in place of another loads its url and '
-      'handles its invokes', (tester) async {
-    // ruflet_rails root navigation (drawer, bottom nav) replaces the view's
-    // controls with a new Stack holding a new WebView, so Flutter reuses the
-    // web view state for the new control.
-    Map<String, dynamic> body(int id, String url) => {
-          '_c': 'Stack',
-          '_i': id,
-          'fit': 'expand',
-          'expand': true,
-          'controls': [
-            {
-              '_c': 'WebView',
-              '_i': id + 1,
-              'url': url,
-              'method': 'get',
-              'expand': true,
-              'on_page_started': true,
-              'on_page_ended': true,
-              'on_url_change': true,
-            },
-            {'_c': 'Container', '_i': id + 2, 'visible': false},
-          ],
-        };
+      'a WebView Ruby puts in place of another in a parent that does not key '
+      'its children handles its invokes and follows the url rule',
+      (tester) async {
+    // A Column (like a Stack, Row or Container content) does not key its
+    // children by id, so Flutter keeps the web view state for a new WebView
+    // control in the same slot. (A View keys its children, so the ruflet_rails
+    // shell's root navigation mounts a fresh web view, see
+    // webview_in_view_test.dart.)
+    List<Map<String, dynamic>> controls(int id, String url) => [
+          {'_c': 'Text', '_i': id, 'value': 'Count $id'},
+          {
+            '_c': 'WebView',
+            '_i': id + 1,
+            'url': url,
+            'method': 'get',
+            'width': 300,
+            'height': 200,
+            'on_url_change': true,
+          },
+        ];
     final mounted = await mountWire(
         tester,
         {
-          '_c': 'Stack',
-          '_i': 100,
-          'width': 400,
-          'height': 600,
-          'controls': [body(101, 'https://myapp.com')],
+          '_c': 'Column',
+          '_i': 1,
+          'controls': controls(10, 'https://docs.test/'),
         },
         Extension());
     final controller = platform.controller;
     List<String> requests() =>
         [for (final r in controller.requests) '${r.method.name} ${r.uri}'];
     Control webView(int id) => mounted.backend.controlsIndex.get(id)!;
-    void replaceBody(Map<String, dynamic> wire) => mounted.control.applyPatch([
-          [0],
-          [
-            0,
-            0,
-            'controls',
-            [wire]
-          ]
-        ], mounted.backend);
+    Future<void> rerender(int id, String url) async {
+      mounted.control.applyPatch([
+        [0],
+        [0, 0, 'controls', controls(id, url)]
+      ], mounted.backend);
+      await tester.pumpAndSettle();
+    }
 
-    // The user followed links to /posts; the bottom nav goes Home again.
-    controller.delegate.onPageStarted!('https://myapp.com');
-    controller
-        .delegate.onUrlChange!(const UrlChange(url: 'https://myapp.com/posts'));
-    replaceBody(body(110, 'https://myapp.com'));
-    await tester.pumpAndSettle();
-    expect(requests(), ['get https://myapp.com', 'get https://myapp.com']);
+    // The user follows a link; Ruby re-renders the Column (new ids) with the
+    // same url. The page the user is on is kept, as on a url update.
+    controller.delegate
+        .onUrlChange!(const UrlChange(url: 'https://docs.test/guide#install'));
+    await rerender(20, 'https://docs.test/');
+    expect(requests(), ['get https://docs.test/']);
     expect(platform.controllers, hasLength(1));
 
-    // The shell enables JavaScript and injects its adapter through the new
-    // control; the old one no longer reaches the plugin.
+    // Invokes on the new control reach the plugin; the old one's do not.
     controller.calls.clear();
-    expect((await invoke(tester, webView(111), 'get_title')).value,
+    expect((await invoke(tester, webView(21), 'get_title')).value,
         'Ruflet test page');
-    unawaited(webView(102)
+    unawaited(webView(11)
         .invokeMethod('reload', null, const Duration(milliseconds: 10))
         .catchError((Object _) {}));
     await tester.pump(const Duration(milliseconds: 20));
     expect(controller.calls, ['getTitle']);
 
-    // Ruby sending the same control again (same id) is not a new control:
-    // the page it writes back is still not reloaded.
-    controller.delegate
-        .onUrlChange!(const UrlChange(url: 'https://myapp.com/posts/2'));
-    replaceBody(body(110, 'https://myapp.com/posts/2'));
-    await tester.pumpAndSettle();
-    expect(requests(), ['get https://myapp.com', 'get https://myapp.com']);
-    expect((await invoke(tester, webView(111), 'get_title')).value,
+    // A url the view has not had is loaded.
+    await rerender(30, 'https://docs.test/api');
+    expect(requests(), ['get https://docs.test/', 'get https://docs.test/api']);
+    expect((await invoke(tester, webView(31), 'get_title')).value,
         'Ruflet test page');
     await unmount(tester);
   }, variant: bothDesigns);
