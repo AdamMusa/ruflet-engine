@@ -170,10 +170,15 @@ CursorKeyboardRotationOptions? parseCursorKeyboardRotationOptions(dynamic value,
     [CursorKeyboardRotationOptions? defaultValue]) {
   if (value == null) return defaultValue;
   // The wire names keys by label ("Control Left", as Flet's KeyboardKey and
-  // LogicalKeyboardKey.keyLabel do), never as Dart key objects.
-  final triggerKeys = (value["trigger_keys"] as List?)
-      ?.map((key) => _keyName(key.toString()))
-      .toSet();
+  // LogicalKeyboardKey.keyLabel do), never as Dart key objects. One key name
+  // (Ruby's `trigger_keys: :control_left`) is a list of one; a value that is
+  // neither is ignored, as if Ruby sent no trigger keys.
+  final keys = value["trigger_keys"];
+  final triggerKeys = switch (keys) {
+    List() => keys.map((key) => _keyName(key.toString())).toSet(),
+    String() => {_keyName(keys)},
+    _ => null,
+  };
   return CursorKeyboardRotationOptions(
       setNorthOnClick: parseBool(value["set_north_on_click"], true)!,
       behaviour: parseCursorRotationBehaviour(

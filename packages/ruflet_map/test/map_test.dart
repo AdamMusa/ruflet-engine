@@ -143,6 +143,61 @@ void main() {
         expect(isTrigger(LogicalKeyboardKey.controlLeft), isFalse);
       });
 
+      testWidgets('cursor rotation takes one key name as a list of one',
+          (tester) async {
+        // Ruby sends `trigger_keys: :control_left` as one name. This map used
+        // to render; reading the name as a list must not stop it rendering.
+        await mountMap(tester, design, {
+          'interaction_configuration': {
+            'pinch_move_threshold': 40,
+            'cursor_keyboard_rotation_configuration': {
+              'trigger_keys': 'control_left',
+            },
+          },
+        });
+        expect(tester.takeException(), isNull);
+        expect(find.byType(FlutterMap), findsOneWidget);
+        final isTrigger = flutterMap(tester)
+            .options
+            .interactionOptions
+            .cursorKeyboardRotationOptions
+            .isKeyTrigger!;
+        expect(isTrigger(LogicalKeyboardKey.controlLeft), isTrue);
+        expect(isTrigger(LogicalKeyboardKey.controlRight), isFalse);
+        expect(isTrigger(LogicalKeyboardKey.shiftLeft), isFalse);
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('cursor rotation ignores trigger keys that name no key',
+          (tester) async {
+        for (final keys in <Object>[
+          5,
+          {'control_left': true}
+        ]) {
+          await mountMap(tester, design, {
+            'interaction_configuration': {
+              'cursor_keyboard_rotation_configuration': {'trigger_keys': keys},
+            },
+          });
+          expect(tester.takeException(), isNull, reason: '$keys');
+          expect(find.byType(FlutterMap), findsOneWidget, reason: '$keys');
+          // As without trigger keys: flutter_map's Control default.
+          expect(
+              flutterMap(tester)
+                  .options
+                  .interactionOptions
+                  .cursorKeyboardRotationOptions
+                  .isKeyTrigger,
+              isNull,
+              reason: '$keys');
+          await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+          await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+          expect(tester.takeException(), isNull, reason: '$keys');
+        }
+      });
+
       testWidgets('cursor rotation without trigger keys uses Control',
           (tester) async {
         await mountMap(tester, design, {
