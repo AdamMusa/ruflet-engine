@@ -19,7 +19,7 @@ class _LottieControlState extends State<LottieControl> {
   /// The control's `src`, resolved once per value Ruby sends. Decoding a
   /// base64 (or list) src on every build yields new bytes, which lottie
   /// treats as a new animation: any Ruby update (`animate = false` to pause)
-  /// would parse it again, restart it and send `on_load` again.
+  /// would parse it again and send `on_load` again.
   ResolvedAssetSource _resolveSrc() {
     final value = widget.control.get("src");
     final resolved = _resolvedSrc;
