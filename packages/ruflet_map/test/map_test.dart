@@ -379,6 +379,26 @@ void main() {
         expect(camera(tester).zoom, 17.0);
       });
 
+      testWidgets(
+          'without animation_duration or animation_curve a call animates for '
+          '500 ms on fastOutSlowIn', (tester) async {
+        final m = await mountMap(tester, design);
+        var done = false;
+        unawaited(m.root
+            .invokeMethod('zoom_to', {'zoom': 17}, const Duration(seconds: 5))
+            .then((_) => done = true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 250));
+        expect(camera(tester).zoom,
+            closeTo(13 + 4 * Curves.fastOutSlowIn.transform(.5), 0.1));
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(done, isFalse);
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump();
+        expect(done, isTrue);
+        expect(camera(tester).zoom, 17.0);
+      });
+
       testWidgets('move_to offsets the destination by the pixel offset',
           (tester) async {
         final m = await mountMap(tester, design);
