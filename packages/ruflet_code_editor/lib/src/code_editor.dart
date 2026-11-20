@@ -116,6 +116,17 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
     }
   }
 
+  /// After Ruby replaced the value, writes back the selection the editor kept
+  /// (clamped to the new text) when Ruby's copy no longer matches it, so
+  /// Ruby does not keep offsets past the end of its own value.
+  void _writeBackSelection() {
+    final selection =
+        _controller.selection.isValid ? _controller.selection : null;
+    if (widget.control.getTextSelection("selection") != selection) {
+      widget.control.updateProperties({"selection": selection?.toMap()});
+    }
+  }
+
   void _handleControllerChange() {
     if (_applyingRubyChange) return;
     final value = _readValue();
@@ -181,7 +192,8 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
 
     final value = widget.control.getString("value");
     final controllerValue = _readValue();
-    if (value != null && value != controllerValue) {
+    final valueChanged = value != null && value != controllerValue;
+    if (valueChanged) {
       _applyRubyChange(() => _setValue(value));
     }
 
@@ -194,6 +206,7 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
         explicitSelection != _controller.selection) {
       _applyRubyChange(() => _controller.selection = explicitSelection);
     }
+    if (valueChanged) _writeBackSelection();
 
     final autofocus = widget.control.getBool("autofocus", false)!;
     if (!_didAutoFocus && autofocus) {

@@ -16,6 +16,14 @@ const _subscribed = {
   'on_blur': true,
 };
 
+/// The selection map the editor writes back for a cursor at [offset].
+Map<String, dynamic> _collapsed(int offset) => {
+      'base_offset': offset,
+      'extent_offset': offset,
+      'affinity': 'downstream',
+      'directional': false,
+    };
+
 void main() {
   for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
     group('$platform', () {
@@ -108,6 +116,63 @@ void main() {
         expect(editable(tester).controller.text, 'puts :ok');
         expect(editable(tester).controller.selection,
             const TextSelection(baseOffset: 5, extentOffset: 8));
+        expect(m.backend.events, isEmpty);
+        expect(m.backend.updates, isEmpty);
+        await tester.pumpWidget(const SizedBox());
+      });
+
+      testWidgets(
+          'a Ruby value shorter than the selection writes back the clamped '
+          'selection only', (tester) async {
+        final m = await mount(tester, {'value': 'puts :hello_world'});
+        editable(tester).controller.selection =
+            const TextSelection.collapsed(offset: 10);
+        await tester.pump();
+        expect(m.root.get('selection'), _collapsed(10));
+        m.backend.events.clear();
+        m.backend.updates.clear();
+
+        m.backend.updateControl(1, {'value': 'x = 1'}, notify: true);
+        m.backend.updates.clear();
+        await tester.pumpAndSettle();
+
+        const clamped = TextSelection.collapsed(offset: 5);
+        expect(editable(tester).controller.text, 'x = 1');
+        expect(editable(tester).controller.selection, clamped);
+        expect(m.backend.events, isEmpty);
+        expect([
+          for (final (id, props) in m.backend.updates) [id, props]
+        ], [
+          [
+            1,
+            {'selection': _collapsed(5)}
+          ]
+        ]);
+        expect(m.root.get('selection'), _collapsed(5));
+        await tester.pumpWidget(const SizedBox());
+      });
+
+      testWidgets('a Ruby value and selection sent together both apply',
+          (tester) async {
+        final m = await mount(tester, {'value': 'puts :hello_world'});
+        editable(tester).controller.selection =
+            const TextSelection.collapsed(offset: 10);
+        await tester.pump();
+        m.backend.events.clear();
+        m.backend.updates.clear();
+
+        m.backend.updateControl(
+            1,
+            {
+              'value': 'x = 1',
+              'selection': {'base_offset': 0, 'extent_offset': 1},
+            },
+            notify: true);
+        m.backend.updates.clear();
+        await tester.pumpAndSettle();
+
+        expect(editable(tester).controller.selection,
+            const TextSelection(baseOffset: 0, extentOffset: 1));
         expect(m.backend.events, isEmpty);
         expect(m.backend.updates, isEmpty);
         await tester.pumpWidget(const SizedBox());
