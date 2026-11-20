@@ -210,11 +210,49 @@ void main() {
     expect(defaults['biometricPromptTitle'], 'Unlock vault');
     expect(defaults['biometricPromptSubtitle'], 'Touch the sensor');
 
-    final perCall = optionsOf(platformCalls[1]);
-    expect(perCall['sharedPreferencesName'], 'other');
-    expect(perCall['migrateOnAlgorithmChange'], 'false');
-    expect(perCall['resetOnError'], 'true');
-    expect(perCall['enforceBiometrics'], 'false');
+    // The fields the call's map leaves out take the service's defaults, not
+    // the control's. The cipher defaults decide whether data already
+    // stored can still be read.
+    expect(optionsOf(platformCalls[1]), {
+      'encryptedSharedPreferences': 'false',
+      'resetOnError': 'true',
+      'migrateOnAlgorithmChange': 'false',
+      'enforceBiometrics': 'false',
+      'keyCipherAlgorithm': 'RSA_ECB_OAEPwithSHA_256andMGF1Padding',
+      'storageCipherAlgorithm': 'AES_GCM_NoPadding',
+      'sharedPreferencesName': 'other',
+      // No prefix: the plugin uses its own.
+      'preferencesKeyPrefix': '',
+      'biometricPromptTitle': 'Authenticate to access',
+      'biometricPromptSubtitle': 'Use biometrics or device credentials',
+    });
+  });
+
+  test('a call\'s "android" without a preferences name uses the plugin\'s',
+      () async {
+    final (control, _) = storage({
+      'android_options': {'shared_preferences_name': 'vault'},
+    });
+    await control.invokeMethod(
+        'contains_key',
+        {
+          'key': 'k',
+          'android': {'enforce_biometrics': true},
+        },
+        _timeout);
+
+    expect(optionsOf(platformCalls.single), {
+      'encryptedSharedPreferences': 'false',
+      'resetOnError': 'true',
+      'migrateOnAlgorithmChange': 'true',
+      'enforceBiometrics': 'true',
+      'keyCipherAlgorithm': 'RSA_ECB_OAEPwithSHA_256andMGF1Padding',
+      'storageCipherAlgorithm': 'AES_GCM_NoPadding',
+      'sharedPreferencesName': '',
+      'preferencesKeyPrefix': '',
+      'biometricPromptTitle': 'Authenticate to access',
+      'biometricPromptSubtitle': 'Use biometrics or device credentials',
+    });
   });
 
   test('on iOS ios_options set the defaults; a call\'s "ios" overrides them',
@@ -265,11 +303,13 @@ void main() {
     expect(defaults['accessControlFlags'], '[biometryAny, devicePasscode]');
     expect(defaults.containsKey('sharedPreferencesName'), isFalse);
 
-    final perCall = optionsOf(platformCalls[1]);
-    expect(perCall['accessibility'], 'passcode');
-    expect(perCall['shouldReturnPersistentReference'], 'true');
-    expect(perCall['synchronizable'], 'false');
-    expect(perCall.containsKey('groupId'), isFalse);
+    // The fields the call's map leaves out take the service's defaults:
+    // not synchronizable, no access control flags.
+    expect(optionsOf(platformCalls[1]), {
+      'accessibility': 'passcode',
+      'synchronizable': 'false',
+      'shouldReturnPersistentReference': 'true',
+    });
   });
 
   /// The Apple targets and the control-level and per-call option keys
@@ -344,8 +384,23 @@ void main() {
     }
   });
 
-  test('keychain items are "unlocked" unless Ruby sets accessibility',
+  test('keychain items take the defaults for the fields Ruby leaves out',
       () async {
+    // "unlocked", not synchronizable, no access control flags; iOS
+    // returns no persistent reference, macOS uses the data protection
+    // keychain.
+    final defaults = {
+      TargetPlatform.iOS: {
+        'accessibility': 'unlocked',
+        'synchronizable': 'false',
+        'shouldReturnPersistentReference': 'false',
+      },
+      TargetPlatform.macOS: {
+        'accessibility': 'unlocked',
+        'synchronizable': 'false',
+        'usesDataProtectionKeychain': 'true',
+      },
+    };
     for (final (target, options, perCall) in apple) {
       debugDefaultTargetPlatformOverride = target;
       platformCalls.clear();
@@ -362,9 +417,10 @@ void main() {
           },
           _timeout);
 
-      expect([for (final c in platformCalls) optionsOf(c)['accessibility']],
-          ['unlocked', 'unlocked'],
-          reason: target.name);
+      expect([for (final c in platformCalls) optionsOf(c)], [
+        {'accountName': 'vault', ...defaults[target]!},
+        {'label': 'Vault', ...defaults[target]!},
+      ], reason: target.name);
     }
   });
 
@@ -414,13 +470,16 @@ void main() {
     expect(defaults['authenticationUIBehavior'], 'kSecUseAuthenticationUISkip');
     expect(defaults['usesDataProtectionKeychain'], 'false');
 
-    final perCall = optionsOf(platformCalls[1]);
-    expect(perCall['accountName'], 'other');
-    expect(perCall['shouldReturnPersistentReference'], 'false');
-    expect(perCall['usesDataProtectionKeychain'], 'true');
-    expect(perCall['synchronizable'], 'false');
-    expect(perCall.containsKey('description'), isFalse);
-    expect(perCall.containsKey('groupId'), isFalse);
+    // The fields the call's map leaves out take the service's defaults:
+    // unlocked, not synchronizable, no access control flags, the data
+    // protection keychain.
+    expect(optionsOf(platformCalls[1]), {
+      'accountName': 'other',
+      'accessibility': 'unlocked',
+      'synchronizable': 'false',
+      'shouldReturnPersistentReference': 'false',
+      'usesDataProtectionKeychain': 'true',
+    });
   });
 
   test('on Windows windows_options and a call\'s "windows" reach the platform',
@@ -438,9 +497,15 @@ void main() {
           'windows': {'use_backward_compatibility': false},
         },
         _timeout);
+    // A call's map without the field (Ruby drops nil values) takes the
+    // default, not the control's.
+    await control.invokeMethod('get_all', {'windows': {}}, _timeout);
 
-    expect(optionsOf(platformCalls[0])['useBackwardCompatibility'], 'true');
-    expect(optionsOf(platformCalls[1])['useBackwardCompatibility'], 'false');
+    expect([for (final c in platformCalls) optionsOf(c)], [
+      {'useBackwardCompatibility': 'true'},
+      {'useBackwardCompatibility': 'false'},
+      {'useBackwardCompatibility': 'false'},
+    ]);
   });
 
   test('options Ruby changes after a call apply to the next call', () async {
