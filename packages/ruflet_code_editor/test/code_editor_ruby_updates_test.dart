@@ -2,6 +2,8 @@
 // applies it without firing Ruby's on_change / on_selection_change or writing
 // the value back. (The core TextField does not fire on_change for a Ruby
 // value either, but it does fire on_selection_change for a Ruby selection.)
+// A selection the editor clamps to the text is written back, so Ruby's copy
+// does not stay past the end of its value.
 // ruflet-coverage: CodeEditor
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -149,6 +151,77 @@ void main() {
           ]
         ]);
         expect(m.root.get('selection'), _collapsed(5));
+        await tester.pumpWidget(const SizedBox());
+      });
+
+      testWidgets(
+          'a Ruby selection past the end writes back the clamped selection '
+          'only', (tester) async {
+        // 'puts :ok' has 8 characters.
+        final m = await mount(tester, {
+          'selection': {'base_offset': 20, 'extent_offset': 20}
+        });
+        const clamped = TextSelection.collapsed(offset: 8);
+        List<List<Object>> writeBacks() => [
+              for (final (id, props) in m.backend.updates) [id, props]
+            ];
+        expect(editable(tester).controller.selection, clamped);
+        expect(m.backend.events, isEmpty);
+        expect(writeBacks(), [
+          [
+            1,
+            {'selection': _collapsed(8)}
+          ]
+        ]);
+        expect(m.root.get('selection'), _collapsed(8));
+
+        // Past the end again, where the cursor already is.
+        m.backend.updates.clear();
+        m.backend.updateControl(
+            1,
+            {
+              'selection': {'base_offset': 30, 'extent_offset': 30}
+            },
+            notify: true);
+        m.backend.updates.clear();
+        await tester.pumpAndSettle();
+        expect(editable(tester).controller.selection, clamped);
+        expect(m.backend.events, isEmpty);
+        expect(writeBacks(), [
+          [
+            1,
+            {'selection': _collapsed(8)}
+          ]
+        ]);
+        expect(m.root.get('selection'), _collapsed(8));
+
+        // Once Ruby's copy matches, other updates write nothing back.
+        m.backend.updates.clear();
+        m.backend.updateControl(1, {'read_only': true}, notify: true);
+        m.backend.updates.clear();
+        await tester.pumpAndSettle();
+        expect(m.backend.updates, isEmpty);
+        await tester.pumpWidget(const SizedBox());
+      });
+
+      testWidgets(
+          'a Ruby selection of nil keeps the editor selection and writes '
+          'nothing back', (tester) async {
+        final m = await mount(tester);
+        editable(tester).controller.selection =
+            const TextSelection.collapsed(offset: 7);
+        await tester.pump();
+        m.backend.events.clear();
+        m.backend.updates.clear();
+
+        m.backend.updateControl(1, {'selection': null}, notify: true);
+        m.backend.updates.clear();
+        await tester.pumpAndSettle();
+
+        expect(editable(tester).controller.selection,
+            const TextSelection.collapsed(offset: 7));
+        expect(m.backend.events, isEmpty);
+        expect(m.backend.updates, isEmpty);
         await tester.pumpWidget(const SizedBox());
       });
 

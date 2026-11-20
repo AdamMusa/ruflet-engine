@@ -116,9 +116,8 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
     }
   }
 
-  /// After Ruby replaced the value, writes back the selection the editor kept
-  /// (clamped to the new text) when Ruby's copy no longer matches it, so
-  /// Ruby does not keep offsets past the end of its own value.
+  /// Writes back the selection the editor uses when Ruby's copy no longer
+  /// matches it, so Ruby does not keep offsets past the end of its own value.
   void _writeBackSelection() {
     final selection =
         _controller.selection.isValid ? _controller.selection : null;
@@ -206,7 +205,13 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
         explicitSelection != _controller.selection) {
       _applyRubyChange(() => _controller.selection = explicitSelection);
     }
-    if (valueChanged) _writeBackSelection();
+    // Ruby's selection had to be clamped to the text: Ruby set a shorter
+    // value or a selection past the end. (Setting a value clears the
+    // controller's selection, so the cursor after a Ruby value is always
+    // Ruby's selection, clamped.)
+    if (explicitSelection != widget.control.getTextSelection("selection")) {
+      _writeBackSelection();
+    }
 
     final autofocus = widget.control.getBool("autofocus", false)!;
     if (!_didAutoFocus && autofocus) {
