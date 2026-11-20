@@ -1,5 +1,5 @@
 // Ruby sends a data item's tooltip as the item's own `tooltip` (a text or a
-// map of options), never as Flet's `_internals.tooltip`.
+// map of options), never as Flet's `_internals.tooltip` (still read).
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,6 +35,14 @@ void main() {
                       'tooltip': 'Hidden',
                       'show_tooltip': false
                     }),
+                    wire('BarChartRod', 7, {'to_y': 1, 'show_tooltip': false}),
+                    // Flet's Python sends the rod tooltip here.
+                    wire('BarChartRod', 8, {
+                      'to_y': 5,
+                      '_internals': {
+                        'tooltip': {'text': 'Legacy'}
+                      },
+                    }),
                   ],
                 }),
               ],
@@ -50,7 +58,12 @@ void main() {
         expect(item(1)?.textStyle.color, const Color(0xFF00FF00));
         expect(item(1)?.textStyle.fontSize, 13);
         expect(item(2)?.text, '4.0', reason: 'no tooltip: the rod value');
+        // No chart tooltip: a rod's own text keeps fl_chart's label style.
+        expect(item(0)?.textStyle, item(2)?.textStyle);
+        expect(item(2)?.textStyle.fontWeight, FontWeight.bold);
         expect(item(3), isNull);
+        expect(item(4), isNull, reason: 'show_tooltip: false, no tooltip');
+        expect(item(5)?.text, 'Legacy');
       });
 
       testWidgets('line points show the tooltip Ruby sent', (tester) async {
@@ -68,6 +81,15 @@ void main() {
                     wire('LineChartDataPoint', 4,
                         {'x': 2, 'y': 3, 'tooltip': customTooltip}),
                     wire('LineChartDataPoint', 5, {'x': 3, 'y': 2}),
+                    wire('LineChartDataPoint', 6,
+                        {'x': 4, 'y': 1, 'show_tooltip': false}),
+                    wire('LineChartDataPoint', 7, {
+                      'x': 5,
+                      'y': 2,
+                      '_internals': {
+                        'tooltip': {'text': 'Legacy'}
+                      },
+                    }),
                   ],
                 }),
               ],
@@ -80,7 +102,8 @@ void main() {
           for (var i = 0; i < bar.spots.length; i++)
             LineBarSpot(bar, 0, bar.spots[i]),
         ]);
-        expect(items.map((i) => i?.text).toList(), ['Start', 'Max', '2.0']);
+        expect(items.map((i) => i?.text).toList(),
+            ['Start', 'Max', '2.0', null, 'Legacy']);
         expect(items[1]?.textStyle.color, const Color(0xFF00FF00));
       });
 
@@ -95,6 +118,13 @@ void main() {
                 wire(
                     'ScatterChartSpot', 2, {'x': 1, 'y': 2, 'tooltip': 'Here'}),
                 wire('ScatterChartSpot', 3, {'x': 2, 'y': 3}),
+                wire('ScatterChartSpot', 4, {
+                  'x': 3,
+                  'y': 1,
+                  '_internals': {
+                    'tooltip': {'text': 'Legacy'}
+                  },
+                }),
               ],
             }),
             extensions: [Extension()]);
@@ -103,7 +133,9 @@ void main() {
             tester.widget<ScatterChart>(find.byType(ScatterChart)).data;
         final tooltip = data.scatterTouchData.touchTooltipData;
         expect(tooltip.getTooltipItems(data.scatterSpots[0])?.text, 'Here');
-        expect(tooltip.getTooltipItems(data.scatterSpots[1])?.text, '3.0');
+        // A spot without a tooltip of its own shows none, as before.
+        expect(tooltip.getTooltipItems(data.scatterSpots[1]), isNull);
+        expect(tooltip.getTooltipItems(data.scatterSpots[2])?.text, 'Legacy');
       });
 
       testWidgets('candlestick spots show the tooltip Ruby sent',

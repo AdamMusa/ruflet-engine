@@ -61,8 +61,9 @@ ScatterTooltipItem? parseScatterTooltipItem(
     Control dataPoint, ScatterSpot spot, BuildContext context) {
   if (!dataPoint.getBool("show_tooltip", true)!) return null;
 
-  // A spot without a tooltip of its own shows its value.
-  var tooltip = chartItemTooltip(dataPoint) ?? const {};
+  // Only a spot with a tooltip of its own shows one, as before.
+  var tooltip = chartItemTooltip(dataPoint);
+  if (tooltip == null) return null;
 
   final theme = RufletStyleTheme.of(context);
   var style = parseTextStyle(tooltip["text_style"], theme, const TextStyle())!;

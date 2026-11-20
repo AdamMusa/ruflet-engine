@@ -157,6 +157,40 @@ void main() {
         });
         expect(tester.takeException(), isNull);
       });
+
+      for (final tooltip in [null, const {'bgcolor': '#00ff00'}]) {
+        testWidgets(
+            'touching a point with show_tooltip false paints no tooltip '
+            '(chart tooltip: $tooltip)', (tester) async {
+          // fl_chart needs one (nullable) item per touched spot; dropping the
+          // hidden point's item threw while painting the tooltip.
+          await mountWire(
+              tester,
+              platform,
+              lineChart(
+                  props: {if (tooltip != null) 'tooltip': tooltip},
+                  point: {'show_tooltip': false}),
+              extensions: [Extension()]);
+          final bar = lineData(tester).lineBarsData.single;
+          final items = lineData(tester)
+              .lineTouchData
+              .touchTooltipData
+              .getTooltipItems([
+            LineBarSpot(bar, 0, bar.spots[0]),
+            LineBarSpot(bar, 0, bar.spots[1]),
+          ]);
+          expect(items.map((i) => i?.text).toList(), ['1.0', null]);
+
+          final gesture = await tester.startGesture(
+              tester.getTopLeft(find.byType(LineChart)) +
+                  const Offset(150, 50));
+          await tester.pump(const Duration(milliseconds: 50));
+          expect(tester.takeException(), isNull);
+          await gesture.up();
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+        });
+      }
     });
   }
 }
