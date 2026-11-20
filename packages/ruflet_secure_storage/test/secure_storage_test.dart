@@ -387,6 +387,54 @@ void main() {
     expect(optionsOf(platformCalls[1])['useBackwardCompatibility'], 'false');
   });
 
+  test('options Ruby changes after a call apply to the next call', () async {
+    for (final (target, options, first, second, sentKey, sent) in [
+      (
+        TargetPlatform.android,
+        'android_options',
+        {'shared_preferences_name': 'first'},
+        {'shared_preferences_name': 'second'},
+        'sharedPreferencesName',
+        ['first', 'second'],
+      ),
+      (
+        TargetPlatform.iOS,
+        'ios_options',
+        {'account_name': 'first'},
+        {'account_name': 'second'},
+        'accountName',
+        ['first', 'second'],
+      ),
+      (
+        TargetPlatform.macOS,
+        'macos_options',
+        {'account_name': 'first'},
+        {'account_name': 'second'},
+        'accountName',
+        ['first', 'second'],
+      ),
+      (
+        TargetPlatform.windows,
+        'windows_options',
+        {'use_backward_compatibility': true},
+        {'use_backward_compatibility': false},
+        'useBackwardCompatibility',
+        ['true', 'false'],
+      ),
+    ]) {
+      debugDefaultTargetPlatformOverride = target;
+      platformCalls.clear();
+      final (control, _) = storage({options: first});
+
+      await control.invokeMethod('get_all', null, _timeout);
+      control.update({options: second}, shouldNotify: true);
+      await control.invokeMethod('get_all', null, _timeout);
+
+      expect([for (final c in platformCalls) optionsOf(c)[sentKey]], sent,
+          reason: target.name);
+    }
+  });
+
   test('get_availability asks the platform on iOS and macOS only', () async {
     for (final target in [TargetPlatform.iOS, TargetPlatform.macOS]) {
       debugDefaultTargetPlatformOverride = target;
