@@ -394,6 +394,116 @@ void main() {
   }, variant: bothDesigns);
 
   testWidgets(
+      'a url the view reported, written back by Ruby, does not reload the page',
+      (tester) async {
+    // The ruflet_rails native shell subscribes to these events and stores
+    // each url in the WebView's `url`; its next bare page.update (opening a
+    // native menu or sheet) sends that url back.
+    final mounted = await mountWire(
+        tester,
+        _wire({
+          '_i': 102,
+          'url': 'https://myapp.com',
+          'method': 'get',
+          'expand': true,
+          'on_page_started': true,
+          'on_page_ended': true,
+          'on_url_change': true,
+        }),
+        Extension());
+    final controller = platform.controller;
+    final delegate = controller.delegate;
+    List<String> requests() =>
+        [for (final r in controller.requests) '${r.method.name} ${r.uri}'];
+
+    // The user follows a link inside the page (a Turbo visit).
+    delegate.onUrlChange!(const UrlChange(url: 'https://myapp.com/posts/new'));
+    // The exact patch ruflet_rails 0.0.23 sends when the menu opens.
+    mounted.control.applyPatch([
+      [0],
+      [0, 0, 'url', 'https://myapp.com/posts/new']
+    ], mounted.backend);
+    await tester.pump();
+    expect(requests(), ['get https://myapp.com']);
+
+    // A form POST re-rendered at /posts, then a later url: Ruby writing
+    // back either one (even the older one, if its update was sent before it
+    // saw the newer url) does not replace the page with a GET.
+    delegate.onPageStarted!('https://myapp.com/posts');
+    delegate.onPageFinished!('https://myapp.com/posts');
+    delegate.onUrlChange!(const UrlChange(url: 'https://myapp.com/posts#form'));
+    for (final echo in [
+      'https://myapp.com/posts',
+      'https://myapp.com/posts#form',
+    ]) {
+      mounted.control.applyPatch([
+        [0],
+        [0, 0, 'url', echo]
+      ], mounted.backend);
+      await tester.pump();
+    }
+    expect(requests(), ['get https://myapp.com']);
+
+    // A url the view never reported is a navigation Ruby asks for.
+    mounted.control
+        .update({'url': 'https://myapp.com/posts/1'}, shouldNotify: true);
+    await tester.pump();
+    expect(
+        requests(), ['get https://myapp.com', 'get https://myapp.com/posts/1']);
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets(
+      'only urls Ruby was told about count as written back, '
+      'and a load starts a new count', (tester) async {
+    final mounted = await mountWire(
+        tester,
+        _wire({'width': 320, 'height': 240, 'on_url_change': true}),
+        Extension());
+    final controller = platform.controller;
+    final delegate = controller.delegate;
+    List<String> requests() =>
+        [for (final r in controller.requests) '${r.method.name} ${r.uri}'];
+
+    // Ruby is not subscribed to page_started, so it cannot be echoing it.
+    delegate.onPageStarted!('https://ruflet.test/a');
+    mounted.control
+        .update({'url': 'https://ruflet.test/a'}, shouldNotify: true);
+    await tester.pump();
+    // Ruby was told about b, so b coming back is not loaded.
+    delegate.onUrlChange!(const UrlChange(url: 'https://ruflet.test/b'));
+    mounted.control
+        .update({'url': 'https://ruflet.test/b'}, shouldNotify: true);
+    await tester.pump();
+    expect(requests(), [
+      'get https://ruflet.test/start',
+      'get https://ruflet.test/a',
+    ]);
+
+    // After Ruby loads another url, b is a navigation again.
+    for (final url in ['https://ruflet.test/c', 'https://ruflet.test/b']) {
+      mounted.control.update({'url': url}, shouldNotify: true);
+      await tester.pump();
+    }
+    // To load a page the view reported since its last load, Ruby calls
+    // load_request.
+    delegate.onUrlChange!(const UrlChange(url: 'https://ruflet.test/d'));
+    mounted.control
+        .update({'url': 'https://ruflet.test/d'}, shouldNotify: true);
+    await tester.pump();
+    await invoke(tester, mounted.control, 'load_request',
+        {'url': 'https://ruflet.test/d', 'method': 'get'});
+    expect(requests(), [
+      'get https://ruflet.test/start',
+      'get https://ruflet.test/a',
+      'get https://ruflet.test/c',
+      'get https://ruflet.test/b',
+      'get https://ruflet.test/d',
+    ]);
+    await unmount(tester);
+  }, variant: bothDesigns);
+
+  testWidgets(
       'macOS renders the native view but skips the scroll handler '
       'webview_flutter does not surface there', (tester) async {
     await mountWire(tester,
