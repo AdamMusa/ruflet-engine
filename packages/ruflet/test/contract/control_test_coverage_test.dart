@@ -221,7 +221,6 @@ const knownGaps = <String>{
   'LineChartData',
   'LineChartDataPoint',
   'LocalAuthentication',
-  'Lottie',
   'Magnetometer',
   'Map',
   'Markdown',
