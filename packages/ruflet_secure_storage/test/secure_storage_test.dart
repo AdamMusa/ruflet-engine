@@ -374,6 +374,12 @@ void main() {
     final (control, _) = storage({
       'macos_options': {
         'account_name': 'desk',
+        'group_id': 'group.desk',
+        'accessibility': 'unlocked_this_device',
+        'synchronizable': true,
+        'label': 'Desk vault',
+        'result_limit': 5,
+        'access_control_flags': ['user_presence'],
         'description': 'Login token',
         'comment': 'v1',
         'is_invisible': false,
@@ -394,6 +400,12 @@ void main() {
 
     final defaults = optionsOf(platformCalls[0]);
     expect(defaults['accountName'], 'desk');
+    expect(defaults['groupId'], 'group.desk');
+    expect(defaults['accessibility'], 'unlocked_this_device');
+    expect(defaults['synchronizable'], 'true');
+    expect(defaults['label'], 'Desk vault');
+    expect(defaults['resultLimit'], '5');
+    expect(defaults['accessControlFlags'], '[userPresence]');
     expect(defaults['description'], 'Login token');
     expect(defaults['comment'], 'v1');
     expect(defaults['isInvisible'], 'false');
@@ -406,7 +418,9 @@ void main() {
     expect(perCall['accountName'], 'other');
     expect(perCall['shouldReturnPersistentReference'], 'false');
     expect(perCall['usesDataProtectionKeychain'], 'true');
+    expect(perCall['synchronizable'], 'false');
     expect(perCall.containsKey('description'), isFalse);
+    expect(perCall.containsKey('groupId'), isFalse);
   });
 
   test('on Windows windows_options and a call\'s "windows" reach the platform',
