@@ -328,7 +328,6 @@ const knownGaps = <String>{
   'VerticalDivider',
   'Video',
   'Wakelock',
-  'WebView',
   'Window',
   'WindowDragArea',
   'qrcode_scanner',
