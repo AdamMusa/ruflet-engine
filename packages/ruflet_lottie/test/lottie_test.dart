@@ -275,12 +275,22 @@ void main() {
         reason: 'the animation was not loaded again');
     expect(tester.hasRunningAnimations, isFalse);
 
-    // A src Ruby replaces is loaded.
-    mounted.control.update({'src': base64.encode(utf8.encode(_animationJson))},
-        shouldNotify: true);
+    // Ruby re-sending the same base64 text: a patch replace op stores a new,
+    // equal String (Control.update would keep the old one).
+    final sameText = base64.encode(utf8.encode(_animationJson));
+    expect(identical(sameText, _animationBase64), isFalse);
+    mounted.control.applyPatch([
+      [0],
+      [0, 0, 'src', sameText]
+    ], mounted.backend);
     await _load(tester);
+    expect(mounted.control.get('src'), same(sameText));
+    expect(tester.widget<Lottie>(find.byType(Lottie)).composition,
+        same(loaded));
     expect(mounted.backend.eventData('load'), [null],
         reason: 'the same base64 text is the same animation');
+
+    // A src Ruby replaces is loaded.
     mounted.control.update({'src': _animationBytes}, shouldNotify: true);
     await _load(tester);
     expect(tester.widget<Lottie>(find.byType(Lottie)).composition,
