@@ -428,6 +428,10 @@ class _CupertinoDataTable2ControlState
                   : rowHeights.fold(0.0, (a, b) => a + b) +
                       control.getDouble('bottom_margin', 0)!) -
               headerHeight);
+      // As in data_table_2, a bounded table without rows gives `empty` the
+      // whole height under the heading (and no bottom margin), so an `empty`
+      // that centers itself sits in the same place on both designs.
+      final emptyFillsBody = rows.isEmpty && constraints.hasBoundedHeight;
       Widget body = SingleChildScrollView(
         controller: _horizontal,
         scrollDirection: Axis.horizontal,
@@ -437,9 +441,15 @@ class _CupertinoDataTable2ControlState
               controller: _vertical,
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 pane(fixedRows, rowHeights.length, fixedColumns, widths.length),
-                if (rows.isEmpty)
-                  control.buildWidget('empty') ?? const SizedBox(),
-                SizedBox(height: control.getDouble('bottom_margin', 0)!),
+                if (emptyFillsBody)
+                  SizedBox(
+                      height: bodyHeight,
+                      child: control.buildWidget('empty') ?? const SizedBox())
+                else ...[
+                  if (rows.isEmpty)
+                    control.buildWidget('empty') ?? const SizedBox(),
+                  SizedBox(height: control.getDouble('bottom_margin', 0)!),
+                ],
               ]),
             )),
       );

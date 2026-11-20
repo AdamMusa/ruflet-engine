@@ -356,6 +356,55 @@ void main() {
       });
 
       testWidgets(
+          'the empty control gets the whole height under the heading, as '
+          'data_table_2 gives it', (tester) async {
+        // Regression: once Cupertino rows started right under the heading,
+        // `empty` was sized to its content at the top of the body, so an
+        // `empty` that centers itself was centered on Android only.
+        for (final props in [
+          <String, dynamic>{},
+          <String, dynamic>{'bottom_margin': 20.0},
+        ]) {
+          await mount(
+              tester,
+              platform,
+              table(
+                  props: {...props, 'empty': textControl('No records')},
+                  columns: [column(10, 'Name')],
+                  rows: []));
+          expect(tester.takeException(), isNull);
+          // heading_row_height 56, table height 400.
+          final box = tester.getRect(find.text('No records'));
+          expect(box.top, closeTo(56, .5), reason: '$props');
+          expect(box.bottom, closeTo(400, .5), reason: '$props');
+          // Nothing is added under it, so the body does not scroll.
+          await tester.drag(find.text('No records'), const Offset(0, -100));
+          await tester.pumpAndSettle();
+          expect(tester.getRect(find.text('No records')).top, closeTo(56, .5),
+              reason: '$props');
+
+          await mount(
+              tester,
+              platform,
+              table(props: {
+                ...props,
+                'empty': {
+                  '_c': 'Container',
+                  '_i': 90,
+                  'alignment': {'x': 0, 'y': 0},
+                  'content': textControl('Centered'),
+                },
+              }, columns: [
+                column(10, 'Name')
+              ], rows: []));
+          expect(tester.takeException(), isNull);
+          final center = tester.getCenter(find.text('Centered'));
+          expect(center.dy, closeTo((56 + 400) / 2, .5), reason: '$props');
+          expect(center.dx, closeTo(600 / 2, .5), reason: '$props');
+        }
+      });
+
+      testWidgets(
           'the checkbox column reflects selection and sends select_all and '
           'select_change', (tester) async {
         final m = await mount(
