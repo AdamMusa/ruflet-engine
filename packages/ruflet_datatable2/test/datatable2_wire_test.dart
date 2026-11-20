@@ -361,9 +361,13 @@ void main() {
         // Regression: once Cupertino rows started right under the heading,
         // `empty` was sized to its content at the top of the body, so an
         // `empty` that centers itself was centered on Android only.
+        // With `fixed_top_rows: 0` the heading scrolls with the body, and
+        // `empty` gets only the height left under it.
         for (final props in [
           <String, dynamic>{},
           <String, dynamic>{'bottom_margin': 20.0},
+          <String, dynamic>{'fixed_top_rows': 0},
+          <String, dynamic>{'fixed_top_rows': 0, 'bottom_margin': 20.0},
         ]) {
           await mount(
               tester,
