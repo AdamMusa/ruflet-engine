@@ -296,7 +296,6 @@ const knownGaps = <String>{
   'TextSourceAttribution',
   'TileLayer',
   'TimePicker',
-  'TimerPicker',
   'TransparentPointer',
   'UserAccelerometer',
   'VerticalDivider',
