@@ -83,13 +83,17 @@ WebOptions? parseWebOptions(dynamic value, [WebOptions? defaultValue]) {
   );
 }
 
-/// A keychain item date. Ruby sends a `Time` as its string form
-/// (`2024-05-01 10:00:00 +0000`) or an ISO-8601 string, and a
-/// `Ruflet::Protocol.date_time` value arrives already decoded.
+/// A keychain item date. Ruby sends a `Time` as its `to_s`
+/// (`2024-05-01 10:00:00 -0500`, or `2024-05-01 10:00:00 UTC` for a UTC
+/// Time) or an ISO-8601 string, and a `Ruflet::Protocol.date_time` value
+/// arrives already decoded.
 DateTime? parseKeychainDate(dynamic value) {
   if (value is DateTime) return value;
-  if (value is String) return DateTime.tryParse(value);
-  return null;
+  if (value is! String) return null;
+  // DateTime.tryParse reads a "Z" or an offset, not Ruby's " UTC".
+  return DateTime.tryParse(value.endsWith(' UTC')
+      ? '${value.substring(0, value.length - 4)}Z'
+      : value);
 }
 
 KeychainAccessibility? parseKeychainAccessibility(String? value, [KeychainAccessibility? defaultValue]) {
