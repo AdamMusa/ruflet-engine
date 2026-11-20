@@ -6,17 +6,25 @@ AudioEncoder? parseAudioEncoder(String? value, [AudioEncoder? defaultValue]) {
   return parseEnum(AudioEncoder.values, value, defaultValue);
 }
 
+/// The name Ruby uses for an encoder: `aac_lc` for [AudioEncoder.aacLc].
+String rubyEncoderName(AudioEncoder encoder) => encoder.name
+    .replaceAllMapped(RegExp("[A-Z]"), (m) => "_${m[0]!.toLowerCase()}");
+
 /// The input device to record from: a map with an "id" (and optional
 /// "label"), or just the id, i.e. a key of the get_input_devices result.
+/// A value that names no device is an error, not the default input.
 InputDevice? parseInputDevice(dynamic value, [InputDevice? defaultValue]) {
-  if (value is Map) {
-    final id = value["id"];
-    if (id == null) return defaultValue;
+  if (value == null) return defaultValue;
+  if (value is Map && value["id"] != null) {
     return InputDevice(
-        id: id.toString(), label: value["label"]?.toString() ?? "");
+        id: value["id"].toString(), label: value["label"]?.toString() ?? "");
   }
-  if (value == null || value.toString().isEmpty) return defaultValue;
-  return InputDevice(id: value.toString(), label: "");
+  if ((value is String && value.isNotEmpty) || value is num) {
+    return InputDevice(id: value.toString(), label: "");
+  }
+  throw ArgumentError('AudioRecorder.start_recording: "device" must be a '
+      'device id from get_input_devices or a map with an "id", got '
+      '${value is String ? '"$value"' : value}');
 }
 
 AndroidAudioSource? parseAndroidAudioSource(String? value,

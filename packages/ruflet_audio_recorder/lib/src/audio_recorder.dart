@@ -63,11 +63,14 @@ class AudioRecorderService extends RufletService {
         await recorder!.pause();
       case "is_supported_encoder":
         const method = "AudioRecorder.is_supported_encoder";
-        final name = requireInvokeArg(args, "encoder", method).toString();
+        final name = args["encoder"]?.toString();
+        if (name == null) {
+          throw ArgumentError('$method requires an "encoder" argument');
+        }
         final encoder = parseAudioEncoder(name);
         if (encoder == null) {
           throw ArgumentError('$method: unknown encoder "$name", expected '
-              'one of ${AudioEncoder.values.map((e) => e.name).join(", ")}');
+              'one of ${AudioEncoder.values.map(rubyEncoderName).join(", ")}');
         }
         return await recorder!.isEncoderSupported(encoder);
       case "is_paused":

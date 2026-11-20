@@ -215,7 +215,7 @@ void main() {
           expect(
               await service.invokeError('is_supported_encoder', args),
               isA<ArgumentError>().having((e) => e.message, 'message',
-                  'AudioRecorder.is_supported_encoder requires a "encoder" argument'),
+                  'AudioRecorder.is_supported_encoder requires an "encoder" argument'),
               reason: '$args');
         }
         expect(
@@ -225,8 +225,8 @@ void main() {
                 (e) => e.message,
                 'message',
                 'AudioRecorder.is_supported_encoder: unknown encoder "mp3", '
-                    'expected one of aacLc, aacEld, aacHe, amrNb, amrWb, opus, '
-                    'flac, wav, pcm16bits'));
+                    'expected one of aac_lc, aac_eld, aac_he, amr_nb, amr_wb, '
+                    'opus, flac, wav, pcm16bits'));
         expect(platform.calls, isEmpty);
       });
 
@@ -343,6 +343,7 @@ void main() {
           (devices.keys.last, 'usb-1', ''),
           ({'id': 'usb-1'}, 'usb-1', ''),
           ({'id': 'builtin', 'label': 'Mic'}, 'builtin', 'Mic'),
+          (7, '7', ''),
         ]) {
           expect(
               await service.invoke('start_recording', {
@@ -355,14 +356,29 @@ void main() {
           expect(platform.startConfig!.device!.label, label, reason: '$device');
         }
 
-        // Without an id the platform's default input records.
-        for (final device in [<String, dynamic>{}, '']) {
-          await service.invoke('start_recording', {
-            'output_path': '/data/memo.wav',
-            'configuration': {'device': device},
-          });
-          expect(platform.startConfig!.device, isNull, reason: '$device');
+        // A device that names no id fails the invoke, as it did before ids
+        // were accepted, instead of recording from the default input.
+        platform.calls.clear();
+        for (final (device, shown) in [
+          (<String, dynamic>{}, '{}'),
+          ({'label': 'Mic'}, '{label: Mic}'),
+          ('', '""'),
+          (['usb-1'], '[usb-1]'),
+        ]) {
+          expect(
+              await service.invokeError('start_recording', {
+                'output_path': '/data/memo.wav',
+                'configuration': {'device': device},
+              }),
+              isA<ArgumentError>().having(
+                  (e) => e.message,
+                  'message',
+                  'AudioRecorder.start_recording: "device" must be a device '
+                      'id from get_input_devices or a map with an "id", got '
+                      '$shown'),
+              reason: '$device');
         }
+        expect(platform.calls, isNot(contains('start')));
       });
 
       test('start_recording without permission or a path does not start',
