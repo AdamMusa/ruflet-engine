@@ -192,12 +192,16 @@ void main() {
         'get',
         {
           'key': 'k',
-          'android': {'shared_preferences_name': 'other'},
+          'android': {
+            'shared_preferences_name': 'other',
+            'migrate_on_algorithm_change': false,
+          },
         },
         _timeout);
 
     final defaults = optionsOf(platformCalls[0]);
     expect(defaults['resetOnError'], 'false');
+    expect(defaults['migrateOnAlgorithmChange'], 'true');
     expect(defaults['enforceBiometrics'], 'true');
     expect(defaults['keyCipherAlgorithm'], 'RSA_ECB_PKCS1Padding');
     expect(defaults['storageCipherAlgorithm'], 'AES_CBC_PKCS7Padding');
@@ -208,6 +212,7 @@ void main() {
 
     final perCall = optionsOf(platformCalls[1]);
     expect(perCall['sharedPreferencesName'], 'other');
+    expect(perCall['migrateOnAlgorithmChange'], 'false');
     expect(perCall['resetOnError'], 'true');
     expect(perCall['enforceBiometrics'], 'false');
   });
@@ -222,7 +227,12 @@ void main() {
         'accessibility': 'first_unlock_this_device',
         'synchronizable': true,
         'label': 'Vault',
+        'description': 'Login token',
+        'comment': 'v1',
+        'is_invisible': true,
+        'is_negative': false,
         'result_limit': 3,
+        'auth_ui_behavior': 'kSecUseAuthenticationUIFail',
         'access_control_flags': ['biometry_any', 'device_passcode'],
       },
       // Not the running platform, so never used.
@@ -245,7 +255,13 @@ void main() {
     expect(defaults['accessibility'], 'first_unlock_this_device');
     expect(defaults['synchronizable'], 'true');
     expect(defaults['label'], 'Vault');
+    expect(defaults['description'], 'Login token');
+    expect(defaults['comment'], 'v1');
+    expect(defaults['isInvisible'], 'true');
+    expect(defaults['isNegative'], 'false');
     expect(defaults['resultLimit'], '3');
+    expect(defaults['shouldReturnPersistentReference'], 'false');
+    expect(defaults['authenticationUIBehavior'], 'kSecUseAuthenticationUIFail');
     expect(defaults['accessControlFlags'], '[biometryAny, devicePasscode]');
     expect(defaults.containsKey('sharedPreferencesName'), isFalse);
 
@@ -264,35 +280,45 @@ void main() {
   ];
 
   test('keychain dates Ruby sends as strings reach the platform', () async {
+    // A Ruby Time on the wire is its to_s: "UTC" for a UTC Time, else
+    // its offset. Time#iso8601 strings work too.
+    const dates = {
+      '2024-05-01 10:00:00 UTC': '2024-05-01T10:00:00.000Z',
+      '2024-05-01 10:00:00 +0000': '2024-05-01T10:00:00.000Z',
+      '2024-05-01 10:00:00 -0500': '2024-05-01T15:00:00.000Z',
+      '2024-05-01 10:00:00 +0530': '2024-05-01T04:30:00.000Z',
+      '2024-06-01T08:30:00Z': '2024-06-01T08:30:00.000Z',
+      '2024-06-01T08:30:00+02:00': '2024-06-01T06:30:00.000Z',
+    };
     for (final (target, options, perCall) in apple) {
       debugDefaultTargetPlatformOverride = target;
-      platformCalls.clear();
-      final (control, _) = storage({
-        // A Ruby Time on the wire is its to_s.
-        options: {'creation_date': '2024-05-01 10:00:00 +0000'},
-      });
+      for (final MapEntry(key: ruby, value: sent) in dates.entries) {
+        platformCalls.clear();
+        final (control, _) = storage({
+          options: {'creation_date': ruby},
+        });
 
-      await control.invokeMethod('get_all', null, _timeout);
-      await control.invokeMethod(
-          'get_all',
-          {
-            perCall: {
-              'creation_date': DateTime.utc(2024, 1, 2),
-              'last_modified_date': '2024-06-01T08:30:00Z',
+        await control.invokeMethod('get_all', null, _timeout);
+        await control.invokeMethod(
+            'get_all',
+            {
+              perCall: {
+                'creation_date': DateTime.utc(2024, 1, 2),
+                'last_modified_date': ruby,
+              },
             },
-          },
-          _timeout);
+            _timeout);
 
-      expect(platformCalls, hasLength(2), reason: target.name);
-      expect(optionsOf(platformCalls[0])['creationDate'],
-          '2024-05-01T10:00:00.000Z',
-          reason: target.name);
-      expect(optionsOf(platformCalls[1])['creationDate'],
-          '2024-01-02T00:00:00.000Z',
-          reason: target.name);
-      expect(optionsOf(platformCalls[1])['lastModifiedDate'],
-          '2024-06-01T08:30:00.000Z',
-          reason: target.name);
+        final reason = '${target.name} $ruby';
+        expect(platformCalls, hasLength(2), reason: reason);
+        expect(optionsOf(platformCalls[0])['creationDate'], sent,
+            reason: reason);
+        expect(optionsOf(platformCalls[1])['creationDate'],
+            '2024-01-02T00:00:00.000Z',
+            reason: reason);
+        expect(optionsOf(platformCalls[1])['lastModifiedDate'], sent,
+            reason: reason);
+      }
     }
   });
 
@@ -348,6 +374,12 @@ void main() {
     final (control, _) = storage({
       'macos_options': {
         'account_name': 'desk',
+        'description': 'Login token',
+        'comment': 'v1',
+        'is_invisible': false,
+        'is_negative': true,
+        'is_persistent': true,
+        'auth_ui_behavior': 'kSecUseAuthenticationUISkip',
         'uses_data_protection_keychain': false,
       },
     });
@@ -356,14 +388,25 @@ void main() {
     await control.invokeMethod(
         'clear',
         {
-          'macos': {'account_name': 'other'},
+          'macos': {'account_name': 'other', 'is_persistent': false},
         },
         _timeout);
 
-    expect(optionsOf(platformCalls[0])['accountName'], 'desk');
-    expect(optionsOf(platformCalls[0])['usesDataProtectionKeychain'], 'false');
-    expect(optionsOf(platformCalls[1])['accountName'], 'other');
-    expect(optionsOf(platformCalls[1])['usesDataProtectionKeychain'], 'true');
+    final defaults = optionsOf(platformCalls[0]);
+    expect(defaults['accountName'], 'desk');
+    expect(defaults['description'], 'Login token');
+    expect(defaults['comment'], 'v1');
+    expect(defaults['isInvisible'], 'false');
+    expect(defaults['isNegative'], 'true');
+    expect(defaults['shouldReturnPersistentReference'], 'true');
+    expect(defaults['authenticationUIBehavior'], 'kSecUseAuthenticationUISkip');
+    expect(defaults['usesDataProtectionKeychain'], 'false');
+
+    final perCall = optionsOf(platformCalls[1]);
+    expect(perCall['accountName'], 'other');
+    expect(perCall['shouldReturnPersistentReference'], 'false');
+    expect(perCall['usesDataProtectionKeychain'], 'true');
+    expect(perCall.containsKey('description'), isFalse);
   });
 
   test('on Windows windows_options and a call\'s "windows" reach the platform',
@@ -560,6 +603,27 @@ void main() {
       control.update({'data': 'unrelated'}, shouldNotify: true);
       await pumpEventQueue();
       expect(listens, hasLength(2));
+    });
+
+    test('options Ruby changes apply while Ruby listens to on_change',
+        () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      final (control, _) = storage({
+        'on_change': true,
+        'ios_options': {'account_name': 'first'},
+      });
+      await control.invokeMethod('get_all', null, _timeout);
+      control.update({
+        'ios_options': {'account_name': 'second'},
+      }, shouldNotify: true);
+      await control.invokeMethod('get_all', null, _timeout);
+      await pumpEventQueue();
+
+      expect([for (final c in platformCalls) optionsOf(c)['accountName']],
+          ['first', 'second']);
+      // The availability stream is not restarted.
+      expect(listens, hasLength(1));
+      expect(cancels, 0);
     });
 
     test('disposing the service stops listening', () async {
