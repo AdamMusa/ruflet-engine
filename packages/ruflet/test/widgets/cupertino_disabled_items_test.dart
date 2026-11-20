@@ -204,7 +204,28 @@ void main() {
       expect(_rowOpacity(tester, 'Cherry'), 1.0);
     });
 
-    testWidgets('an option Ruby disables while the sheet is open is not chosen',
+    testWidgets('a value on a disabled option opens on the first enabled one',
+        (tester) async {
+      final m = await mountWire(
+          tester, HarnessDesign.ios, _dropdown(value: 'banana'));
+      await _openSheet(tester);
+
+      expect(_picker(tester).scrollController!.initialItem, 1);
+      expect(_doneButton(tester).onPressed, isNotNull);
+
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+      expect(_sent(m), [
+        {
+          'id': 10,
+          'update': {'value': 'apple', 'text': 'Apple'}
+        },
+        {'id': 10, 'event': 'select', 'data': 'apple'},
+        {'id': 12, 'event': 'click', 'data': null},
+      ]);
+    });
+
+    testWidgets('Done turns off when Ruby disables the centred option',
         (tester) async {
       final m =
           await mountWire(tester, HarnessDesign.ios, _dropdown(value: 'apple'));
@@ -213,12 +234,78 @@ void main() {
 
       m.control(12).update({'disabled': true}, shouldNotify: true);
       await tester.pump();
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
+      expect(_doneButton(tester).onPressed, isNull);
+      expect(_rowOpacity(tester, 'Apple'), lessThan(1.0));
 
+      await tester.tap(find.text('Done'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoPicker), findsOneWidget);
       expect(_sent(m), isEmpty);
       expect(m.control(10).get('value'), 'apple');
     });
+
+    testWidgets(
+        'an option Ruby disables in the same frame as Done is not chosen',
+        (tester) async {
+      final m =
+          await mountWire(tester, HarnessDesign.ios, _dropdown(value: 'apple'));
+      await _openSheet(tester);
+
+      // No frame runs between Ruby's change and the tap, so Done is still on.
+      m.control(12).update({'disabled': true}, shouldNotify: true);
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CupertinoPicker), findsNothing);
+      expect(_sent(m), isEmpty);
+      expect(m.control(10).get('value'), 'apple');
+    });
+
+    testWidgets('Done turns back on when Ruby enables the centred option',
+        (tester) async {
+      final m =
+          await mountWire(tester, HarnessDesign.ios, _dropdown(value: 'apple'));
+      await _openSheet(tester);
+      await tester.drag(find.byType(CupertinoPicker), const Offset(0, -42));
+      await tester.pumpAndSettle();
+      expect(_doneButton(tester).onPressed, isNull);
+
+      m.control(13).update({'disabled': false}, shouldNotify: true);
+      await tester.pump();
+      expect(_doneButton(tester).onPressed, isNotNull);
+      expect(_rowOpacity(tester, 'Banana'), 1.0);
+
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+      expect(_sent(m), [
+        {
+          'id': 10,
+          'update': {'value': 'banana', 'text': 'Banana'}
+        },
+        {'id': 10, 'event': 'select', 'data': 'banana'},
+        {'id': 13, 'event': 'click', 'data': null},
+      ]);
+    });
+
+    for (final (id, name) in [(10, 'the Dropdown'), (1, 'its Column')]) {
+      testWidgets('Done turns off when Ruby disables $name while it is open',
+          (tester) async {
+        final m = await mountWire(
+            tester, HarnessDesign.ios, _dropdown(value: 'apple'));
+        await _openSheet(tester);
+        expect(_doneButton(tester).onPressed, isNotNull);
+
+        m.control(id).update({'disabled': true}, shouldNotify: true);
+        await tester.pump();
+        expect(_doneButton(tester).onPressed, isNull);
+        expect(_rowOpacity(tester, 'Apple'), lessThan(1.0));
+
+        await tester.tap(find.text('Done'), warnIfMissed: false);
+        await tester.pumpAndSettle();
+        expect(_sent(m), isEmpty);
+        expect(m.control(10).get('value'), 'apple');
+      });
+    }
 
     testWidgets('with every option disabled Done does nothing', (tester) async {
       final m = await mountWire(
@@ -226,6 +313,19 @@ void main() {
       await _openSheet(tester);
 
       expect(_picker(tester).scrollController!.initialItem, 0);
+      expect(_doneButton(tester).onPressed, isNull);
+      await tester.tap(find.text('Done'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(_sent(m), isEmpty);
+    });
+
+    testWidgets('with every option disabled it opens on the value\'s row',
+        (tester) async {
+      final m = await mountWire(tester, HarnessDesign.ios,
+          _dropdown(value: 'banana', allDisabled: true));
+      await _openSheet(tester);
+
+      expect(_picker(tester).scrollController!.initialItem, 2);
       expect(_doneButton(tester).onPressed, isNull);
       await tester.tap(find.text('Done'), warnIfMissed: false);
       await tester.pumpAndSettle();

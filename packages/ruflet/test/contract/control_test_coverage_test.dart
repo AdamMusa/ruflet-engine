@@ -230,8 +230,6 @@ const knownGaps = <String>{
   'MenuBar',
   'MergeSemantics',
   'NativeAd',
-  'NavigationBar',
-  'NavigationBarDestination',
   'NavigationDrawer',
   'NavigationDrawerDestination',
   'NavigationRail',
