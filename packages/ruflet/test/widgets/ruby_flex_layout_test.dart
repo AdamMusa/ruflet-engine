@@ -381,18 +381,22 @@ void main() {
         expect(_rect(tester, 'quarter'), const Rect.fromLTWH(200, 0, 100, 20));
         expect(_rect(tester, 'rest'), const Rect.fromLTWH(300, 0, 100, 20));
 
-        // Wrapped runs too.
+        // Wrapped runs too: two halves share the first run edge to edge (a
+        // -0.1 Wrap spacing slid the second one 0.1 over the first) and the
+        // third starts the next run.
         await mountWire(
             tester,
             design,
             row({
               'spacing': 0,
               'run_spacing': 0,
-              'controls': [cell('a', 8), cell('b', 8)],
+              'controls': [cell('a', 6), cell('b', 6), cell('c', 6)],
             }));
         expect(tester.takeException(), isNull);
-        expect(
-            _rect(tester, 'b'), const Rect.fromLTWH(0, 20, 400 * 8 / 12, 20));
+        expect(find.byType(Wrap), findsOneWidget);
+        expect(_rect(tester, 'a'), const Rect.fromLTWH(0, 0, 200, 20));
+        expect(_rect(tester, 'b'), const Rect.fromLTWH(200, 0, 200, 20));
+        expect(_rect(tester, 'c'), const Rect.fromLTWH(0, 20, 200, 20));
       });
 
       testWidgets('columns and per-breakpoint col follow the page width',
