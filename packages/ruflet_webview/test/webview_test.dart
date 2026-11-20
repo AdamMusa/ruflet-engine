@@ -155,6 +155,9 @@ void main() {
     expect(decision('https://blocked.test/page'), NavigationDecision.prevent);
     expect(decision('mailto:someone@ruflet.test'), NavigationDecision.prevent);
     expect(decision('https://ruflet.test/page'), NavigationDecision.navigate);
+    // A prefix, not a substring: a link that only mentions a blocked url.
+    expect(decision('https://ruflet.test/?next=https://blocked.test/'),
+        NavigationDecision.navigate);
     await unmount(tester);
 
     await mountWire(tester, _wire(), Extension());
