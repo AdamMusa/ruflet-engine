@@ -10,8 +10,9 @@ const _events =
     EventChannel('plugins.it_nomads.com/flutter_secure_storage/events');
 const _timeout = Duration(seconds: 2);
 
-/// Records the events the service sends, exactly as the real backend does:
-/// only when Ruby subscribed with `on_<name>: true`.
+/// Records the events sent to Ruby. Services fire events through the real
+/// [RufletBackend.triggerControlEvent], which sends only those Ruby
+/// subscribed to with `on_<name>: true`; this records what it sends.
 class _Backend extends RufletBackend {
   _Backend()
       : super(
@@ -23,11 +24,9 @@ class _Backend extends RufletBackend {
   final events = <List<Object?>>[];
 
   @override
-  void triggerControlEvent(Control control, String eventName,
+  void triggerControlEventById(int controlId, String eventName,
       [dynamic eventData]) {
-    if (control.get("on_$eventName") == true) {
-      events.add([eventName, eventData]);
-    }
+    events.add([eventName, eventData]);
   }
 }
 
