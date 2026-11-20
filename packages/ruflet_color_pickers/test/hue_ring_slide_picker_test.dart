@@ -198,6 +198,36 @@ void main() {
         expect(texts(tester, byTypeName('SlidePicker')), contains('128'));
       });
 
+      testWidgets('SlidePicker writes a pick back and keeps it on updates',
+          (tester) async {
+        final m = await mountWire(tester, platform, {
+          '_c': 'SlidePicker',
+          '_i': 1,
+          'color': '#123456',
+          'enable_alpha': false,
+          'on_color_change': true,
+        });
+        await tester
+            .tapAt(tester.getCenter(byTypeName('ColorPickerSlider').first));
+        await tester.pumpAndSettle();
+        expect(m.backend.eventData('color_change'), ['#ff803456']);
+        expect(m.backend.lastWriteBack('color'), '#ff803456');
+        expect(m.root.get('color'), '#ff803456');
+
+        // Unrelated Ruby updates (the first one also remounts the sliders)
+        // used to show Ruby's red 18 again.
+        for (final width in [300, 320]) {
+          await rubyPatch(tester, m.root, {'width': width});
+          expect(texts(tester, byTypeName('SlidePicker')),
+              containsAllInOrder(['R', '128', 'G', '52', 'B', '86']));
+        }
+
+        // Ruby setting its first color again now reaches the sliders.
+        await rubyPatch(tester, m.root, {'color': '#123456'});
+        expect(texts(tester, byTypeName('SlidePicker')),
+            containsAllInOrder(['R', '18', 'G', '52', 'B', '86']));
+      });
+
       testWidgets('SlidePicker sends no event unless Ruby subscribed',
           (tester) async {
         final m = await mountWire(tester, platform,
