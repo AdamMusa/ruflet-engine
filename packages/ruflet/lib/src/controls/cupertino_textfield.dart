@@ -23,6 +23,7 @@ import '../utils/pasted_file.dart';
 import '../utils/textfield.dart';
 import '../utils/platform_theme.dart';
 import '../widgets/paste_files_scope.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 class CupertinoTextFieldControl extends StatefulWidget {
@@ -36,7 +37,11 @@ class CupertinoTextFieldControl extends StatefulWidget {
       _CupertinoTextFieldControlState();
 }
 
-class _CupertinoTextFieldControlState extends State<CupertinoTextFieldControl> {
+class _CupertinoTextFieldControlState extends State<CupertinoTextFieldControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   Widget? _inputAffix(String side) {
     final icon = widget.control.buildIconOrWidget('${side}_icon');
     final text = widget.control.buildTextOrWidget(side,
@@ -101,7 +106,6 @@ class _CupertinoTextFieldControlState extends State<CupertinoTextFieldControl> {
           _handleTextFieldKeyEvent(event, submitOnEnter: false),
     );
     _focusNode.addListener(_onFocusChange);
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   @override
@@ -111,12 +115,12 @@ class _CupertinoTextFieldControlState extends State<CupertinoTextFieldControl> {
     _shiftEnterfocusNode.removeListener(_onShiftEnterFocusChange);
     _shiftEnterfocusNode.dispose();
     _focusNode.removeListener(_onFocusChange);
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     _focusNode.dispose();
     super.dispose();
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("CupertinoTextField.$name($args)");
     switch (name) {
       case "focus":

@@ -6,6 +6,7 @@ import '../models/control.dart';
 import '../utils/numbers.dart';
 import '../utils/time.dart';
 import '../widgets/platform_badge.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 class ScreenshotControl extends StatefulWidget {
@@ -18,16 +19,15 @@ class ScreenshotControl extends StatefulWidget {
   State<ScreenshotControl> createState() => _InteractiveViewerControlState();
 }
 
-class _InteractiveViewerControlState extends State<ScreenshotControl> {
+class _InteractiveViewerControlState extends State<ScreenshotControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   final ScreenshotController _screenshotController = ScreenshotController();
 
   @override
-  void initState() {
-    super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
-
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("Screenshot.$name($args)");
     switch (name) {
       case "capture":
@@ -38,12 +38,6 @@ class _InteractiveViewerControlState extends State<ScreenshotControl> {
       default:
         throw Exception("Unknown Screenshot method: $name");
     }
-  }
-
-  @override
-  void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
-    super.dispose();
   }
 
   @override

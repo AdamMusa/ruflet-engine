@@ -4,6 +4,7 @@ import '../models/control.dart';
 import '../utils/borders.dart';
 import '../utils/colors.dart';
 import '../utils/style_theme.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'carousel_view_model.dart';
 
 /// Material renderer for Ruby `carousel_view`: Flutter's M3 [CarouselView]
@@ -21,24 +22,27 @@ class MaterialCarouselViewControl extends StatefulWidget {
 }
 
 class _MaterialCarouselViewControlState
-    extends State<MaterialCarouselViewControl> {
+    extends State<MaterialCarouselViewControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late final CarouselController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = CarouselController(initialItem: widget.model.initialItem);
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   @override
   void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     _controller.dispose();
     super.dispose();
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     if (name != "animate_to_item") return null;
     final request = CarouselAnimateToItem.parse(args);
     if (request != null) {

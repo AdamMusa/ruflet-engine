@@ -6,6 +6,7 @@ import '../models/control.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
 import '../widgets/platform_badge.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 
 class KeyboardListenerControl extends StatefulWidget {
   final Control control;
@@ -18,23 +19,21 @@ class KeyboardListenerControl extends StatefulWidget {
       _KeyboardListenerControlState();
 }
 
-class _KeyboardListenerControlState extends State<KeyboardListenerControl> {
-  final FocusNode _focusNode = FocusNode();
-
+class _KeyboardListenerControlState extends State<KeyboardListenerControl>
+    with InvokeMethodListenerMixin {
   @override
-  void initState() {
-    super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
+  Control get invokeMethodControl => widget.control;
+
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void dispose() {
     _focusNode.dispose();
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     super.dispose();
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("KeyboardListener.$name($args)");
     switch (name) {
       case "focus":

@@ -10,6 +10,7 @@ import '../utils/edge_insets.dart';
 import '../utils/numbers.dart';
 import '../utils/time.dart';
 import '../widgets/error.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import '../widgets/platform_control_renderer.dart';
 import 'base_controls.dart';
 import 'cupertino_draggable_scrollable_sheet.dart';
@@ -30,7 +31,8 @@ class DraggableScrollableSheetControl extends StatefulWidget {
 }
 
 class _DraggableScrollableSheetControlState
-    extends State<DraggableScrollableSheetControl> {
+    extends State<DraggableScrollableSheetControl>
+    with InvokeMethodListenerMixin {
   final _controller = DraggableScrollableController();
   List<double>? _snapSizes;
   Timer? _throttle;
@@ -40,29 +42,17 @@ class _DraggableScrollableSheetControlState
   Control get control => widget.control;
 
   @override
-  void initState() {
-    super.initState();
-    control.addInvokeMethodListener(_invokeMethod);
-  }
-
-  @override
-  void didUpdateWidget(covariant DraggableScrollableSheetControl oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.control != control) {
-      oldWidget.control.removeInvokeMethodListener(_invokeMethod);
-      control.addInvokeMethodListener(_invokeMethod);
-    }
-  }
+  Control get invokeMethodControl => widget.control;
 
   @override
   void dispose() {
-    control.removeInvokeMethodListener(_invokeMethod);
     _throttle?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     if (name != "animate_to" && name != "jump_to") return null;
     final params = args is Map ? args : const {};
     final size = parseDouble(params["size"]);

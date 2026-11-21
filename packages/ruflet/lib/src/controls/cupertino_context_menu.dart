@@ -5,6 +5,7 @@ import '../models/control.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
 import '../widgets/ruflet_store_mixin.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'control_widget.dart';
 
 class CupertinoContextMenuControl extends StatefulWidget {
@@ -19,20 +20,13 @@ class CupertinoContextMenuControl extends StatefulWidget {
 }
 
 class _CupertinoContextMenuControlState
-    extends State<CupertinoContextMenuControl> with RufletStoreMixin {
+    extends State<CupertinoContextMenuControl>
+    with RufletStoreMixin, InvokeMethodListenerMixin {
   @override
-  void initState() {
-    super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
+  Control get invokeMethodControl => widget.control;
 
   @override
-  void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
-    super.dispose();
-  }
-
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     switch (name) {
       case "open":
         // CupertinoContextMenu opens only from its own long-press gesture:

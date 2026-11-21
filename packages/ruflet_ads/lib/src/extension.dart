@@ -27,10 +27,10 @@ class Extension extends RufletExtension {
   Widget? createWidget(Key? key, Control control) {
     switch (control.type) {
       case "BannerAd":
-        return BannerAdControl(control: control);
+        return BannerAdControl(key: key, control: control);
       /* TODO: Finalize NativeAdControl -> https://developers.google.com/admob/flutter/native/platforms
       case "NativeAd":
-        return NativeAdControl(control: control);
+        return NativeAdControl(key: key, control: control);
       */
       default:
         return null;

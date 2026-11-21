@@ -22,6 +22,7 @@ import '../widgets/loading_page.dart';
 import '../widgets/page_context.dart';
 import '../widgets/page_media.dart';
 import '../widgets/platform_page_scaffold.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'adaptive_app_bar.dart';
 import 'adaptive_refresh_scroll_view.dart';
 import 'box_sliver.dart';
@@ -39,7 +40,11 @@ class ViewControl extends StatefulWidget {
   State<ViewControl> createState() => _ViewControlState();
 }
 
-class _ViewControlState extends State<ViewControl> {
+class _ViewControlState extends State<ViewControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   final _scaffoldController = PlatformPageScaffoldController();
   Control? _overlay;
   Control? _dialogs;
@@ -57,7 +62,6 @@ class _ViewControlState extends State<ViewControl> {
     _overlay?.addListener(_overlayOrDialogsChanged);
     _dialogs = widget.control.parent?.child("_dialogs");
     _dialogs?.addListener(_overlayOrDialogsChanged);
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   @override
@@ -71,12 +75,12 @@ class _ViewControlState extends State<ViewControl> {
     debugPrint("View.dispose: ${widget.control.id}");
     _overlay?.removeListener(_overlayOrDialogsChanged);
     _dialogs?.removeListener(_overlayOrDialogsChanged);
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     _refreshController?.dispose();
     super.dispose();
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("View.$name($args)");
     switch (name) {
       case "show_drawer":

@@ -9,7 +9,7 @@ class Extension extends RufletExtension {
   Widget? createWidget(Key? key, Control control) {
     switch (control.type) {
       case "Rive":
-        return RiveControl(control: control);
+        return RiveControl(key: key, control: control);
       default:
         return null;
     }

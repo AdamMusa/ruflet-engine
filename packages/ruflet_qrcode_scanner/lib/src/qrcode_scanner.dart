@@ -45,7 +45,9 @@ class _QrCodeScannerControlState extends State<QrCodeScannerControl>
   @override
   void didUpdateWidget(covariant QrCodeScannerControl oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.control != widget.control) {
+    // Not `!=`: Control equality compares properties, and a parent that
+    // re-sends its children hands this state an equal but new object.
+    if (!identical(oldWidget.control, widget.control)) {
       oldWidget.control.removeInvokeMethodListener(_invokeMethod);
       widget.control.addInvokeMethodListener(_invokeMethod);
     }

@@ -9,6 +9,7 @@ import '../utils/edge_insets.dart';
 import '../utils/invoke.dart';
 import '../utils/numbers.dart';
 import '../widgets/error.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
 import 'nested_scroll_body.dart';
@@ -366,17 +367,21 @@ class CupertinoTabsControl extends StatefulWidget {
   State<CupertinoTabsControl> createState() => _CupertinoTabsControlState();
 }
 
-class _CupertinoTabsControlState extends State<CupertinoTabsControl> {
+class _CupertinoTabsControlState extends State<CupertinoTabsControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late int selectedIndex;
 
   @override
   void initState() {
     super.initState();
     selectedIndex = widget.control.getInt("selected_index", 0)!;
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     if (name != "move_to") throw Exception("Unknown Tabs method: $name");
     final index = parseInt(args["index"]);
     if (index == null) return skipInvoke("Tabs.move_to", "index");
@@ -392,12 +397,6 @@ class _CupertinoTabsControlState extends State<CupertinoTabsControl> {
     setState(() => selectedIndex = next);
     widget.control.updateProperties({"selected_index": next});
     widget.control.triggerEvent("change", next);
-  }
-
-  @override
-  void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
-    super.dispose();
   }
 
   @override

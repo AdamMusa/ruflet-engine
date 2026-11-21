@@ -9,6 +9,7 @@ import '../utils/colors.dart';
 import '../utils/edge_insets.dart';
 import '../utils/numbers.dart';
 import '../utils/time.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
 
@@ -22,7 +23,11 @@ class CupertinoDropdownControl extends StatefulWidget {
       _CupertinoDropdownControlState();
 }
 
-class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
+class _CupertinoDropdownControlState extends State<CupertinoDropdownControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late final FocusNode _focusNode;
   late final TextEditingController _textController;
 
@@ -36,10 +41,10 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
           () => control.triggerEvent(_focusNode.hasFocus ? "focus" : "blur"));
     _textController = TextEditingController(
         text: control.getString("text") ?? control.getString("value") ?? "");
-    control.addInvokeMethodListener(_invokeMethod);
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     if (name == "focus") {
       _focusNode.requestFocus();
       return null;
@@ -49,7 +54,6 @@ class _CupertinoDropdownControlState extends State<CupertinoDropdownControl> {
 
   @override
   void dispose() {
-    control.removeInvokeMethodListener(_invokeMethod);
     _focusNode.dispose();
     _textController.dispose();
     super.dispose();
@@ -290,7 +294,11 @@ class CupertinoSearchBarControl extends StatefulWidget {
       _CupertinoSearchBarControlState();
 }
 
-class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
+class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
 
@@ -312,10 +320,10 @@ class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
         });
         control.triggerEvent(_focusNode.hasFocus ? "focus" : "blur");
       });
-    control.addInvokeMethodListener(_invokeMethod);
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     switch (name) {
       case "focus":
         _focusNode.requestFocus();
@@ -358,7 +366,6 @@ class _CupertinoSearchBarControlState extends State<CupertinoSearchBarControl> {
 
   @override
   void dispose() {
-    control.removeInvokeMethodListener(_invokeMethod);
     _focusNode.dispose();
     _controller.dispose();
     super.dispose();

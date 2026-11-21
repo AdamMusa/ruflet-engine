@@ -23,9 +23,13 @@ class ServiceRegistry {
     var serviceControls = control.children(propertyName);
     debugPrint("_onServicesUpdated(${serviceControls.length})");
 
-    // newly added services
+    // newly added services, and services Ruby re-sent as new objects
     for (var serviceControl in serviceControls) {
-      if (!_services.containsKey(serviceControl.id)) {
+      final binding = _services[serviceControl.id];
+      if (binding != null && binding.control.type == serviceControl.type) {
+        binding.rebind(serviceControl);
+      } else {
+        binding?.dispose();
         _services[serviceControl.id] =
             ServiceBinding(control: serviceControl, backend: backend);
       }

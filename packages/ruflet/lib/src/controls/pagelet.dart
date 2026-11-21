@@ -10,6 +10,7 @@ import '../widgets/error.dart';
 import '../widgets/ruflet_store_mixin.dart';
 import '../widgets/platform_page_scaffold.dart';
 import '../widgets/platform_control_renderer.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'adaptive_app_bar.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
@@ -24,22 +25,15 @@ class PageletControl extends StatefulWidget {
   State<PageletControl> createState() => _PageletControlState();
 }
 
-class _PageletControlState extends State<PageletControl> with RufletStoreMixin {
+class _PageletControlState extends State<PageletControl>
+    with RufletStoreMixin, InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   final _scaffoldController = PlatformPageScaffoldController();
 
   @override
-  void initState() {
-    super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
-
-  @override
-  void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
-    super.dispose();
-  }
-
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("Pagelet.$name($args)");
     switch (name) {
       case "show_drawer":

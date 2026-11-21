@@ -8,7 +8,7 @@ class Extension extends RufletExtension {
   Widget? createWidget(Key? key, Control control) {
     switch (control.type) {
       case "CodeEditor":
-        return CodeEditorControl(control: control);
+        return CodeEditorControl(key: key, control: control);
       default:
         return null;
     }

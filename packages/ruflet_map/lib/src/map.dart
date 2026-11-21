@@ -15,16 +15,17 @@ class MapControl extends StatefulWidget {
 }
 
 class _MapControlState extends State<MapControl>
-    with RufletStoreMixin, TickerProviderStateMixin {
+    with
+        RufletStoreMixin,
+        TickerProviderStateMixin,
+        InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late final _animatedMapController = AnimatedMapController(vsync: this);
 
   @override
-  void initState() {
-    super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
-
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("Map.$name($args)");
     var defaultAnimationCurve =
         widget.control.getCurve("animation_curve", Curves.fastOutSlowIn);
@@ -109,7 +110,6 @@ class _MapControlState extends State<MapControl>
   @override
   void dispose() {
     _animatedMapController.dispose();
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     super.dispose();
   }
 

@@ -17,7 +17,11 @@ class CameraControl extends StatefulWidget {
   State<CameraControl> createState() => _CameraControlState();
 }
 
-class _CameraControlState extends State<CameraControl> {
+class _CameraControlState extends State<CameraControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   CameraController? _controller;
   bool _previewEnabled = true;
   bool _processingImage = false;
@@ -26,7 +30,6 @@ class _CameraControlState extends State<CameraControl> {
   void initState() {
     super.initState();
     _previewEnabled = widget.control.getBool("preview_enabled", true)!;
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   @override
@@ -40,7 +43,6 @@ class _CameraControlState extends State<CameraControl> {
 
   @override
   void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     _processingImage = false;
     _detachController();
     super.dispose();
@@ -151,7 +153,8 @@ class _CameraControlState extends State<CameraControl> {
     }
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("Camera.$name($args)");
     switch (name) {
       case "get_available_cameras":

@@ -8,6 +8,7 @@ import '../utils/dismissible.dart';
 import '../utils/numbers.dart';
 import '../utils/time.dart';
 import '../widgets/error.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 class DismissibleControl extends StatefulWidget {
@@ -20,20 +21,13 @@ class DismissibleControl extends StatefulWidget {
   State<DismissibleControl> createState() => _DismissibleControlState();
 }
 
-class _DismissibleControlState extends State<DismissibleControl> {
+class _DismissibleControlState extends State<DismissibleControl>
+    with InvokeMethodListenerMixin {
   @override
-  void initState() {
-    super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
+  Control get invokeMethodControl => widget.control;
 
   @override
-  void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
-    super.dispose();
-  }
-
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("Dismissible.$name($args)");
     switch (name) {
       case "confirm_dismiss":

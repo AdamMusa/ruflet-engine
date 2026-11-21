@@ -8,6 +8,7 @@ import '../utils/misc.dart';
 import '../utils/numbers.dart';
 import '../utils/time.dart';
 import '../widgets/error.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 class PageViewControl extends StatefulWidget {
@@ -20,7 +21,11 @@ class PageViewControl extends StatefulWidget {
   State<PageViewControl> createState() => _PageViewControlState();
 }
 
-class _PageViewControlState extends State<PageViewControl> {
+class _PageViewControlState extends State<PageViewControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late PageController _pageController;
   late bool _keepPage;
   late double _viewportFraction;
@@ -29,7 +34,6 @@ class _PageViewControlState extends State<PageViewControl> {
   @override
   void initState() {
     super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
     _readControllerConfig();
     _pageController = _createController(initialPage: _selectedIndex);
   }
@@ -75,7 +79,8 @@ class _PageViewControlState extends State<PageViewControl> {
     );
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     final defaultAnimationDuration = widget.control
         .getDuration("animation_duration", const Duration(seconds: 1))!;
     final defaultAnimationCurve =
@@ -126,7 +131,6 @@ class _PageViewControlState extends State<PageViewControl> {
 
   @override
   void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     _pageController.dispose();
     super.dispose();
   }
