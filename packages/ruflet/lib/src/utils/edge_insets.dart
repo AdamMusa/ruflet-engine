@@ -9,12 +9,27 @@ import 'widget_state.dart';
 double _unnamedSide(dynamic value) =>
     value is Map ? parseDouble(value['all'], 0)! : 0;
 
+/// The width every side gets when [value] is not a map: a number, or a
+/// finite numeric string such as `"10"` (an HTML attribute). Null when
+/// [value] has no such reading.
+double? _everySide(dynamic value) {
+  if (value is int || value is double) return parseDouble(value, 0)!;
+  if (value is String) {
+    final side = double.tryParse(value.trim());
+    if (side != null && side.isFinite) return side;
+  }
+  return null;
+}
+
 /// Edge insets are a number (all sides), a `left/top/right/bottom` map, or
-/// an `{all: n}` map; in a map, `all` fills the sides it does not name.
+/// an `{all: n}` map; in a map, `all` fills the sides it does not name. A
+/// numeric string reads like the number; any other value that is not a map
+/// gives [defaultValue].
 EdgeInsets? parseEdgeInsets(dynamic value, [EdgeInsets? defaultValue]) {
   if (value == null) return defaultValue;
-  if (value is int || value is double) {
-    return EdgeInsets.all(parseDouble(value, 0)!);
+  if (value is! Map) {
+    final side = _everySide(value);
+    return side == null ? defaultValue : EdgeInsets.all(side);
   }
   final all = _unnamedSide(value);
   return EdgeInsets.fromLTRB(
@@ -35,8 +50,9 @@ EdgeInsets? parsePadding(dynamic value, [EdgeInsets? defaultValue]) {
 EdgeInsetsDirectional? parseEdgeInsetsDirectional(dynamic value,
     [EdgeInsetsDirectional? defaultValue]) {
   if (value == null) return defaultValue;
-  if (value is int || value is double) {
-    return EdgeInsetsDirectional.all(parseDouble(value, 0)!);
+  if (value is! Map) {
+    final side = _everySide(value);
+    return side == null ? defaultValue : EdgeInsetsDirectional.all(side);
   }
   final all = _unnamedSide(value);
   return EdgeInsetsDirectional.fromSTEB(

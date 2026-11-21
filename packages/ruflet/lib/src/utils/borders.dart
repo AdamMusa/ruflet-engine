@@ -12,15 +12,22 @@ import 'widget_state.dart';
 
 /// A border radius is a number (every corner), a per-corner map, or an
 /// `{all: n}` map (Ruby's `{"all" => 8.0}` shorthand); in a map, `all` fills
-/// the corners it does not name.
+/// the corners it does not name. A finite numeric string such as `"8"` (an
+/// HTML attribute) reads like the number; any other value that is not a map
+/// gives [defaultValue].
 BorderRadius? parseBorderRadius(dynamic value, [BorderRadius? defaultValue]) {
   if (value == null) return defaultValue;
 
   if (value is int || value is double) {
     return BorderRadius.all(parseRadius(value)!);
   }
-  final all =
-      value is Map ? parseRadius(value['all'], Radius.zero)! : Radius.zero;
+  if (value is! Map) {
+    final corner = value is String ? double.tryParse(value.trim()) : null;
+    return corner != null && corner.isFinite
+        ? BorderRadius.all(Radius.circular(corner))
+        : defaultValue;
+  }
+  final all = parseRadius(value['all'], Radius.zero)!;
   return BorderRadius.only(
     topLeft: parseRadius(value['top_left'], all)!,
     topRight: parseRadius(value['top_right'], all)!,

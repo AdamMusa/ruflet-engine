@@ -50,7 +50,7 @@ class _TabsControlState extends State<MaterialTabsControl>
     super.didUpdateWidget(oldWidget);
     final animationDuration = widget.control
         .getDuration("animation_duration", kDefaultTabAnimationDuration)!;
-    final newLength = widget.control.getInt("length", 0)!;
+    final newLength = _length;
     final newSelectedIndex = widget.control.getInt("selected_index", 0)!;
 
     // Resolve Python-style negative index (e.g., -1 means last tab)
@@ -58,7 +58,7 @@ class _TabsControlState extends State<MaterialTabsControl>
         newSelectedIndex < 0 ? newLength + newSelectedIndex : newSelectedIndex;
 
     // Clamp the index to ensure it's within [0, length - 1]
-    final selectedIndex = resolvedIndex.clamp(0, newLength - 1);
+    final selectedIndex = _clampIndex(resolvedIndex, newLength);
 
     // If the number of tabs has changed, we must recreate the controller
     if (newLength != _tabController.length) {
@@ -85,10 +85,22 @@ class _TabsControlState extends State<MaterialTabsControl>
     }
   }
 
+  /// The tab count. Ruby's Tabs does not require `length`, so it is 0 when
+  /// missing; a negative length counts as 0 too.
+  int get _length {
+    final length = widget.control.getInt("length", 0)!;
+    return length < 0 ? 0 : length;
+  }
+
+  /// [index] within [0, length - 1], or 0 when there are no tabs (a
+  /// TabController of length 0 is valid; `clamp(0, -1)` throws).
+  static int _clampIndex(int index, int length) =>
+      length > 0 ? index.clamp(0, length - 1) : 0;
+
   void _initTabController([int? index]) {
     final animationDuration = widget.control
         .getDuration("animation_duration", kDefaultTabAnimationDuration)!;
-    final length = widget.control.getInt("length", 0)!;
+    final length = _length;
     final selectedIndex = index ?? widget.control.getInt("selected_index", 0)!;
 
     // Support Python-style negative indices (e.g., -1 is the last tab)
@@ -96,7 +108,7 @@ class _TabsControlState extends State<MaterialTabsControl>
         selectedIndex < 0 ? length + selectedIndex : selectedIndex;
 
     // Clamp to ensure initialIndex is within [0, length - 1]
-    final initialIndex = resolvedIndex.clamp(0, length - 1);
+    final initialIndex = _clampIndex(resolvedIndex, length);
 
     _tabController = TabController(
       length: length,
@@ -157,6 +169,14 @@ class _TabsControlState extends State<MaterialTabsControl>
   }
 }
 
+/// What a TabBar or TabBarView with [count] items shows inside a Tabs whose
+/// `length` is 0 or missing: a TabController of length 0 cannot drive them.
+Widget _missingLengthError(String type, int count, String items) =>
+    ErrorControl(
+      "$type has $count $items but Tabs.length is 0",
+      description: "Set length: $count on the Tabs control.",
+    );
+
 class MaterialTabBarViewControl extends StatelessWidget {
   final Control control;
 
@@ -174,6 +194,10 @@ class MaterialTabBarViewControl extends StatelessWidget {
     }
 
     final tabController = tabsState._tabController;
+    final pageCount = control.children("controls").length;
+    if (tabController.length == 0 && pageCount > 0) {
+      return _missingLengthError("TabBarView", pageCount, "controls");
+    }
 
     Widget buildLayoutTabView() {
       return LayoutControl(
@@ -295,7 +319,7 @@ class _TabBarControlState extends State<MaterialTabBarControl> {
           scrollable ? TabAlignment.start : TabAlignment.fill)!;
       var mouseCursor =
           parseMouseCursor(widget.control.getString("mouse_cursor"));
-      var padding = parseEdgeInsets(widget.control.getPadding("padding"));
+      var padding = widget.control.getPadding("padding");
       var labelPadding = widget.control.getPadding("label_padding");
       var labelStyle =
           widget.control.getTextStyle("label_text_style", materialStyleTheme(Theme.of(context)));
@@ -316,6 +340,9 @@ class _TabBarControlState extends State<MaterialTabBarControl> {
         // with the tab bar.
         return Tab(child: ControlWidget(control: tab));
       }).toList();
+      if (tabController.length == 0 && tabs.isNotEmpty) {
+        return _missingLengthError("TabBar", tabs.length, "tabs");
+      }
 
       void onTap(int index) {
         widget.control.triggerEvent("click", index);
