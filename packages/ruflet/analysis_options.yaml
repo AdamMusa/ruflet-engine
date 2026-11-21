@@ -4,7 +4,10 @@ analyzer:
   # The vendored Markdown and math forks keep their upstream code and are not
   # held to the engine's lints. Without this, `flutter analyze` here reports
   # their 430 infos and exits 1 although lib/, test/ and tool/ are clean.
+  # build/ is generated output. `flutter pub get` on Flutter 3.47.7 adds that
+  # exclude itself, rewriting this file, when it is missing.
   exclude:
+    - build/**
     - vendor/**
 
 # Additional information about this file can be found at
