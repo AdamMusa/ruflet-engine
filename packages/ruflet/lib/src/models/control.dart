@@ -89,6 +89,15 @@ class Control extends ChangeNotifier {
 
   bool get visible => get<bool>("visible", true)!;
 
+  /// The value of [propertyName], or [defaultValue] when it is absent or null.
+  ///
+  /// `get<String>` returns any value's `toString()`. For `int`, `double` and
+  /// `bool`, a value of another JSON type is read rather than cast (see
+  /// [_readLiteral]): Ruby sends a Float for an int prop when it is
+  /// computed (`divisions: (max - min) / step` sends 10.0), and HTML
+  /// attributes arrive as strings. A value with no such reading gives
+  /// [defaultValue], with a debug-only message naming the control and the
+  /// property. Values of the requested type are returned unchanged.
   T? get<T>(String propertyName, [T? defaultValue]) {
     if (properties.containsKey(propertyName) &&
         properties[propertyName] != null) {
@@ -99,13 +108,32 @@ class Control extends ChangeNotifier {
           return defaultValue;
         }
       }
-      return T == double && v is int
-          ? v.toDouble()
-          : T == String
-              ? v.toString()
-              : v;
+      if (T == String) return v.toString() as T;
+      if (v is T) return v;
+      if (T == double || T == int || T == bool) {
+        final read = _readLiteral(T, v, propertyName);
+        if (read != null) return read as T;
+        _reportUnreadableValue(propertyName, T, v, defaultValue);
+        return defaultValue;
+      }
+      return v;
     }
     return defaultValue;
+  }
+
+  Set<String>? _reportedUnreadableValues;
+
+  /// Says once per control, property and value (debug builds only) that a
+  /// value could not be read as [expected], so a wrong type in Ruby or HTML
+  /// is visible instead of silently falling back.
+  void _reportUnreadableValue(
+      String propertyName, Type expected, Object? value, Object? fallback) {
+    if (!kDebugMode) return;
+    final key = "$propertyName=$value";
+    if (!(_reportedUnreadableValues ??= <String>{}).add(key)) return;
+    debugPrint("Ruflet: $type($id).$propertyName expects $expected, got "
+        "${value.runtimeType} ${value is String ? '"$value"' : value}; "
+        "using ${fallback ?? 'no value'}.");
   }
 
   Control unwrapComponent() {
@@ -572,4 +600,55 @@ class Control extends ChangeNotifier {
         type,
         _equality.hash(properties),
       );
+}
+
+/// Reads [value] as a [type] (`int`, `double` or `bool`) when it arrived as
+/// another JSON type, or returns null when it has no such reading.
+/// [propertyName] is the prop being read.
+///
+/// - `double`: an int, or a decimal numeric string (`"16"`, `"0.5"`,
+///   `"1e3"`, `"inf"`, `"-inf"`).
+/// - `int`: a double rounded to the nearest integer (a whole Ruby Float such
+///   as 10.0, and float arithmetic such as `(0.3 - 0) / 0.1`, which is
+///   2.9999999999999996), or a decimal integer or numeric string. Hex
+///   (`"0x10"`) does not read, as it does not for `double`.
+/// - `bool`: the string `"true"` or `"false"`, in any case, or the HTML
+///   boolean-attribute form, a string equal to the prop name, which reads as
+///   true: Rails writes `disabled: true` as `disabled="disabled"`.
+///
+/// NaN and infinite values never read as an int, and NaN never reads as a
+/// double from a string.
+Object? _readLiteral(Type type, Object? value, String propertyName) {
+  if (type == double) {
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      final text = value.trim();
+      switch (text.toLowerCase()) {
+        case "inf" || "+inf":
+          return double.infinity;
+        case "-inf":
+          return double.negativeInfinity;
+      }
+      final number = double.tryParse(text);
+      return number == null || number.isNaN ? null : number;
+    }
+    return null;
+  }
+  if (type == int) {
+    if (value is double) return value.isFinite ? value.round() : null;
+    if (value is String) {
+      final text = value.trim();
+      final whole = int.tryParse(text, radix: 10);
+      if (whole != null) return whole;
+      final number = double.tryParse(text);
+      return number != null && number.isFinite ? number.round() : null;
+    }
+    return null;
+  }
+  if (type == bool && value is String) {
+    final text = value.trim().toLowerCase();
+    if (text == "true" || text == propertyName) return true;
+    if (text == "false") return false;
+  }
+  return null;
 }
