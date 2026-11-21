@@ -437,7 +437,7 @@ PageTransitionsTheme? parsePageTransitions(Map<dynamic, dynamic>? value,
     TargetPlatform.android: parseTransitionsBuilder(
         value["android"], const FadeUpwardsPageTransitionsBuilder())!,
     TargetPlatform.iOS: parseTransitionsBuilder(
-        value["ios"], const CupertinoPageTransitionsBuilder())!,
+        value["ios"], _cupertinoPageTransitionsBuilder)!,
     TargetPlatform.linux: parseTransitionsBuilder(
         value["linux"], const ZoomPageTransitionsBuilder())!,
     TargetPlatform.macOS: parseTransitionsBuilder(
@@ -1220,12 +1220,21 @@ IconThemeData? parseIconTheme(Map<dynamic, dynamic>? value, ThemeData theme,
   );
 }
 
+// Material's own iOS page transition, CupertinoPageTransitionsBuilder.
+// Flutter 3.44 moved that class from material.dart to cupertino.dart, and this
+// Material library may not import cupertino.dart (test/architecture), so naming
+// it here stops the engine compiling on 3.44 and later. The default
+// PageTransitionsTheme maps iOS to that same const instance on 3.41 through
+// 3.50; test/utils/page_transitions_test.dart pins it.
+final PageTransitionsBuilder _cupertinoPageTransitionsBuilder =
+    const PageTransitionsTheme().builders[TargetPlatform.iOS]!;
+
 PageTransitionsBuilder? parseTransitionsBuilder(String? value,
     [PageTransitionsBuilder? defaultValue]) {
   var buildersMap = {
     "fadeupwards": const FadeUpwardsPageTransitionsBuilder(),
     "openupwards": const OpenUpwardsPageTransitionsBuilder(),
-    "cupertino": const CupertinoPageTransitionsBuilder(),
+    "cupertino": _cupertinoPageTransitionsBuilder,
     "zoom": const ZoomPageTransitionsBuilder(),
     "none": const NoPageTransitionsBuilder(),
     "predictive": const PredictiveBackPageTransitionsBuilder(),
