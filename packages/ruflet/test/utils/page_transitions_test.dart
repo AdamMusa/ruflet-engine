@@ -25,9 +25,29 @@ Iterable<File> engineLibraries() => Directory.current.parent
     .whereType<File>()
     .where((file) => file.path.endsWith('.dart'));
 
-String withoutComments(String source) => source
-    .replaceAll(RegExp(r'/\*[\s\S]*?\*/'), '')
-    .replaceAll(RegExp(r'//[^\n]*'), '');
+/// One Dart token that can hide `//` or `/*`: a string literal (raw or not,
+/// single- or triple-quoted) or a comment. Scanning left to right, whichever
+/// starts first wins, so a `//` inside a string is not taken for a comment
+/// and a quote inside a comment does not open a string.
+final _stringOrComment = RegExp(
+  r"r'''[\s\S]*?'''|"
+  r'r"""[\s\S]*?"""|'
+  r"r'[^'\n]*'|"
+  r'r"[^"\n]*"|'
+  r"'''(?:\\[\s\S]|[\s\S])*?'''|"
+  r'"""(?:\\[\s\S]|[\s\S])*?"""|'
+  r"'(?:\\.|[^'\\\n])*'|"
+  r'"(?:\\.|[^"\\\n])*"|'
+  r'/\*[\s\S]*?\*/|'
+  r'//[^\n]*',
+);
+
+/// [source] with its comments removed and its string literals kept, so a
+/// name that appears only in a comment is not reported and a use inside a
+/// string interpolation still is.
+String withoutComments(String source) => source.replaceAllMapped(
+    _stringOrComment,
+    (token) => token[0]!.startsWith('/') ? '' : token[0]!);
 
 Future<void> pushDetail(WidgetTester tester, Map<String, dynamic> value) async {
   final navigator = GlobalKey<NavigatorState>();
@@ -63,6 +83,20 @@ void main() {
         reason: 'These fail to compile on Flutter 3.44 and later. Take the '
             'builder from a Material default such as '
             'const PageTransitionsTheme().builders instead.');
+  });
+
+  test('the guard reads code after strings that hold comment markers', () {
+    final code = withoutComments(r'''
+final url = 'https://ruflet.dev'; Object a() => SeenAfterUrl();
+// Hidden() in a line comment, don't
+/* Hidden() in a block comment */ Object b() => SeenAfterBlock();
+final marker = r'/*'; final quote = "it's"; Object c() => SeenAfterRaw();
+''');
+
+    expect(code, contains('SeenAfterUrl()'));
+    expect(code, contains('SeenAfterBlock()'));
+    expect(code, contains('SeenAfterRaw()'));
+    expect(code, isNot(contains('Hidden')));
   });
 
   test('"cupertino" selects the same const builder Flutter itself uses', () {
