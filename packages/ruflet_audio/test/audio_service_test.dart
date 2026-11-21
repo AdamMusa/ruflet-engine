@@ -293,9 +293,13 @@ void main() {
 
   testWidgets('fires error instead of throwing when there is no source',
       (tester) async {
-    final backend = await run(tester, {});
+    final audio = await mount(
+        tester, {'on_loaded': true, 'on_error': true, 'volume': 0.5});
+    // Nothing reaches the player: no source, and no volume, rate or balance.
+    expect(players.calls, isEmpty);
+    await audio.unmount(tester);
     expect(players.loadedBytes, isEmpty);
-    expect(backend.events,
+    expect(audio.backend.events,
         [('error', 'Audio must have "src" or "src_base64" specified.')]);
   });
 
@@ -428,6 +432,15 @@ void main() {
     // Without autoplay nothing plays.
     expect(players.callsTo('resume'), isEmpty);
 
+    // An update re-runs the service with every value. Volume, balance and
+    // playback rate are unchanged and in range, so only the release mode,
+    // which changed, reaches the player.
+    players.calls.clear();
+    await audio.update(tester, {'release_mode': 'release'});
+    expect(players.calls, [
+      ['setReleaseMode', ReleaseMode.release],
+    ]);
+
     // Ruby updates apply only what changed; out-of-range values are ignored.
     players.calls.clear();
     await audio.update(tester, {
@@ -443,6 +456,19 @@ void main() {
     players.calls.clear();
     await audio.update(tester, {'volume': 1.5, 'playback_rate': 1.5});
     expect(players.calls, isEmpty);
+
+    // The range limits are in range: volume 0, balance -1 and 1.
+    players.calls.clear();
+    await audio.update(tester, {'volume': 0, 'balance': -1});
+    expect(players.calls, [
+      ['setVolume', 0.0],
+      ['setBalance', -1.0],
+    ]);
+    players.calls.clear();
+    await audio.update(tester, {'balance': 1});
+    expect(players.calls, [
+      ['setBalance', 1.0],
+    ]);
     await audio.unmount(tester);
   });
 
@@ -488,6 +514,58 @@ void main() {
     expect(players.loadedBytes.last, [1, 2, 3]);
     expect(players.callsTo('resume'), hasLength(2));
     expect(loads(), 2);
+    await audio.unmount(tester);
+  });
+
+  testWidgets(
+      'a new URL or file src, and a switch between src and src_base64, '
+      'each load, report loaded and autoplay once', (tester) async {
+    final dir = io.Directory.systemTemp.createTempSync('ruflet_audio_test');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final file = io.File('${dir.path}/beep.wav')..writeAsBytesSync([0]);
+    final audio = await mount(tester, {
+      'src': 'https://example.com/a.mp3',
+      'autoplay': true,
+      'on_loaded': true,
+    });
+    int loads() => audio.backend.dataOf('loaded').length;
+    expect(players.callsTo('setSourceUrl'), [
+      ['https://example.com/a.mp3', false]
+    ]);
+    expect(players.callsTo('resume'), hasLength(1));
+    expect(loads(), 1);
+
+    // Each step sets exactly one new source and plays it once.
+    final resume = ['resume'];
+    Future<void> step(
+        Map<String, dynamic> props, List<Object?> load, int loaded) async {
+      players.calls.clear();
+      await audio.update(tester, props);
+      expect(players.calls, [load, resume], reason: '$props');
+      expect(loads(), loaded, reason: '$props');
+    }
+
+    // URL to another URL.
+    await step({'src': 'https://example.com/b.mp3'},
+        ['setSourceUrl', 'https://example.com/b.mp3', false], 2);
+
+    // An unrelated update keeps the URL: no reload, loaded or replay.
+    players.calls.clear();
+    await audio.update(tester, {'volume': 0.5});
+    expect(players.calls, [
+      ['setVolume', 0.5]
+    ]);
+    expect(loads(), 2);
+
+    // URL to a file on the device.
+    final fileLoad = ['setSourceUrl', file.path, true];
+    await step({'src': file.path}, fileLoad, 3);
+    // The file to bytes, and back to the same file and the same bytes.
+    final bytes = Uint8List.fromList([0, 1, 2]);
+    final bytesLoad = ['setSourceBytes', bytes];
+    await step({'src': null, 'src_base64': 'AAEC'}, bytesLoad, 4);
+    await step({'src': file.path}, fileLoad, 5);
+    await step({'src': null}, bytesLoad, 6);
     await audio.unmount(tester);
   });
 
@@ -602,6 +680,27 @@ void main() {
     }
     expect(players.calls.last, ['release']);
     expect(audio.backend.dataOf('position_change'), isEmpty);
+    await audio.unmount(tester);
+  });
+
+  testWidgets('disposing sends no state, duration, seek or error event',
+      (tester) async {
+    final audio = await mount(tester, {'src_base64': 'AAEC', ..._allEvents});
+    audio.backend.events.clear();
+    // player.dispose() stops the player ("stopped", then "disposed"). While
+    // it shuts down, the platform still reports a duration, a finished seek
+    // and a failure.
+    audio.disposeService();
+    players.emit(const AudioEvent(
+        eventType: AudioEventType.duration, duration: Duration(seconds: 9)));
+    players.emit(const AudioEvent(eventType: AudioEventType.seekComplete));
+    players._events
+        .addError(PlatformException(code: 'AudioError', message: 'late'));
+    for (var i = 0; i < 5; i++) {
+      await tester.pump();
+    }
+    expect(players.calls.last, ['release']);
+    expect(audio.backend.events, isEmpty);
     await audio.unmount(tester);
   });
 
