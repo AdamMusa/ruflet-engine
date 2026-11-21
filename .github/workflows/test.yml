@@ -1,0 +1,139 @@
+name: Test
+
+# Analyzes and tests the core and every extension package on the Flutter the
+# Ruflet CI builds clients with, checks the checked-in Ruby control surface
+# against ruflet main, and compiles the core on current Flutter stable, which
+# is what `ruflet build` downloads when an app pins no Flutter version.
+
+on:
+  push:
+    branches: [codex/engine-initialization]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Matches flutter-version in ruflet's .github/workflows. Raise both
+  # together, deliberately.
+  FLUTTER_VERSION: 3.41.2
+
+# ubuntu-24.04, not ubuntu-latest: ruby/setup-ruby has no build of ruflet's
+# .ruby-version Ruby for ubuntu-26.04, and ruflet CI pins the same image.
+jobs:
+  package:
+    name: ${{ matrix.package }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - ruflet
+          - ruflet_ads
+          - ruflet_audio
+          - ruflet_audio_recorder
+          - ruflet_camera
+          - ruflet_charts
+          - ruflet_code_editor
+          - ruflet_color_pickers
+          - ruflet_datatable2
+          - ruflet_flashlight
+          - ruflet_geolocator
+          - ruflet_local_auth
+          - ruflet_lottie
+          - ruflet_map
+          - ruflet_permission_handler
+          - ruflet_qrcode_scanner
+          - ruflet_rive
+          - ruflet_secure_storage
+          - ruflet_spinkit
+          - ruflet_video
+          - ruflet_webview
+    defaults:
+      run:
+        working-directory: packages/${{ matrix.package }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: |
+          if [ -d test ]; then flutter analyze lib test; else flutter analyze lib; fi
+
+      - name: Test
+        run: |
+          if [ -d test ]; then flutter test; else echo "No tests in ${{ matrix.package }}"; fi
+
+  ruby-surface:
+    name: Ruby control surface
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: engine
+
+      - name: Checkout ruflet
+        uses: actions/checkout@v5
+        with:
+          repository: AdamMusa/ruflet
+          ref: main
+          path: ruflet
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          working-directory: ruflet
+
+      # A Ruby change that adds or renames keywords pairs with an engine PR
+      # that runs `ruby tool/sync_ruby_surface.rb --ruby <ruflet checkout>`.
+      - name: Check the checked-in surface matches ruflet main
+        working-directory: engine/packages/ruflet
+        run: ruby tool/sync_ruby_surface.rb --ruby "$GITHUB_WORKSPACE/ruflet" --check
+
+  flutter-stable:
+    name: ruflet on Flutter stable (advisory)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    # Advisory: a new Flutter release can break an untouched tree. This job
+    # reports that early without blocking work on the pinned version.
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: packages/ruflet
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter --version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # Infos only: new deprecations are expected on a newer Flutter.
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos lib test
+
+      - name: Test
+        run: flutter test

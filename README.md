@@ -23,6 +23,12 @@ flutter test
 flutter analyze lib test
 ```
 
+CI (`.github/workflows/test.yml`) runs `flutter analyze lib test` and
+`flutter test` in the core and every extension package on Flutter 3.41.2, the
+version Ruflet CI builds clients with. It also checks the checked-in Ruby control
+surface against ruflet `main`, and runs the core's checks on current Flutter
+stable as an advisory job.
+
 Run the tests in each extension package when changing its renderer. Add layout
 and attribute assertions, not just successful mount checks. Check both platform
 designs and preserve application-specified geometry.
