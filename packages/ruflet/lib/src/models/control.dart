@@ -111,7 +111,7 @@ class Control extends ChangeNotifier {
       if (T == String) return v.toString() as T;
       if (v is T) return v;
       if (T == double || T == int || T == bool) {
-        final read = _readLiteral(T, v);
+        final read = _readLiteral(T, v, propertyName);
         if (read != null) return read as T;
         _reportUnreadableValue(propertyName, T, v, defaultValue);
         return defaultValue;
@@ -604,21 +604,31 @@ class Control extends ChangeNotifier {
 
 /// Reads [value] as a [type] (`int`, `double` or `bool`) when it arrived as
 /// another JSON type, or returns null when it has no such reading.
+/// [propertyName] is the prop being read.
 ///
-/// - `double`: an int, or a numeric string (`"16"`, `"0.5"`, `"inf"`).
+/// - `double`: an int, or a decimal numeric string (`"16"`, `"0.5"`,
+///   `"1e3"`, `"inf"`, `"-inf"`).
 /// - `int`: a double rounded to the nearest integer (a whole Ruby Float such
 ///   as 10.0, and float arithmetic such as `(0.3 - 0) / 0.1`, which is
-///   2.9999999999999996), or an integer or decimal numeric string.
-/// - `bool`: the string `"true"` or `"false"`, in any case.
+///   2.9999999999999996), or a decimal integer or numeric string. Hex
+///   (`"0x10"`) does not read, as it does not for `double`.
+/// - `bool`: the string `"true"` or `"false"`, in any case, or the HTML
+///   boolean-attribute form, a string equal to the prop name, which reads as
+///   true: Rails writes `disabled: true` as `disabled="disabled"`.
 ///
 /// NaN and infinite values never read as an int, and NaN never reads as a
 /// double from a string.
-Object? _readLiteral(Type type, Object? value) {
+Object? _readLiteral(Type type, Object? value, String propertyName) {
   if (type == double) {
     if (value is num) return value.toDouble();
     if (value is String) {
       final text = value.trim();
-      if (text.toLowerCase() == "inf") return double.infinity;
+      switch (text.toLowerCase()) {
+        case "inf" || "+inf":
+          return double.infinity;
+        case "-inf":
+          return double.negativeInfinity;
+      }
       final number = double.tryParse(text);
       return number == null || number.isNaN ? null : number;
     }
@@ -628,7 +638,7 @@ Object? _readLiteral(Type type, Object? value) {
     if (value is double) return value.isFinite ? value.round() : null;
     if (value is String) {
       final text = value.trim();
-      final whole = int.tryParse(text);
+      final whole = int.tryParse(text, radix: 10);
       if (whole != null) return whole;
       final number = double.tryParse(text);
       return number != null && number.isFinite ? number.round() : null;
@@ -636,12 +646,9 @@ Object? _readLiteral(Type type, Object? value) {
     return null;
   }
   if (type == bool && value is String) {
-    switch (value.trim().toLowerCase()) {
-      case "true":
-        return true;
-      case "false":
-        return false;
-    }
+    final text = value.trim().toLowerCase();
+    if (text == "true" || text == propertyName) return true;
+    if (text == "false") return false;
   }
   return null;
 }

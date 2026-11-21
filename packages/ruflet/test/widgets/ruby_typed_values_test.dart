@@ -6,16 +6,23 @@
 // its well-typed twin, or falls back to the prop's default with a
 // debug-only message. Well-typed values read exactly as before.
 //
+// The same getters back reads outside build too: the Window service reads
+// every window prop before it applies any, so one wrongly typed prop used to
+// drop the whole window update.
+//
 // Also: a Material Tabs without `length` (Ruby does not require it) threw in
 // `clamp(0, length - 1)`; and a Material TabBar with `padding` parsed the
 // parsed EdgeInsets again.
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ruflet/ruflet.dart';
+import 'package:ruflet/src/services/service_binding.dart';
 
 import '../support/control_harness.dart';
 
@@ -278,14 +285,16 @@ Future<List<String>> _messages(Future<void> Function() body) async {
 }
 
 /// Mounts [wire] and returns what [probe] reads, after checking nothing
-/// threw and no ErrorWidget replaced a control.
+/// threw, no ErrorWidget replaced a control and, unless [errorControls],
+/// no control shows an ErrorControl.
 Future<Object?> _render(WidgetTester tester, HarnessDesign design,
     Map<String, dynamic> wire, _Probe probe,
-    {bool settle = true}) async {
+    {bool settle = true, bool errorControls = false}) async {
   await mountWire(tester, design, wire, settle: settle);
   final error = tester.takeException();
   expect(error, isNull, reason: '$error');
   expect(find.byType(ErrorWidget), findsNothing);
+  if (!errorControls) expect(find.byType(ErrorControl), findsNothing);
   return probe(tester, design);
 }
 
@@ -353,6 +362,32 @@ void main() {
       ]);
     });
 
+    testWidgets('${design.name} a disabled="disabled" button sends no click',
+        (tester) async {
+      // Rails writes `disabled: true` as disabled="disabled".
+      final clicks = <String, int>{};
+      for (final MapEntry(key: name, value: disabled) in <String, Object?>{
+        '"disabled"': 'disabled',
+        'true': true,
+        'absent': null,
+      }.entries) {
+        final m = await mountWire(tester, design, {
+          '_c': 'Button',
+          '_i': 1,
+          'content': 'Save',
+          'disabled': disabled,
+          'on_click': true,
+        });
+        expect(tester.takeException(), isNull);
+        expect(find.byType(ErrorWidget), findsNothing);
+        m.backend.sent.clear();
+        await tester.tap(find.text('Save'), warnIfMissed: false);
+        await tester.pumpAndSettle();
+        clicks[name] = m.backend.sent.where((s) => s.name == 'click').length;
+      }
+      expect(clicks, {'"disabled"': 0, 'true': 0, 'absent': 1});
+    });
+
     group('${design.name} Tabs without length', () {
       testWidgets('renders its content', (tester) async {
         await _render(tester, design,
@@ -360,8 +395,16 @@ void main() {
         expect(find.text('x'), findsOneWidget);
       });
 
+      testWidgets('a negative length renders its content', (tester) async {
+        await _render(tester, design,
+            {'_c': 'Tabs', '_i': 1, 'length': -1, 'content': _text(2, 'x')},
+            _width);
+        expect(find.text('x'), findsOneWidget);
+      });
+
       testWidgets('an empty data-driven tab set renders', (tester) async {
-        // `tabs(length: items.size, ...)` with no items yet.
+        // `tabs(length: items.size, ...)` with no items yet. Material draws
+        // an empty bar; Cupertino keeps its "must not be empty" messages.
         await _render(
             tester,
             design,
@@ -380,12 +423,20 @@ void main() {
                 ]
               }
             },
-            _width);
+            _width,
+            errorControls: design == HarnessDesign.ios);
         expect(find.text('title'), findsOneWidget);
+        if (design == HarnessDesign.ios) {
+          expect(find.text('TabBar.tabs must not be empty'), findsOneWidget);
+          expect(find.text('TabBarView.controls must not be empty'),
+              findsOneWidget);
+          expect(find.byType(ErrorControl), findsNWidgets(2));
+        }
       });
 
       testWidgets('a TabBar with tabs says length is missing', (tester) async {
-        await _render(tester, design, _tabs({'length': null}), _width);
+        await _render(tester, design, _tabs({'length': null}), _width,
+            errorControls: design == HarnessDesign.android);
         if (design == HarnessDesign.android) {
           expect(find.text('TabBar has 2 tabs but Tabs.length is 0'),
               findsOneWidget);
@@ -411,7 +462,8 @@ void main() {
                 'controls': [_text(3, 'page a'), _text(4, 'page b')]
               }
             },
-            _width);
+            _width,
+            errorControls: design == HarnessDesign.android);
         if (design == HarnessDesign.android) {
           expect(find.text('TabBarView has 2 controls but Tabs.length is 0'),
               findsOneWidget);
@@ -439,6 +491,7 @@ void main() {
         }, shouldNotify: true);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
+        expect(find.byType(ErrorControl), findsNothing);
         m.backend.sent.clear();
         await tester.tap(find.text('b'));
         await tester.pumpAndSettle();
@@ -459,6 +512,12 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         expect(find.byType(ErrorWidget), findsNothing);
+        if (design == HarnessDesign.android) {
+          expect(find.byType(ErrorControl), findsNothing);
+        } else {
+          // Cupertino's message for an empty TabBar, as before.
+          expect(find.text('TabBar.tabs must not be empty'), findsOneWidget);
+        }
       });
     });
   }
@@ -484,6 +543,94 @@ void main() {
               ? const EdgeInsets.all(4)
               : const EdgeInsets.only(left: 4, right: 6));
     }
+  });
+
+  testWidgets('a wrongly typed Window prop no longer drops the window update',
+      (tester) async {
+    // A read outside build: the Window service reads every window prop
+    // before it applies any, and a TypeError dropped the whole update.
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+    final calls = <String>[];
+    final logs = <String>[];
+    final previousDebugPrint = debugPrint;
+    debugPrint = (String? message, {int? wrapWidth}) => logs.add('$message');
+    final messenger = tester.binding.defaultBinaryMessenger;
+    const windowChannel = MethodChannel('window_manager');
+    const screenChannel =
+        MethodChannel('dev.leanflutter.plugins/screen_retriever');
+    const display = {
+      'id': '1',
+      'size': {'width': 1440.0, 'height': 900.0},
+      'visiblePosition': {'dx': 0.0, 'dy': 0.0},
+      'visibleSize': {'width': 1440.0, 'height': 900.0},
+    };
+    messenger.setMockMethodCallHandler(windowChannel, (call) async {
+      final args = call.arguments is Map ? call.arguments as Map : const {};
+      switch (call.method) {
+        case 'getBounds':
+          return {'x': 0.0, 'y': 0.0, 'width': 800.0, 'height': 600.0};
+        case 'getOpacity':
+          return 1.0;
+        case 'setTitle':
+          calls.add('setTitle ${args['title']}');
+          return null;
+        case 'setBounds':
+          calls.add('setBounds ${args['width']}x${args['height']}');
+          return null;
+        case 'setAlwaysOnTop':
+          calls.add('setAlwaysOnTop ${args['isAlwaysOnTop']}');
+          return null;
+      }
+      if (call.method.startsWith('set')) calls.add(call.method);
+      if (call.method.startsWith('is')) return false;
+      return null;
+    });
+    messenger.setMockMethodCallHandler(screenChannel, (call) async {
+      switch (call.method) {
+        case 'getPrimaryDisplay':
+          return display;
+        case 'getAllDisplays':
+          return {
+            'displays': [display]
+          };
+      }
+      return null;
+    });
+    try {
+      final backend = HarnessBackend(HarnessDesign.android)
+        ..platform = TargetPlatform.macOS;
+      final page = Control.fromMap({
+        '_c': 'Page',
+        '_i': 1,
+        'title': 'Typed window',
+        'window': {
+          '_c': 'Window',
+          '_i': 2,
+          'width': '500',
+          'height': 400,
+          'always_on_top': 'true',
+        },
+      }, backend);
+      final binding =
+          ServiceBinding(control: page.child('window')!, backend: backend);
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      binding.dispose();
+    } finally {
+      messenger.setMockMethodCallHandler(windowChannel, null);
+      messenger.setMockMethodCallHandler(screenChannel, null);
+      debugPrint = previousDebugPrint;
+      debugDefaultTargetPlatformOverride = null;
+    }
+    expect(calls, [
+      'setTitle Typed window',
+      'setBounds 500.0x400.0',
+      'setAlwaysOnTop true',
+      'setTitleBarStyle',
+    ]);
+    expect(logs.where((line) => line.contains('Error updating window')),
+        isEmpty);
   });
 
   group('Control.get', () {
@@ -526,6 +673,9 @@ void main() {
         'infinite': double.infinity,
         'word': 'two',
         'flag': true,
+        'signed': '+5',
+        'exponent': '1e3',
+        'hex': '0x10',
       });
       expect(c.getInt('whole'), 10);
       expect(c.getInt('drift'), 3);
@@ -538,6 +688,9 @@ void main() {
       expect(c.getInt('infinite', 5), 5);
       expect(c.getInt('word', 5), 5);
       expect(c.getInt('flag'), isNull);
+      expect(c.getInt('signed'), 5);
+      expect(c.getInt('exponent'), 1000);
+      expect(c.getInt('hex', 5), 5, reason: 'decimal only, as for double');
     });
 
     test('a double prop reads a numeric string', () {
@@ -546,14 +699,22 @@ void main() {
         'padded': ' 0.5 ',
         'exponent': '1e3',
         'inf': 'inf',
+        'plus_inf': '+INF',
+        'minus_inf': ' -inf ',
+        'minus_infinity': '-Infinity',
         'px': '100px',
         'nan': 'NaN',
+        'hex': '0x10',
         'flag': true,
       });
       expect(c.getDouble('text'), 16.0);
       expect(c.getDouble('padded'), 0.5);
       expect(c.getDouble('exponent'), 1000.0);
       expect(c.getDouble('inf'), double.infinity);
+      expect(c.getDouble('plus_inf'), double.infinity);
+      expect(c.getDouble('minus_inf'), double.negativeInfinity);
+      expect(c.getDouble('minus_infinity'), double.negativeInfinity);
+      expect(c.getDouble('hex', 1), 1);
       expect(c.getDouble('px', 1), 1);
       expect(c.getDouble('nan', 1), 1);
       expect(c.getDouble('flag'), isNull);
@@ -578,6 +739,20 @@ void main() {
       expect(c.visible, false);
       expect(c.disabled, true);
     });
+
+    test('a bool prop reads its own name as true (HTML boolean attribute)',
+        () {
+      final c = _control({
+        'disabled': 'disabled',
+        'autofocus': ' AutoFocus ',
+        'read_only': 'readonly',
+        'checked': 'disabled',
+      });
+      expect(c.disabled, true);
+      expect(c.getBool('autofocus'), true);
+      expect(c.getBool('read_only'), isNull, reason: 'not the prop name');
+      expect(c.getBool('checked'), isNull, reason: 'not the prop name');
+    });
   });
 
   group('shape parsers', () {
@@ -588,7 +763,9 @@ void main() {
       expect(
           parseEdgeInsetsDirectional('6'), const EdgeInsetsDirectional.all(6));
       expect(parseEdgeInsets('10px', EdgeInsets.zero), EdgeInsets.zero);
+      // Finite only: an infinite inset or radius has no layout.
       expect(parseEdgeInsets('inf'), isNull);
+      expect(parseEdgeInsets('0x10'), isNull);
       expect(parseEdgeInsets([1, 2]), isNull);
       expect(parseEdgeInsetsDirectional('wide'), isNull);
     });
@@ -611,6 +788,7 @@ void main() {
       expect(parseBorderRadius(' 2.5 '), BorderRadius.circular(2.5));
       expect(parseBorderRadius('8px', BorderRadius.zero), BorderRadius.zero);
       expect(parseBorderRadius('inf'), isNull);
+      expect(parseBorderRadius('0x10'), isNull);
       expect(parseBorderRadius([1]), isNull);
     });
 
