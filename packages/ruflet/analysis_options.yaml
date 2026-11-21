@@ -1,4 +1,11 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  # The vendored Markdown and math forks keep their upstream code and are not
+  # held to the engine's lints. Without this, `flutter analyze` here reports
+  # their 430 infos and exits 1 although lib/, test/ and tool/ are clean.
+  exclude:
+    - vendor/**
+
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
