@@ -18,6 +18,7 @@ import '../utils/text.dart';
 import '../utils/time.dart';
 import '../widgets/control_inherited_notifier.dart';
 import '../widgets/error.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
 
@@ -35,13 +36,15 @@ class MaterialTabsControl extends StatefulWidget {
 }
 
 class _TabsControlState extends State<MaterialTabsControl>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
     _initTabController();
   }
 
@@ -115,7 +118,8 @@ class _TabsControlState extends State<MaterialTabsControl>
     }
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("TabsControl.$name($args)");
     switch (name) {
       case "move_to":
@@ -140,7 +144,6 @@ class _TabsControlState extends State<MaterialTabsControl>
   @override
   void dispose() {
     _tabController.removeListener(_handleTabSelection);
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     _tabController.dispose();
     super.dispose();
   }

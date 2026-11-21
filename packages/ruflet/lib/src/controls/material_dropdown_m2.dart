@@ -11,6 +11,7 @@ import '../utils/form_field.dart';
 import '../utils/layout.dart';
 import '../utils/numbers.dart';
 import '../utils/text.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 /// Material 2 renderer for the legacy `DropdownM2` wire type.
@@ -30,7 +31,11 @@ class MaterialDropdownM2Control extends StatefulWidget {
   State<MaterialDropdownM2Control> createState() => _DropdownM2ControlState();
 }
 
-class _DropdownM2ControlState extends State<MaterialDropdownM2Control> {
+class _DropdownM2ControlState extends State<MaterialDropdownM2Control>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   String? _value;
   bool _focused = false;
   late final FocusNode _focusNode;
@@ -40,7 +45,6 @@ class _DropdownM2ControlState extends State<MaterialDropdownM2Control> {
     super.initState();
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   void _onFocusChange() {
@@ -50,7 +54,8 @@ class _DropdownM2ControlState extends State<MaterialDropdownM2Control> {
     widget.control.triggerEvent(_focusNode.hasFocus ? "focus" : "blur");
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("DropdownM2.$name($args)");
     switch (name) {
       case "focus":
@@ -64,7 +69,6 @@ class _DropdownM2ControlState extends State<MaterialDropdownM2Control> {
   void dispose() {
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     super.dispose();
   }
 

@@ -3,11 +3,14 @@ import '../ruflet_service.dart';
 import '../models/control.dart';
 
 class ServiceBinding {
-  final Control control;
+  Control _control;
   final RufletBackend backend;
   RufletService? _service;
 
-  ServiceBinding({required this.control, required this.backend}) {
+  Control get control => _control;
+
+  ServiceBinding({required Control control, required this.backend})
+      : _control = control {
     for (var extension in backend.extensions) {
       _service = extension.createService(control);
       if (_service != null) {
@@ -24,9 +27,34 @@ class ServiceBinding {
     control.addListener(_onControlUpdated);
   }
 
+  /// Moves the running service to [next], a new object Ruby sent for the
+  /// same service.
+  ///
+  /// Ruby re-sends the whole services list whenever one is added or removed
+  /// (`page.services << x`), so every other service arrives again as a new
+  /// [Control] with the same id. The service keeps running (an audio player
+  /// keeps playing, a stream stays subscribed); its invoke listeners, its
+  /// attachment and its update listener move to [next], where Ruby's invokes
+  /// and property patches now arrive. When [next] carries different
+  /// properties the service applies them, as it would for a property patch.
+  void rebind(Control next) {
+    final previous = _control;
+    if (identical(next, previous)) return;
+    previous.removeListener(_onControlUpdated);
+    previous.moveInvokeMethodListenersTo(next);
+    next.attach();
+    previous.detach();
+    _control = next;
+    _service?.control = next;
+    next.addListener(_onControlUpdated);
+    if (previous != next) {
+      _service?.update();
+    }
+  }
+
   void dispose() {
-    control.removeListener(_onControlUpdated);
-    control.detach();
+    _control.removeListener(_onControlUpdated);
+    _control.detach();
     _service?.dispose();
   }
 

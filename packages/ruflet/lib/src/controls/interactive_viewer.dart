@@ -12,6 +12,7 @@ import '../utils/misc.dart';
 import '../utils/numbers.dart';
 import '../utils/time.dart';
 import '../widgets/error.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 class InteractiveViewerControl extends StatefulWidget {
@@ -26,7 +27,10 @@ class InteractiveViewerControl extends StatefulWidget {
 }
 
 class _InteractiveViewerControlState extends State<InteractiveViewerControl>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   /// Controller shared with Flutter's InteractiveViewer to orchestrate
   /// programmatic and gesture-driven transforms.
   final TransformationController _transformationController =
@@ -50,12 +54,12 @@ class _InteractiveViewerControlState extends State<InteractiveViewerControl>
     super.initState();
     _animationController =
         AnimationController(vsync: this, duration: Duration.zero);
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   /// Handles method channel calls from the Python side, mirroring the
   /// user-driven gestures Flutter's [InteractiveViewer] supports.
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("InteractiveViewer.$name($args)");
     switch (name) {
       case "zoom":
@@ -111,7 +115,6 @@ class _InteractiveViewerControlState extends State<InteractiveViewerControl>
   void dispose() {
     _transformationController.dispose();
     _animationController.dispose();
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     super.dispose();
   }
 

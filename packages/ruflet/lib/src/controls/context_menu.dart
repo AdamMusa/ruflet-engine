@@ -11,6 +11,7 @@ import '../utils/numbers.dart';
 import '../utils/popup_menu.dart';
 import '../utils/transforms.dart';
 import '../widgets/error.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 class ContextMenuControl extends StatefulWidget {
@@ -22,25 +23,16 @@ class ContextMenuControl extends StatefulWidget {
   State<ContextMenuControl> createState() => _ContextMenuControlState();
 }
 
-class _ContextMenuControlState extends State<ContextMenuControl> {
+class _ContextMenuControlState extends State<ContextMenuControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   ContextMenuTrigger _primaryTrigger = ContextMenuTrigger.disabled;
   ContextMenuTrigger _secondaryTrigger = ContextMenuTrigger.down;
   ContextMenuTrigger _tertiaryTrigger = ContextMenuTrigger.down;
 
   Future<String?>? _pendingMenu;
-
-  @override
-  void initState() {
-    super.initState();
-    // Allow backend code to invoke methods on this control instance.
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
-
-  @override
-  void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -262,7 +254,8 @@ class _ContextMenuControlState extends State<ContextMenuControl> {
     }
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     switch (name) {
       case "open":
         // Get the render box for positioning the context menu.

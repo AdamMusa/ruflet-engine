@@ -6,6 +6,7 @@ import '../models/control.dart';
 import '../utils/borders.dart';
 import '../utils/colors.dart';
 import '../utils/style_theme.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'carousel_view_model.dart';
 
 const EdgeInsets _kItemPadding = EdgeInsets.all(4);
@@ -33,26 +34,24 @@ class CupertinoCarouselViewControl extends StatefulWidget {
 }
 
 class _CupertinoCarouselViewControlState
-    extends State<CupertinoCarouselViewControl> {
+    extends State<CupertinoCarouselViewControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   ScrollController? _scrollController;
   PageController? _pageController;
   double _itemExtent = 0;
 
   @override
-  void initState() {
-    super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
-
-  @override
   void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     _scrollController?.dispose();
     _pageController?.dispose();
     super.dispose();
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     if (name != "animate_to_item") return null;
     final request = CarouselAnimateToItem.parse(args);
     if (request == null) return null;

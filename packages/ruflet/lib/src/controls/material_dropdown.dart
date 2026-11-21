@@ -16,6 +16,7 @@ import '../utils/menu.dart';
 import '../utils/numbers.dart';
 import '../utils/text.dart';
 import '../utils/textfield.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 class MaterialDropdownControl extends StatefulWidget {
@@ -28,7 +29,11 @@ class MaterialDropdownControl extends StatefulWidget {
   State<MaterialDropdownControl> createState() => _DropdownControlState();
 }
 
-class _DropdownControlState extends State<MaterialDropdownControl> {
+class _DropdownControlState extends State<MaterialDropdownControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late final FocusNode _focusNode;
   late final TextEditingController _controller;
   String? _value;
@@ -46,7 +51,6 @@ class _DropdownControlState extends State<MaterialDropdownControl> {
 
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   void _onTextChange() {
@@ -77,12 +81,12 @@ class _DropdownControlState extends State<MaterialDropdownControl> {
   void dispose() {
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     _controller.dispose();
     super.dispose();
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("Dropdown.$name($args)");
     switch (name) {
       case "focus":

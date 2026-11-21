@@ -488,6 +488,25 @@ class Control extends ChangeNotifier {
     _invokeMethodListeners.remove(listener);
   }
 
+  /// Moves every invoke-method listener of this control to [other].
+  ///
+  /// For a renderer that keeps running when Ruby re-sends this control as a
+  /// new object with the same id (a service, see `ServiceBinding.rebind`):
+  /// Ruby's invokes look the id up and reach [other], so its listeners must
+  /// be there.
+  void moveInvokeMethodListenersTo(Control other) {
+    if (identical(other, this)) return;
+    final listeners = List.of(_invokeMethodListeners);
+    _invokeMethodListeners.clear();
+    for (final listener in listeners) {
+      other.addInvokeMethodListener(listener);
+    }
+  }
+
+  /// How many invoke-method listeners this control has.
+  @visibleForTesting
+  int get debugInvokeMethodListenerCount => _invokeMethodListeners.length;
+
   /// Whether a mounted [ControlWidget] or a running service renders this
   /// control. Renderers register their invoke-method listeners while they
   /// build, so an attached control without listeners handles no methods.

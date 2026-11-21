@@ -19,6 +19,7 @@ import '../utils/images.dart';
 import '../utils/numbers.dart';
 import '../utils/text.dart';
 import '../utils/transforms.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 typedef CanvasControlOnPaintCallback = void Function(Size size);
@@ -33,7 +34,11 @@ class CanvasControl extends StatefulWidget {
   State<CanvasControl> createState() => _CanvasControlState();
 }
 
-class _CanvasControlState extends State<CanvasControl> {
+class _CanvasControlState extends State<CanvasControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   int _lastResize = DateTime.now().millisecondsSinceEpoch;
   Size _lastSize = Size.zero;
   ui.Image? _capturedImage;
@@ -42,24 +47,12 @@ class _CanvasControlState extends State<CanvasControl> {
   bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_initialized) {
       _dpr = MediaQuery.devicePixelRatioOf(context);
       _initialized = true;
     }
-  }
-
-  @override
-  void dispose() {
-    widget.control.removeInvokeMethodListener(_invokeMethod);
-    super.dispose();
   }
 
   Future<void> _awaitImageLoads(List<Control> shapes) async {
@@ -82,7 +75,8 @@ class _CanvasControlState extends State<CanvasControl> {
     }
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("Canvas.$name($args)");
     switch (name) {
       case "capture":

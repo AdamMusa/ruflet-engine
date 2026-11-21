@@ -17,7 +17,11 @@ class CodeEditorControl extends StatefulWidget {
   State<CodeEditorControl> createState() => _CodeEditorControlState();
 }
 
-class _CodeEditorControlState extends State<CodeEditorControl> {
+class _CodeEditorControlState extends State<CodeEditorControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late RufletCodeController _controller;
   late final FocusNode _focusNode;
   bool _didAutoFocus = false;
@@ -35,7 +39,6 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
     _value = _readValue();
     _selection = _controller.selection;
     _controller.addListener(_handleControllerChange);
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   @override
@@ -44,11 +47,11 @@ class _CodeEditorControlState extends State<CodeEditorControl> {
     _controller.dispose();
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     super.dispose();
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("CodeEditor.$name($args)");
     switch (name) {
       case "focus":

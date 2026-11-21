@@ -8,6 +8,7 @@ import '../utils/numbers.dart';
 import '../utils/time.dart';
 import '../widgets/platform_design.dart';
 import '../widgets/platform_scrollbar.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'nested_scroll_body.dart';
 import 'scroll_notification_control.dart';
 
@@ -31,7 +32,11 @@ class ScrollableControl extends StatefulWidget {
   State<ScrollableControl> createState() => _ScrollableControlState();
 }
 
-class _ScrollableControlState extends State<ScrollableControl> {
+class _ScrollableControlState extends State<ScrollableControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   ScrollController? _ownController;
 
   /// The controller of a NestedScrollView this control scrolls with as its
@@ -47,12 +52,7 @@ class _ScrollableControlState extends State<ScrollableControl> {
       (_ownController ??= ScrollController());
 
   @override
-  void initState() {
-    super.initState();
-    widget.control.addInvokeMethodListener(_invokeMethod);
-  }
-
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("ScrollableControl.$name($args)");
     switch (name) {
       case "scroll_to":
@@ -116,7 +116,6 @@ class _ScrollableControlState extends State<ScrollableControl> {
   @override
   void dispose() {
     _ownController?.dispose();
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     super.dispose();
   }
 

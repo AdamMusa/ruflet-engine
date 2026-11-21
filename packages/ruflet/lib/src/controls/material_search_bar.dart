@@ -12,6 +12,7 @@ import '../utils/edge_insets.dart';
 import '../utils/form_field.dart';
 import '../utils/numbers.dart';
 import '../utils/text.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 import 'control_widget.dart';
 
@@ -25,7 +26,11 @@ class MaterialSearchBarControl extends StatefulWidget {
   State<MaterialSearchBarControl> createState() => _SearchBarControlState();
 }
 
-class _SearchBarControlState extends State<MaterialSearchBarControl> {
+class _SearchBarControlState extends State<MaterialSearchBarControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   late final SearchController _controller;
 
   TextCapitalization? _textCapitalization;
@@ -40,7 +45,6 @@ class _SearchBarControlState extends State<MaterialSearchBarControl> {
     _controller.addListener(_searchTextChanged);
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   void _onFocusChange() {
@@ -96,7 +100,6 @@ class _SearchBarControlState extends State<MaterialSearchBarControl> {
     _controller.dispose();
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     super.dispose();
   }
 
@@ -116,7 +119,8 @@ class _SearchBarControlState extends State<MaterialSearchBarControl> {
     widget.control.updateProperties({"value": value});
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("SearchBar.$name($args)");
     switch (name) {
       case "close_view":

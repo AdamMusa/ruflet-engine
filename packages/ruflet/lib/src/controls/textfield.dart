@@ -18,6 +18,7 @@ import '../utils/pasted_file.dart';
 import '../utils/textfield.dart';
 import '../utils/theme.dart';
 import '../widgets/paste_files_scope.dart';
+import '../widgets/invoke_method_listener_mixin.dart';
 import 'base_controls.dart';
 
 class TextFieldControl extends StatefulWidget {
@@ -30,7 +31,11 @@ class TextFieldControl extends StatefulWidget {
   State<TextFieldControl> createState() => _TextFieldControlState();
 }
 
-class _TextFieldControlState extends State<TextFieldControl> {
+class _TextFieldControlState extends State<TextFieldControl>
+    with InvokeMethodListenerMixin {
+  @override
+  Control get invokeMethodControl => widget.control;
+
   String _value = "";
   bool _revealPassword = false;
   bool _focused = false;
@@ -80,7 +85,6 @@ class _TextFieldControlState extends State<TextFieldControl> {
           _handleTextFieldKeyEvent(event, submitOnEnter: false),
     );
     _focusNode.addListener(_onFocusChange);
-    widget.control.addInvokeMethodListener(_invokeMethod);
   }
 
   @override
@@ -90,12 +94,12 @@ class _TextFieldControlState extends State<TextFieldControl> {
     _shiftEnterfocusNode.removeListener(_onShiftEnterFocusChange);
     _shiftEnterfocusNode.dispose();
     _focusNode.removeListener(_onFocusChange);
-    widget.control.removeInvokeMethodListener(_invokeMethod);
     _focusNode.dispose();
     super.dispose();
   }
 
-  Future<dynamic> _invokeMethod(String name, dynamic args) async {
+  @override
+  Future<dynamic> onInvokeMethod(String name, dynamic args) async {
     debugPrint("TextField.$name($args)");
     switch (name) {
       case "focus":

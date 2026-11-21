@@ -144,6 +144,12 @@ class _VideoControlState extends State<VideoControl> with RufletStoreMixin {
       _teardown(oldWidget.control);
       _videoKey = GlobalKey<VideoState>();
       _setup(widget.control);
+    } else if (!identical(oldWidget.control, widget.control) && _initialized) {
+      // Ruby re-sent this Video unchanged (a parent re-sends all of its
+      // children), as a new object with the same id: keep the player and
+      // answer Ruby's invokes, which now reach the new object.
+      oldWidget.control.removeInvokeMethodListener(_invokeMethod);
+      widget.control.addInvokeMethodListener(_invokeMethod);
     }
   }
 
