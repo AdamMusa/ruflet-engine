@@ -25,9 +25,14 @@ class ControlWidget extends StatelessWidget {
     Key? key;
     if (controlKey is ControlScrollKey) {
       // A scroll key needs to be a GlobalKey so the backend can access state.
-      key = GlobalKey();
-      RufletBackend.of(context).globalKeys[controlKey.toString()] =
-          key as GlobalKey;
+      // The element keeps one across rebuilds: a new GlobalKey per build
+      // would remount the control (losing focus, text and scroll position)
+      // every time its parent rebuilds.
+      final globalKey = context is _ControlWidgetElement
+          ? context._scrollKeyFor(controlKey.toString(), control.type)
+          : GlobalKey();
+      RufletBackend.of(context).globalKeys[controlKey.toString()] = globalKey;
+      key = globalKey;
     } else if (controlKey != null) {
       key = ValueKey(controlKey.value);
     }
@@ -51,6 +56,22 @@ class _ControlWidgetElement extends StatelessElement {
   _ControlWidgetElement(ControlWidget super.widget);
 
   Control get _control => (widget as ControlWidget).control;
+
+  GlobalKey? _scrollKey;
+  String? _scrollKeyValue;
+  String? _scrollKeyType;
+
+  /// The GlobalKey for a control with scroll key [value], reused while the
+  /// key value and the control type stay the same.
+  GlobalKey _scrollKeyFor(String value, String type) {
+    var key = _scrollKey;
+    if (key == null || _scrollKeyValue != value || _scrollKeyType != type) {
+      key = _scrollKey = GlobalKey();
+      _scrollKeyValue = value;
+      _scrollKeyType = type;
+    }
+    return key;
+  }
 
   @override
   void mount(Element? parent, Object? newSlot) {
