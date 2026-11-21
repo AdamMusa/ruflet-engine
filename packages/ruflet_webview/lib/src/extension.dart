@@ -8,7 +8,7 @@ class Extension extends RufletExtension {
   Widget? createWidget(Key? key, Control control) {
     switch (control.type) {
       case "WebView":
-        return WebViewControl(control: control);
+        return WebViewControl(key: key, control: control);
       default:
         return null;
     }

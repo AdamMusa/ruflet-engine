@@ -13,17 +13,17 @@ class Extension extends RufletExtension {
   Widget? createWidget(Key? key, Control control) {
     switch (control.type) {
       case "ColorPicker":
-        return ColorPickerControl(control: control);
+        return ColorPickerControl(key: key, control: control);
       case "HueRingPicker":
-        return HueRingPickerControl(control: control);
+        return HueRingPickerControl(key: key, control: control);
       case "SlidePicker":
-        return SlidePickerControl(control: control);
+        return SlidePickerControl(key: key, control: control);
       case "MaterialPicker":
-        return MaterialPickerControl(control: control);
+        return MaterialPickerControl(key: key, control: control);
       case "BlockPicker":
-        return BlockPickerControl(control: control);
+        return BlockPickerControl(key: key, control: control);
       case "MultipleChoiceBlockPicker":
-        return MultipleChoiceBlockPickerControl(control: control);
+        return MultipleChoiceBlockPickerControl(key: key, control: control);
       default:
         return null;
     }
