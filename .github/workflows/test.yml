@@ -103,9 +103,17 @@ jobs:
 
       # A Ruby change that adds or renames keywords pairs with an engine PR
       # that runs `ruby tool/sync_ruby_surface.rb --ruby <ruflet checkout>`.
+      # This reads ruflet main as it is when the job runs, so once such a
+      # Ruby change merges, this job fails on every engine PR until that
+      # engine sync lands.
       - name: Check the checked-in surface matches ruflet main
         working-directory: engine/packages/ruflet
-        run: ruby tool/sync_ruby_surface.rb --ruby "$GITHUB_WORKSPACE/ruflet" --check
+        run: |
+          if ! ruby tool/sync_ruby_surface.rb --ruby "$GITHUB_WORKSPACE/ruflet" --check; then
+            ruflet_head=$(git -C "$GITHUB_WORKSPACE/ruflet" rev-parse --short HEAD)
+            echo "::error::The checked-in Ruby control surface differs from ruflet main ($ruflet_head). Unless this PR edits packages/ruflet/test/contract/ruflet_control_surface.json, ruflet main has moved: land the engine PR that runs ruby tool/sync_ruby_surface.rb --ruby <ruflet checkout>."
+            exit 1
+          fi
 
   flutter-stable:
     name: ruflet on Flutter stable (advisory)
