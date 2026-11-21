@@ -1,5 +1,5 @@
 // A Map Ruby re-sends keeps answering Ruby's camera methods. A parent
-// re-sends all of its children (`col.controls << x; page.update`), so the
+// re-sends all of its children (`col.children << x; page.update`), so the
 // client gets a new Control object with the same id while the map's State
 // stays; its invoke listener must move to that object.
 import 'dart:async';

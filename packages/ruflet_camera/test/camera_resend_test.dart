@@ -1,5 +1,5 @@
 // A Camera Ruby re-sends keeps its invoke listener. A parent re-sends all of
-// its children (`col.controls << x; page.update`), so the client gets a new
+// its children (`col.children << x; page.update`), so the client gets a new
 // Control object with the same id while Flutter keeps the camera's State
 // (and its open CameraController) and only hands it the new object. Ruby's
 // invokes look the id up and reach the new object, so the listener must

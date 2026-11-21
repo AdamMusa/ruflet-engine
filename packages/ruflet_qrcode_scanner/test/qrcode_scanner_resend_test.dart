@@ -1,5 +1,5 @@
 // A QrcodeScanner Ruby re-sends unchanged keeps its invoke listener. A
-// parent re-sends all of its children (`col.controls << x; page.update`), so
+// parent re-sends all of its children (`col.children << x; page.update`), so
 // the client gets a new Control object, equal to the old one, with the same
 // id. Control equality compares properties, so the rebind must compare
 // identity.

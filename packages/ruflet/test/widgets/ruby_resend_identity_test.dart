@@ -1,7 +1,7 @@
 // What a control keeps when Ruby re-sends it.
 //
 // Ruby re-sends a parent's whole children list on most updates
-// (`col.controls << x; page.update` sends [[0],[0,0,"controls",[...]]] with
+// (`col.children << x; page.update` sends [[0],[0,0,"controls",[...]]] with
 // every child), the page's `views` on every `page.add`, and the whole
 // services list when a service is added or removed. The client builds a new
 // Control object for each re-sent child, with the same id, while Flutter
@@ -95,13 +95,15 @@ class _Session {
 }
 
 /// The page patch Ruby's first `page.add` sends, with [controls] in View 20.
-List<dynamic> _firstPagePatch(List<Map<String, dynamic>> controls) => [
+List<dynamic> _firstPagePatch(List<Map<String, dynamic>> controls,
+        {Map<String, dynamic>? drawer}) =>
+    [
       [0],
       [
         0,
         0,
         'views',
-        [_view(controls)]
+        [_view(controls, drawer: drawer)]
       ],
       [0, 0, 'route', '/'],
       [
@@ -135,16 +137,20 @@ List<dynamic> _firstPagePatch(List<Map<String, dynamic>> controls) => [
       ],
     ];
 
-Map<String, dynamic> _view(List<Map<String, dynamic>> controls) => {
+Map<String, dynamic> _view(List<Map<String, dynamic>> controls,
+        {Map<String, dynamic>? drawer}) =>
+    {
       '_c': 'View',
       '_i': 20,
       'route': '/',
       '_internals': {'host_expanded': true},
+      if (drawer != null) 'drawer': drawer,
       'controls': controls,
     };
 
 Future<_Session> _connect(WidgetTester tester, TargetPlatform design,
-    List<Map<String, dynamic>> controls) async {
+    List<Map<String, dynamic>> controls,
+    {Map<String, dynamic>? drawer}) async {
   late _RecordingChannel channel;
   final backend = _SessionBackend(design,
       channelBuilder: (
@@ -156,7 +162,7 @@ Future<_Session> _connect(WidgetTester tester, TargetPlatform design,
           channel = _RecordingChannel(onMessage));
   await backend.connect();
   final session = _Session(backend, channel);
-  session.patch(1, _firstPagePatch(controls));
+  session.patch(1, _firstPagePatch(controls, drawer: drawer));
   await tester.pumpWidget(const SizedBox());
   await tester.pumpWidget(ChangeNotifierProvider<RufletBackend>.value(
       value: backend, child: ControlWidget(control: backend.page)));
@@ -381,7 +387,7 @@ class _PingExtension extends RufletExtension {
 
   @override
   RufletService? createService(Control control) {
-    if (control.type != 'Ping') return null;
+    if (control.type != 'Ping' && control.type != 'Pong') return null;
     return services[control.id] = _PingService(control: control);
   }
 }
@@ -428,8 +434,64 @@ void main() {
       expect(_editable(tester).focusNode.hasFocus, isTrue);
     });
 
+    // Ruby: page.drawer = navigation_drawer(controls: [text("menu")]);
+    // page.add(tf); page.add(text("second")); page.show_drawer;
+    // page.close_drawer. Only View handles these methods. ScrollableControl
+    // also listens on View 20 and replies null to them, so a reply alone does
+    // not show that View got them: the drawer must open and close.
+    testWidgets('$d page.show_drawer and close_drawer still work after a '
+        'second page.add', (tester) async {
+      Map<String, dynamic> drawer() => {
+            '_c': 'NavigationDrawer',
+            '_i': 101,
+            'selected_index': 0,
+            'controls': [_text(102, 'menu')],
+          };
+      final session =
+          await _connect(tester, design, [_textField(100)], drawer: drawer());
+      final viewBefore = session.backend.controlsIndex.get(20)!;
+      final listeners = viewBefore.debugInvokeMethodListenerCount;
+
+      session.patch(1, [
+        [0],
+        [
+          0,
+          0,
+          'views',
+          [
+            _view([_textField(100), _text(106, 'second')], drawer: drawer())
+          ]
+        ],
+        [0, 0, 'route', '/'],
+        [
+          0,
+          0,
+          'window',
+          {'_c': 'Window', '_i': 2}
+        ],
+      ]);
+      await tester.pumpAndSettle();
+      final viewAfter = session.backend.controlsIndex.get(20)!;
+      expect(identical(viewAfter, viewBefore), isFalse,
+          reason: 'the second page.add re-sent View 20');
+      expect(viewAfter.debugInvokeMethodListenerCount, listeners,
+          reason: 'View and ScrollableControl moved their listeners');
+      expect(viewBefore.debugInvokeMethodListenerCount, 0);
+      expect(find.text('menu'), findsNothing);
+
+      var replies =
+          await _invokeAll(tester, session, [(20, 'show_drawer', null)]);
+      expect(replies, [_answered(20)]);
+      expect(find.text('menu'), findsOneWidget, reason: 'View opened it');
+
+      replies = await _invokeAll(tester, session, [(20, 'close_drawer', null)]);
+      expect(replies, [_answered(20)]);
+      expect(find.text('menu'), findsNothing, reason: 'View closed it');
+      expect(tester.takeException(), isNull);
+    });
+
     // Ruby: col = column(controls: [tf, list_view, tabs]); page.add(col);
-    // col.controls << text("new"); page.update; then each control's method.
+    // col.children << text("new"); page.update; then each control's method.
     testWidgets('$d invokes reach the children of a Column Ruby appended to',
         (tester) async {
       final session = await _connect(tester, design, [_column()]);
@@ -732,6 +794,28 @@ void main() {
       expect((service.inits, service.disposes), (1, 1));
       expect(service.control.debugInvokeMethodListenerCount, 0);
       expect(service.control.isAttached, isFalse);
+    });
+
+    // Ruby never sends this: Page gives each control the next number of a
+    // per-page counter, once. It pins the other branch of the re-send check:
+    // a known id with another type is a different service, so the old one
+    // stops and the new one starts (before, the old one kept running and the
+    // new one never started).
+    test('is replaced when its id comes back with another type', () async {
+      send([ping(10)]);
+      final old = extension.services[10]!;
+
+      send([
+        {'_c': 'Pong', '_i': 10, 'value': 5}
+      ]);
+      final replacement = extension.services[10]!;
+      expect(identical(replacement, old), isFalse);
+      expect((old.inits, old.disposes), (1, 1));
+      expect((replacement.inits, replacement.disposes), (1, 0));
+      expect(replacement.control.type, 'Pong');
+      expect(old.control.debugInvokeMethodListenerCount, 0);
+      expect(old.control.isAttached, isFalse);
+      expect(await invoke(10), 'pong 5');
     });
   });
 

@@ -6,7 +6,7 @@ import '../models/control.dart';
 /// renders, and keeps answering them when Ruby re-sends that control.
 ///
 /// Ruby re-sends a parent's whole children list on most updates
-/// (`col.controls << x; page.update`) and the page's `views` on every
+/// (`col.children << x; page.update`) and the page's `views` on every
 /// `page.add`. The client then builds a new [Control] object with the same id
 /// while Flutter keeps the existing [State] and only hands it a new widget.
 /// A listener added once in `initState` would stay on the old object, and
