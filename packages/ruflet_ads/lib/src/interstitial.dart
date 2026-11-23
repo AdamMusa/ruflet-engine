@@ -7,7 +7,10 @@ import '../utils/ads.dart';
 class InterstitialAdService extends RufletService {
   InterstitialAdService({required super.control});
 
-  static InterstitialAd? _interstitialAd;
+  /// This control's ad: set when it loads, cleared when it is disposed.
+  /// Each InterstitialAd control owns its own ad.
+  InterstitialAd? _interstitialAd;
+  bool _disposed = false;
 
   @override
   void init() {
@@ -24,18 +27,23 @@ class InterstitialAdService extends RufletService {
         request: parseAdRequest(control.get("request"), const AdRequest())!,
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) {
+            if (_disposed) {
+              // Ruby removed the control while the ad loaded.
+              ad.dispose();
+              return;
+            }
             ad.fullScreenContentCallback = FullScreenContentCallback(
               onAdShowedFullScreenContent: (ad) => control.triggerEvent("open"),
               onAdImpression: (ad) => control.triggerEvent("impression"),
               onAdFailedToShowFullScreenContent: (ad, error) {
                 control.triggerEvent("error", error.toString());
-                ad.dispose(); // free resources
+                _disposeAd(ad); // free resources
               },
               onAdDismissedFullScreenContent: (ad) {
                 // Called when the ad dismissed full screen content.
                 control.triggerEvent("close");
                 // Dispose the ad here to free resources.
-                ad.dispose();
+                _disposeAd(ad);
               },
               onAdClicked: (ad) => control.triggerEvent("click"),
             );
@@ -45,10 +53,16 @@ class InterstitialAdService extends RufletService {
             control.triggerEvent("load");
           },
           onAdFailedToLoad: (LoadAdError error) {
+            if (_disposed) return;
             control.triggerEvent("error", error.toString());
-            _interstitialAd?.dispose();
           },
         ));
+  }
+
+  /// Disposes [ad] and forgets it, so `show` never shows a disposed ad.
+  void _disposeAd(InterstitialAd ad) {
+    if (identical(ad, _interstitialAd)) _interstitialAd = null;
+    ad.dispose();
   }
 
   Future<dynamic> _invokeMethod(String name, dynamic args) async {
@@ -64,7 +78,10 @@ class InterstitialAdService extends RufletService {
 
   @override
   void dispose() {
+    _disposed = true;
+    control.removeInvokeMethodListener(_invokeMethod);
     _interstitialAd?.dispose();
+    _interstitialAd = null;
     super.dispose();
   }
 }
