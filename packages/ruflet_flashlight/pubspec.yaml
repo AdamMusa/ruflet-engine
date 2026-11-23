@@ -5,15 +5,20 @@ version: 0.1.0
 publish_to: none
 
 environment:
-  sdk: '>=3.2.3 <4.0.0'
-  flutter: ">=1.17.0"
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: ">=3.35.6"
 
 dependencies:
   flutter:
     sdk: flutter
 
   collection: ^1.16.0
-  torch_light: 1.1.0
+  # Direct native calls instead of a platform plugin: JNI on Android,
+  # the Objective-C runtime on iOS.
+  ffi: ^2.1.0
+  jni: ^1.2.1
+  jni_flutter: ^1.1.0
+  objective_c: ^9.5.0
 
   ruflet:
     path: ../ruflet
