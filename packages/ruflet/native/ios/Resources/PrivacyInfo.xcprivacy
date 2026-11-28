@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ruflet_native's privacy manifest, complete for every planned feature.
+  It declares the required-reason APIs that the plugin's own Dart code calls:
+  - UserDefaults CA92.1: [NSUserDefaults standardUserDefaults] read and written
+    by the app itself (shared_preferences, permission_handler's flags);
+    1C8F.1 kept for parity with shared_preferences_foundation and
+    permission_handler_apple, which declare it.
+  - SystemBootTime 35F9.1: NSProcessInfo.systemUptime, to turn sensor
+    timestamps into wall-clock times (sensors_plus calls it too).
+  - DiskSpace 85F4.1: device_info's free_disk_size / total_disk_size, reported
+    to the app (owner question Q18: E174.1 or 85F4.1).
+  No tracking, no tracking domains, no collected data types.
+  tool/ruflet_native/check_privacy.sh keeps this file in step with the code.
+-->
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+				<string>1C8F.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>35F9.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>85F4.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

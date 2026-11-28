@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FileProvider paths for ruflet_native's own providers. Only an enabled
+     feature's manifest fragment (android/features/<feature>.xml) declares a
+     provider that uses them; otherwise this file is unused.
+     share: the same folder share_plus copies shared files into.
+     clipboard: images put on the clipboard (Q9). -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+  <cache-path name="share" path="share_plus/" />
+  <cache-path name="clipboard" path="ruflet_native_clipboard/" />
+</paths>

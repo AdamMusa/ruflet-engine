@@ -5,10 +5,13 @@ analyzer:
   # held to the engine's lints. Without this, `flutter analyze` here reports
   # their 430 infos and exits 1 although lib/, test/ and tool/ are clean.
   # build/ is generated output. `flutter pub get` on Flutter 3.47.7 adds that
-  # exclude itself, rewriting this file, when it is missing.
+  # exclude itself, rewriting this file, when it is missing. native/ is the
+  # nested ruflet_native package: it has its own pubspec and analysis options
+  # and is analyzed from its own folder (CI matrix entry ruflet/native).
   exclude:
     - build/**
     - vendor/**
+    - native/**
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

@@ -1,0 +1,4 @@
+  # The old Flashlight plugin, torch_light 1.1.0, driven by the old
+  # ruflet_flashlight service in lib/old/ruflet_flashlight (engine a4c64d15).
+  # The engine's ruflet_flashlight no longer uses torch_light (#136).
+  torch_light: 1.1.0

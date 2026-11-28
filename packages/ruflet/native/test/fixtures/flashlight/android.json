@@ -1,0 +1,271 @@
+{
+  "format": 1,
+  "feature": "flashlight",
+  "platform": "android",
+  "device_class": "android-emulator",
+  "device": "Google sdk_gphone64_arm64, Android 15 (API 35, arm64-v8a)",
+  "recorded_with": {
+    "packages": {
+      "ruflet_flashlight": "engine a4c64d15",
+      "torch_light": "1.1.0"
+    },
+    "flutter": "3.41.2"
+  },
+  "cases": [
+    {
+      "name": "is_available",
+      "control": {
+        "_c": "Flashlight",
+        "_i": 101
+      },
+      "steps": [
+        {
+          "step": "invoke",
+          "method": "is_available",
+          "args": null,
+          "timeout": 10
+        }
+      ],
+      "volatile": false,
+      "out": [
+        {
+          "action": "invoke_method",
+          "payload": {
+            "control_id": 101,
+            "call_id": "call_1",
+            "result": true,
+            "error": null
+          },
+          "msgpack": "kgWEqmNvbnRyb2xfaWRlp2NhbGxfaWSmY2FsbF8xpnJlc3VsdMOlZXJyb3LA",
+          "types": {
+            "result": "bool",
+            "error": "Null"
+          }
+        }
+      ]
+    },
+    {
+      "name": "on",
+      "control": {
+        "_c": "Flashlight",
+        "_i": 102
+      },
+      "steps": [
+        {
+          "step": "invoke",
+          "method": "on",
+          "args": null,
+          "timeout": 10
+        }
+      ],
+      "volatile": false,
+      "out": [
+        {
+          "action": "invoke_method",
+          "payload": {
+            "control_id": 102,
+            "call_id": "call_1",
+            "result": null,
+            "error": null
+          },
+          "msgpack": "kgWEqmNvbnRyb2xfaWRmp2NhbGxfaWSmY2FsbF8xpnJlc3VsdMClZXJyb3LA",
+          "types": {
+            "result": "Null",
+            "error": "Null"
+          }
+        }
+      ]
+    },
+    {
+      "name": "off",
+      "control": {
+        "_c": "Flashlight",
+        "_i": 103
+      },
+      "steps": [
+        {
+          "step": "invoke",
+          "method": "off",
+          "args": null,
+          "timeout": 10
+        }
+      ],
+      "volatile": false,
+      "out": [
+        {
+          "action": "invoke_method",
+          "payload": {
+            "control_id": 103,
+            "call_id": "call_1",
+            "result": null,
+            "error": null
+          },
+          "msgpack": "kgWEqmNvbnRyb2xfaWRnp2NhbGxfaWSmY2FsbF8xpnJlc3VsdMClZXJyb3LA",
+          "types": {
+            "result": "Null",
+            "error": "Null"
+          }
+        }
+      ]
+    },
+    {
+      "name": "on_off_on_error_prop",
+      "control": {
+        "_c": "Flashlight",
+        "_i": 104,
+        "on_error": true
+      },
+      "steps": [
+        {
+          "step": "invoke",
+          "method": "on",
+          "args": null,
+          "timeout": 10
+        },
+        {
+          "step": "invoke",
+          "method": "off",
+          "args": null,
+          "timeout": 10
+        },
+        {
+          "step": "invoke",
+          "method": "is_available",
+          "args": null,
+          "timeout": 10
+        }
+      ],
+      "volatile": false,
+      "out": [
+        {
+          "action": "invoke_method",
+          "payload": {
+            "control_id": 104,
+            "call_id": "call_1",
+            "result": null,
+            "error": null
+          },
+          "msgpack": "kgWEqmNvbnRyb2xfaWRop2NhbGxfaWSmY2FsbF8xpnJlc3VsdMClZXJyb3LA",
+          "types": {
+            "result": "Null",
+            "error": "Null"
+          }
+        },
+        {
+          "action": "invoke_method",
+          "payload": {
+            "control_id": 104,
+            "call_id": "call_2",
+            "result": null,
+            "error": null
+          },
+          "msgpack": "kgWEqmNvbnRyb2xfaWRop2NhbGxfaWSmY2FsbF8ypnJlc3VsdMClZXJyb3LA",
+          "types": {
+            "result": "Null",
+            "error": "Null"
+          }
+        },
+        {
+          "action": "invoke_method",
+          "payload": {
+            "control_id": 104,
+            "call_id": "call_3",
+            "result": true,
+            "error": null
+          },
+          "msgpack": "kgWEqmNvbnRyb2xfaWRop2NhbGxfaWSmY2FsbF8zpnJlc3VsdMOlZXJyb3LA",
+          "types": {
+            "result": "bool",
+            "error": "Null"
+          }
+        }
+      ]
+    },
+    {
+      "name": "args_are_ignored",
+      "control": {
+        "_c": "Flashlight",
+        "_i": 105
+      },
+      "steps": [
+        {
+          "step": "invoke",
+          "method": "on",
+          "args": {
+            "unused": 1
+          },
+          "timeout": 10
+        },
+        {
+          "step": "invoke",
+          "method": "off",
+          "args": {},
+          "timeout": 10
+        }
+      ],
+      "volatile": false,
+      "out": [
+        {
+          "action": "invoke_method",
+          "payload": {
+            "control_id": 105,
+            "call_id": "call_1",
+            "result": null,
+            "error": null
+          },
+          "msgpack": "kgWEqmNvbnRyb2xfaWRpp2NhbGxfaWSmY2FsbF8xpnJlc3VsdMClZXJyb3LA",
+          "types": {
+            "result": "Null",
+            "error": "Null"
+          }
+        },
+        {
+          "action": "invoke_method",
+          "payload": {
+            "control_id": 105,
+            "call_id": "call_2",
+            "result": null,
+            "error": null
+          },
+          "msgpack": "kgWEqmNvbnRyb2xfaWRpp2NhbGxfaWSmY2FsbF8ypnJlc3VsdMClZXJyb3LA",
+          "types": {
+            "result": "Null",
+            "error": "Null"
+          }
+        }
+      ]
+    },
+    {
+      "name": "unknown_method",
+      "control": {
+        "_c": "Flashlight",
+        "_i": 106
+      },
+      "steps": [
+        {
+          "step": "invoke",
+          "method": "blink",
+          "args": null,
+          "timeout": 10
+        }
+      ],
+      "volatile": false,
+      "out": [
+        {
+          "action": "invoke_method",
+          "payload": {
+            "control_id": 106,
+            "call_id": "call_1",
+            "result": null,
+            "error": "Exception: Unknown Flashlight method: blink"
+          },
+          "msgpack": "kgWEqmNvbnRyb2xfaWRqp2NhbGxfaWSmY2FsbF8xpnJlc3VsdMClZXJyb3LZK0V4Y2VwdGlvbjogVW5rbm93biBGbGFzaGxpZ2h0IG1ldGhvZDogYmxpbms=",
+          "types": {
+            "result": "Null",
+            "error": "String"
+          }
+        }
+      ]
+    }
+  ]
+}
