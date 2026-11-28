@@ -1,9 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:ruflet/ruflet.dart';
-import 'package:flutter/widgets.dart';
-import 'package:torch_light/torch_light.dart';
+
+import 'torch_backend.dart';
 
 class FlashlightControl extends RufletService {
   FlashlightControl({required super.control});
+
+  /// Replaces the platform torch in tests.
+  @visibleForTesting
+  static TorchBackend? debugBackendOverride;
+
+  TorchBackend? _backend;
+  TorchBackend get _torch =>
+      _backend ??= debugBackendOverride ?? TorchBackend.forPlatform();
 
   @override
   void init() {
@@ -17,11 +26,11 @@ class FlashlightControl extends RufletService {
     if (isMobilePlatform()) {
       switch (name) {
         case "on":
-          await TorchLight.enableTorch();
+          await _torch.enableTorch();
         case "off":
-          await TorchLight.disableTorch();
+          await _torch.disableTorch();
         case "is_available":
-          return await TorchLight.isTorchAvailable();
+          return await _torch.isTorchAvailable();
         default:
           throw Exception("Unknown Flashlight method: $name");
       }
