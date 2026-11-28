@@ -1,8 +1,10 @@
-// Records the Flashlight fixtures from ruflet_flashlight with torch_light
-// 1.1.0 (the old plugin).
+// Records the Flashlight fixtures from the old plugin: ruflet_flashlight as
+// it was at engine a4c64d15 (lib/old/ruflet_flashlight) with torch_light
+// 1.1.0.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:ruflet_flashlight/ruflet_flashlight.dart' as old;
+import 'package:ruflet_native_fixture_recorder/old/ruflet_flashlight/ruflet_flashlight.dart'
+    as old;
 import 'package:ruflet_native_fixture_recorder/recorder.dart';
 import 'package:ruflet_native_wire/wire_harness.dart';
 
