@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:objective_c/objective_c.dart' as objc;
 import 'package:ruflet_native/src/ffi/ios/async_blocks.dart';
+import 'package:ruflet_native/src/ffi/ios/blocks.dart';
 import 'package:ruflet_native/src/ffi/ios/c/dispatch.dart';
 import 'package:ruflet_native/src/ffi/ios/c/libsystem.dart';
 import 'package:ruflet_native/src/ffi/ios/delegates.dart';
@@ -24,6 +25,13 @@ import 'package:ruflet_native/src/ffi/ios/serial_worker.dart';
 import 'package:ruflet_native/src/ffi/ios/ui.dart';
 
 const _timeout = Duration(seconds: 10);
+
+// `+[UIView animateWithDuration:animations:completion:]`.
+final _animate = objc.msgSendPointer
+    .cast<NativeFunction<Void Function(Obj, Sel, Double, Obj, Obj)>>()
+    .asFunction<void Function(Obj, Sel, double, Obj, Obj)>();
+
+typedef _Impl = Pointer<objc.ObjCBlockImpl>;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -132,6 +140,43 @@ void main() {
       release(token);
       block.close();
       release(queue);
+    });
+
+    testWidgets('a closed BOOL AsyncBlock that UIKit still calls with YES',
+        (t) async {
+      // UIKit keeps its copy of the completion and calls it with
+      // finished=YES after the service closed it: the BOOL must never reach
+      // objc_release, and the closure must not run.
+      var completions = 0;
+      final completion = AsyncBlock.boolean((_) => completions++);
+      final animations = MainThreadBlock.voidCallback(() {});
+      _animate(cls('UIView'), sel('animateWithDuration:animations:completion:'),
+          0.2, animations.ref.pointer.cast(), completion.pointer);
+      completion.close();
+      await Future<void>.delayed(const Duration(seconds: 1));
+      expect(completions, 0);
+      animations.ref.release();
+    });
+
+    testWidgets('a closed (BOOL, id) AsyncBlock releases late objects only',
+        (t) async {
+      final object = msgObj(msgObj(cls('NSObject'), sel('alloc')), sel('init'));
+      final baseline = msgULong(object, sel('retainCount'));
+      var calls = 0;
+      final block = AsyncBlock.boolObj((_, _) => calls++);
+      final copy = objc.objectRetain(block.pointer.cast()).cast<objc.ObjCBlockImpl>();
+      final call = copy.ref.invoke
+          .cast<NativeFunction<Void Function(_Impl, Bool, Obj)>>()
+          .asFunction<void Function(_Impl, bool, Obj)>();
+      call(copy, true, object); // queued before close(): drained
+      block.close();
+      call(copy, true, object); // the port is cleared: dropped at once
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      call(copy, true, object); // the port is closed
+      expect(calls, 0);
+      expect(msgULong(object, sel('retainCount')), baseline);
+      objc.objectRelease(copy.cast());
+      release(object);
     });
 
     testWidgets('NotificationObserver delivers on a later turn', (t) async {

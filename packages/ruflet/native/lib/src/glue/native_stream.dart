@@ -9,7 +9,9 @@ import 'dart:async';
 ///   cancel stops it ([onStop]).
 /// - Values are delivered asynchronously on the event queue (`Timer.run`),
 ///   on a later event-loop turn as an EventChannel event arrived, so an
-///   event never overtakes the reply of the call that caused it (E8).
+///   event never overtakes the reply of the call that caused it (E8). A
+///   value queued by a native subscription that stopped before delivery is
+///   dropped, also when a new listener started the next one meanwhile.
 /// - [initialValue], when given, is emitted once when the native
 ///   subscription starts, so only the first listener gets it: an
 ///   EventChannel's onListen ran once per broadcast stream (battery_plus,
@@ -36,6 +38,10 @@ class NativeStream<T> {
 
   bool _running = false;
 
+  /// Counts native subscriptions, so that a value queued by a stopped one
+  /// never reaches the listeners of the next.
+  int _session = 0;
+
   /// The events.
   Stream<T> get stream => _controller.stream;
 
@@ -44,13 +50,12 @@ class NativeStream<T> {
 
   void _listen() {
     _running = true;
+    _session++;
     onStart(this);
     final initial = initialValue;
     if (initial != null) {
       final value = initial();
-      Timer.run(() {
-        if (_running) _controller.add(value);
-      });
+      _later(() => _controller.add(value));
     }
   }
 
@@ -60,19 +65,20 @@ class NativeStream<T> {
     onStop();
   }
 
-  /// Delivers [value] on a later event-loop turn.
-  void add(T value) {
+  /// Runs [deliver] on a later event-loop turn if the native subscription
+  /// that is running now still runs then.
+  void _later(void Function() deliver) {
     if (!_running) return;
+    final session = _session;
     Timer.run(() {
-      if (_running) _controller.add(value);
+      if (_running && session == _session) deliver();
     });
   }
 
+  /// Delivers [value] on a later event-loop turn.
+  void add(T value) => _later(() => _controller.add(value));
+
   /// Delivers [error] on a later event-loop turn.
-  void addError(Object error, [StackTrace? stackTrace]) {
-    if (!_running) return;
-    Timer.run(() {
-      if (_running) _controller.addError(error, stackTrace);
-    });
-  }
+  void addError(Object error, [StackTrace? stackTrace]) =>
+      _later(() => _controller.addError(error, stackTrace));
 }

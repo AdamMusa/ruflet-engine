@@ -16,14 +16,16 @@
 //   calls and posting them with NativeApi.postCObject works, JIT and AOT.
 //
 // So an AsyncBlock's invoke function is one isolateGroupBound trampoline per
-// C signature. It retains every object argument and posts the addresses to
-// the block's port (stored in the block's target field); the Dart closure
-// runs on the root isolate's event loop, after the native caller returned,
-// and the objects are released after it. These blocks return nothing.
-// NativeCallable.isolateGroupBound is experimental (owner question Q4).
+// C signature. It retains every object argument and posts the arguments to
+// the block's port (stored in the block's target field): object addresses
+// and BOOLs (0 or 1), with a bit mask saying which slots are objects. The
+// Dart closure runs on the root isolate's event loop, after the native
+// caller returned, and the objects are released after it. These blocks
+// return nothing. NativeCallable.isolateGroupBound is experimental (owner
+// question Q4).
 //
 // The trampolines may touch no isolate-local state: only their arguments,
-// @Native externals and leaf calls.
+// constants, @Native externals and leaf calls.
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -64,9 +66,21 @@ final class _CObject extends Struct {
 
 typedef _Block = Pointer<objc.ObjCBlockImpl>;
 
-/// Posts [values] (already retained object addresses) to [port]; releases
-/// them again when the port is closed.
-void _post(int port, List<int> values) {
+// Which argument slots of each signature are objects (bit i = slot i); the
+// others are BOOLs. Shared by the trampolines and the Dart side.
+const _objectsV = 0;
+const _objectsO = 1; // (id)
+const _objectsOO = 3; // (id, id)
+const _objectsB = 0; // (BOOL)
+const _objectsBO = 2; // (BOOL, id)
+
+bool _isObject(int objects, int slot) => ((objects >> slot) & 1) == 1;
+
+/// Posts [values] to [port]. The slots that [objects] marks hold object
+/// addresses the trampoline retained; when the post fails (the port is
+/// closed) only those are released again. The other slots are BOOLs, which
+/// must never reach objc_release.
+void _post(int port, List<int> values, int objects) {
   final root = _malloc(_cObjectSize * (values.length + 1) + 8 * values.length)
       .cast<_CObject>();
   final elements = Pointer<_CObject>.fromAddress(root.address + _cObjectSize);
@@ -90,8 +104,10 @@ void _post(int port, List<int> values) {
           port, root);
   _free(root.cast());
   if (!posted) {
-    for (final value in values) {
-      if (value != 0) _releaseLeaf(Pointer.fromAddress(value));
+    for (var i = 0; i < values.length; i++) {
+      if (_isObject(objects, i) && values[i] != 0) {
+        _releaseLeaf(Pointer.fromAddress(values[i]));
+      }
     }
   }
 }
@@ -99,15 +115,16 @@ void _post(int port, List<int> values) {
 int _keep(Pointer<Void> object) =>
     object == nullptr ? 0 : _retain(object).address;
 
-void _invokeV(_Block block) => _post(block.ref.target.address, const []);
+void _invokeV(_Block block) =>
+    _post(block.ref.target.address, const [], _objectsV);
 void _invokeO(_Block block, Pointer<Void> a) =>
-    _post(block.ref.target.address, [_keep(a)]);
+    _post(block.ref.target.address, [_keep(a)], _objectsO);
 void _invokeOO(_Block block, Pointer<Void> a, Pointer<Void> b) =>
-    _post(block.ref.target.address, [_keep(a), _keep(b)]);
+    _post(block.ref.target.address, [_keep(a), _keep(b)], _objectsOO);
 void _invokeB(_Block block, bool a) =>
-    _post(block.ref.target.address, [a ? 1 : 0]);
+    _post(block.ref.target.address, [a ? 1 : 0], _objectsB);
 void _invokeBO(_Block block, bool a, Pointer<Void> b) =>
-    _post(block.ref.target.address, [a ? 1 : 0, _keep(b)]);
+    _post(block.ref.target.address, [a ? 1 : 0, _keep(b)], _objectsBO);
 
 final _trampolineV =
     NativeCallable<Void Function(_Block)>.isolateGroupBound(_invokeV);
@@ -131,21 +148,27 @@ void _report(Object error, StackTrace stack) =>
 /// whenever and on whichever thread Apple calls it.
 ///
 /// Object arguments arrive retained and are released after the closure
-/// returns: use them inside the closure, or retain them. Keep the AsyncBlock
-/// until native code can no longer call it, then [close] it.
+/// returns: use them inside the closure, or retain them. [close] it once
+/// native code should no longer reach the closure (stop the native source
+/// first, T5); Apple may still hold, and call, its own copy afterwards.
 class AsyncBlock {
-  AsyncBlock._(NativeCallable trampoline, int arity, this._isObject,
-      void Function(List<int> values) onValues)
-      : _arity = arity {
+  AsyncBlock._(NativeCallable trampoline, this._objects,
+      void Function(List<int> values) onValues) {
     _port = RawReceivePort((Object? message) {
-      final values = message == null ? const <int>[] : (message as List).cast<int>();
+      if (message is String) {
+        // close() queued this after every call posted before it.
+        _port.close();
+        return;
+      }
+      final values =
+          message == null ? const <int>[] : (message as List).cast<int>();
       try {
-        onValues(values);
+        if (!_closed) onValues(values);
       } catch (error, stack) {
         _report(error, stack);
       } finally {
         for (var i = 0; i < values.length; i++) {
-          if (_isObject[i] && values[i] != 0) {
+          if (_isObject(_objects, i) && values[i] != 0) {
             release(Pointer.fromAddress(values[i]));
           }
         }
@@ -158,9 +181,8 @@ class AsyncBlock {
         release: true);
   }
 
-  // ignore: unused_field
-  final int _arity;
-  final List<bool> _isObject;
+  /// Which argument slots are objects (see [_post]).
+  final int _objects;
   late final RawReceivePort _port;
 
   /// The block to hand to Apple (`block.ref.pointer`).
@@ -171,38 +193,53 @@ class AsyncBlock {
 
   /// `void (^)(void)`
   factory AsyncBlock.voidCallback(void Function() fn) =>
-      AsyncBlock._(_trampolineV, 0, const [], (_) => fn());
+      AsyncBlock._(_trampolineV, _objectsV, (_) => fn());
 
   /// `void (^)(id)`
   factory AsyncBlock.obj(void Function(Obj a) fn) => AsyncBlock._(
-      _trampolineO, 1, const [true], (v) => fn(Pointer.fromAddress(v[0])));
+      _trampolineO, _objectsO, (v) => fn(Pointer.fromAddress(v[0])));
 
   /// `void (^)(id, id)`
   factory AsyncBlock.objObj(void Function(Obj a, Obj b) fn) => AsyncBlock._(
       _trampolineOO,
-      2,
-      const [true, true],
+      _objectsOO,
       (v) => fn(Pointer.fromAddress(v[0]), Pointer.fromAddress(v[1])));
 
   /// `void (^)(BOOL)`
   factory AsyncBlock.boolean(void Function(bool a) fn) =>
-      AsyncBlock._(_trampolineB, 1, const [false], (v) => fn(v[0] != 0));
+      AsyncBlock._(_trampolineB, _objectsB, (v) => fn(v[0] != 0));
 
   /// `void (^)(BOOL, id)`
   factory AsyncBlock.boolObj(void Function(bool a, Obj b) fn) => AsyncBlock._(
       _trampolineBO,
-      2,
-      const [false, true],
+      _objectsBO,
       (v) => fn(v[0] != 0, Pointer.fromAddress(v[1])));
 
   bool _closed = false;
 
-  /// Stops delivery and drops this side's block reference. Calls that
-  /// arrive afterwards are dropped (their objects released natively).
+  /// Whether [close] was called.
+  bool get isClosed => _closed;
+
+  /// Stops delivery and drops this side's block reference. The closure never
+  /// runs again, and the objects of calls made afterwards are released:
+  ///
+  /// - the block's port is cleared first, so a later call (Apple may keep
+  ///   and call its own copy) fails to post and the trampoline releases its
+  ///   objects at once (never the BOOL slots);
+  /// - calls already queued on the port, including ones Apple made earlier
+  ///   in this turn, are drained: the handler releases their objects without
+  ///   running the closure, and a message queued behind them closes the
+  ///   port.
+  ///
+  /// Only a call on another thread that read the port just before it was
+  /// cleared and posts just after the closing message can be dropped with
+  /// its retained objects (a leak, never a crash). Calls on the main thread
+  /// cannot interleave with close().
   void close() {
     if (_closed) return;
     _closed = true;
-    _port.close();
+    block.ref.pointer.ref.target = nullptr;
+    _port.sendPort.send('close');
     block.ref.release();
   }
 }
