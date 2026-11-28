@@ -1,5 +1,7 @@
 // Ported unchanged from ruflet-engine#136 (branch ffi/flashlight, 492b38b0):
-// packages/ruflet_flashlight/lib/src/android_torch.dart. Only the import paths differ.
+// packages/ruflet_flashlight/lib/src/android_torch.dart. Only the import paths
+// differ, plus `using<bool>` in isTorchAvailable (Flutter 3.50's analyzer
+// reports unawaited_return_in_try for the inferred FutureOr).
 
 import 'package:jni/jni.dart';
 import 'package:jni_flutter/jni_flutter.dart' show androidApplicationContext;
@@ -82,7 +84,7 @@ class AndroidTorchBackend implements TorchBackend {
     final packageManager =
         _getPackageManager.call(androidApplicationContext, JObject.type, []);
     try {
-      return using((arena) {
+      return using<bool>((arena) {
         final feature = _featureCameraFlash.toJString()..releasedBy(arena);
         return _hasSystemFeature
             .call(packageManager, jboolean.type, [feature]);
