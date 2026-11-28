@@ -195,7 +195,6 @@ const knownGaps = <String>{
   'Divider',
   'ExpansionTile',
   'Fill',
-  'Flashlight',
   'Geolocator',
   'GestureDetector',
   'Gyroscope',
