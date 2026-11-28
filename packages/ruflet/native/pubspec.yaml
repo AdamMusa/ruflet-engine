@@ -1,0 +1,68 @@
+name: ruflet_native
+description: >-
+  Ruflet's native services on Android and iOS, called directly over FFI
+  (JNI, the Objective-C runtime, C). Dart code only.
+repository: https://github.com/AdamMusa/ruflet-engine
+version: 0.1.0
+publish_to: none
+
+environment:
+  # objective_c 9.5 needs Dart 3.10; Flutter 3.38.4 is the first Flutter with
+  # Dart 3.10. jni 1.2.1 / jni_flutter 1.1.0 need Flutter 3.35.6.
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.38.4'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  ruflet:
+    path: ..
+
+  # FFI. Pinned to the ranges proven on Flutter 3.41.2 (ruflet-engine#136);
+  # only the latest-stable CI job may widen them. objective_c 9.6 needs
+  # code_assets 2 and a newer Flutter.
+  ffi: ^2.1.3
+  jni: '>=1.2.1 <1.3.0'
+  jni_flutter: '>=1.1.0 <1.2.0'
+  objective_c: '>=9.5.0 <9.6.0'
+
+  # Pure-Dart platform interfaces of the "platform" mechanism, pinned exactly
+  # to the versions the core resolves (url_launcher 6.3, share_plus 12,
+  # device_info_plus 12). Never an app-facing or implementation plugin
+  # package: those carry native code.
+  url_launcher_platform_interface: 2.3.2
+  share_plus_platform_interface: 6.1.0
+  device_info_plus_platform_interface: 7.0.3
+
+  # The union of pure-Dart packages the planned features use, declared once
+  # here so that feature PRs never edit this file.
+  collection: ^1.19.0
+  cross_file: ^0.3.4
+  http: ^1.5.0
+  image: ^4.5.4
+  meta: ^1.16.0
+  mime: ^2.0.0
+  path: ^1.9.0
+  uuid: ^4.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  # The wire harness that replays the recorded fixtures. Dev tooling outside
+  # the shipped package; pub and the Ruflet CLI never resolve a path
+  # package's dev_dependencies, so apps never see it.
+  ruflet_native_wire:
+    path: ../../../tool/ruflet_native/wire_harness
+
+flutter:
+  plugin:
+    platforms:
+      # Build configuration only: Gradle dependencies, manifest fragments and
+      # ProGuard rules per enabled feature (android/build.gradle). There is
+      # no plugin class and no source file.
+      android:
+        ffiPlugin: true
+      # Only to ship PrivacyInfo.xcprivacy in a resource-only pod.
+      ios:
+        ffiPlugin: true

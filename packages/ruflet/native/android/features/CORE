@@ -1,0 +1,16 @@
+# Core features: enabled in every app (RufletNativeExtension() registers them).
+# Equal to coreFeatures in lib/src/registry.dart (test/registry_test.dart).
+battery
+connectivity
+clipboard
+share
+url_launcher
+shared_preferences
+storage_paths
+file_picker
+sensors
+shake_detector
+screen_brightness
+wakelock
+haptic_feedback
+device_info
