@@ -5,8 +5,9 @@ version: 0.1.0
 publish_to: none
 
 environment:
+  # objective_c 9.5 needs Dart 3.10, first shipped in Flutter 3.38.0.
   sdk: '>=3.10.0 <4.0.0'
-  flutter: ">=3.35.6"
+  flutter: ">=3.38.0"
 
 dependencies:
   flutter:

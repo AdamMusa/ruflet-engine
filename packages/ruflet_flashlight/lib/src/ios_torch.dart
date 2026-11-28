@@ -1,119 +1,89 @@
-import 'dart:ffi' as ffi;
-
-import 'package:ffi/ffi.dart' show calloc;
-import 'package:objective_c/objective_c.dart' as objc;
-
 import 'torch_backend.dart';
 import 'torch_exceptions.dart';
 
-typedef _Obj = ffi.Pointer<objc.ObjCObjectImpl>;
-typedef _Sel = ffi.Pointer<objc.ObjCSelector>;
+/// AVCaptureTorchMode.off and AVCaptureTorchMode.on.
+const avCaptureTorchModeOff = 0;
+const avCaptureTorchModeOn = 1;
 
-// AVFoundation is a system framework; opening it registers AVCaptureDevice
-// with the Objective-C runtime and gives access to AVMediaTypeVideo.
-final _avFoundation = ffi.DynamicLibrary.open(
-    '/System/Library/Frameworks/AVFoundation.framework/AVFoundation');
-final _mediaTypeVideo = _avFoundation.lookup<_Obj>('AVMediaTypeVideo').value;
-final _captureDevice = objc.getClass('AVCaptureDevice');
+/// One AVCaptureDevice.
+abstract class VideoDevice {
+  /// AVCaptureDevice.hasTorch.
+  bool get hasTorch;
 
-final _selDefaultDevice = objc.registerName('defaultDeviceWithMediaType:');
-final _selHasTorch = objc.registerName('hasTorch');
-final _selLock = objc.registerName('lockForConfiguration:');
-final _selSetTorchMode = objc.registerName('setTorchMode:');
-final _selUnlock = objc.registerName('unlockForConfiguration');
+  /// lockForConfiguration, set torchMode to [mode], unlockForConfiguration.
+  /// False when the lock fails, where Swift's `try` threw.
+  bool setTorchMode(int mode);
+}
 
-final _sendObj = objc.msgSendPointer
-    .cast<ffi.NativeFunction<_Obj Function(_Obj, _Sel, _Obj)>>()
-    .asFunction<_Obj Function(_Obj, _Sel, _Obj)>();
-final _sendBool = objc.msgSendPointer
-    .cast<ffi.NativeFunction<ffi.Bool Function(_Obj, _Sel)>>()
-    .asFunction<bool Function(_Obj, _Sel)>();
-final _sendBoolError = objc.msgSendPointer
-    .cast<ffi.NativeFunction<ffi.Bool Function(_Obj, _Sel, ffi.Pointer<_Obj>)>>()
-    .asFunction<bool Function(_Obj, _Sel, ffi.Pointer<_Obj>)>();
-final _sendLong = objc.msgSendPointer
-    .cast<ffi.NativeFunction<ffi.Void Function(_Obj, _Sel, ffi.Long)>>()
-    .asFunction<void Function(_Obj, _Sel, int)>();
-final _sendVoid = objc.msgSendPointer
-    .cast<ffi.NativeFunction<ffi.Void Function(_Obj, _Sel)>>()
-    .asFunction<void Function(_Obj, _Sel)>();
+/// The iOS calls the torch needs. The real ones go over the Objective-C
+/// runtime (ios_torch_objc.dart); tests use a fake.
+abstract class IOSTorchCalls {
+  /// `AVCaptureDevice.default(for: .video)`, or null (for example on the
+  /// simulator).
+  VideoDevice? defaultVideoDevice();
+}
 
-// AVCaptureTorchMode.
-const _torchModeOff = 0;
-const _torchModeOn = 1;
-
-/// The torch on iOS, through AVCaptureDevice, called directly over the
-/// Objective-C runtime.
+/// The torch on iOS, through AVCaptureDevice.
 ///
 /// It follows torch_light 1.1.0's SwiftTorchLightPlugin step for step,
 /// including its messages.
 class IOSTorchBackend implements TorchBackend {
-  /// `AVCaptureDevice.default(for: .video)`, or null (for example on the
-  /// simulator). The object is autoreleased and only used synchronously
-  /// within one call, before the run loop drains its pool.
-  static _Obj? _defaultVideoDevice() {
-    final device =
-        _sendObj(_captureDevice, _selDefaultDevice, _mediaTypeVideo);
-    return device == ffi.nullptr ? null : device;
-  }
+  IOSTorchBackend(this._calls);
 
-  /// lockForConfiguration, set the mode, unlock. False when the lock fails,
-  /// where Swift's `try` threw.
-  static bool _setTorchMode(_Obj device, int mode) {
-    final error = calloc<_Obj>();
-    try {
-      if (!_sendBoolError(device, _selLock, error)) return false;
-      _sendLong(device, _selSetTorchMode, mode);
-      _sendVoid(device, _selUnlock);
-      return true;
-    } finally {
-      calloc.free(error);
-    }
-  }
+  final IOSTorchCalls _calls;
 
   @override
   Future<bool> isTorchAvailable() async {
-    final device = _defaultVideoDevice();
+    final device = _calls.defaultVideoDevice();
     if (device == null) {
       throw EnableTorchException(
-          message: 'Could not determine if the device has a torch, please '
-              'make sure that you are doing this on a real device.');
+        message:
+            'Could not determine if the device has a torch, please '
+            'make sure that you are doing this on a real device.',
+      );
     }
-    return _sendBool(device, _selHasTorch);
+    return device.hasTorch;
   }
 
   @override
   Future<void> enableTorch() async {
-    final device = _defaultVideoDevice();
+    final device = _calls.defaultVideoDevice();
     if (device == null) {
       throw EnableTorchException(
-          message: 'Could not enable torch, please make sure that you are '
-              'doing this on a real device');
+        message:
+            'Could not enable torch, please make sure that you are '
+            'doing this on a real device',
+      );
     }
-    if (!_sendBool(device, _selHasTorch)) {
+    if (!device.hasTorch) {
       throw EnableTorchNotAvailableException(message: 'Torch is not available');
     }
-    if (!_setTorchMode(device, _torchModeOn)) {
+    if (!device.setTorchMode(avCaptureTorchModeOn)) {
       throw EnableTorchExistentUserException(
-          message: 'Could not enable torch: ');
+        message: 'Could not enable torch: ',
+      );
     }
   }
 
   @override
   Future<void> disableTorch() async {
-    final device = _defaultVideoDevice();
+    final device = _calls.defaultVideoDevice();
     if (device == null) {
       throw DisableTorchException(
-          message: 'Could not disable torch, please make sure that you are '
-              'doing this on a real device');
+        message:
+            'Could not disable torch, please make sure that you are '
+            'doing this on a real device',
+      );
     }
-    if (!_sendBool(device, _selHasTorch)) {
+    if (!device.hasTorch) {
       throw DisableTorchNotAvailableException(
-          message: 'Torch is not available');
+        message: 'Torch is not available',
+      );
     }
-    if (!_setTorchMode(device, _torchModeOff)) {
+    if (!device.setTorchMode(avCaptureTorchModeOff)) {
       throw DisableTorchExistentUserException(
-          message: 'Could not disable torch');
+        message: 'Could not disable torch',
+      );
     }
   }
 }

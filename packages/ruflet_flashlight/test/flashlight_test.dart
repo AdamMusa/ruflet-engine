@@ -1,13 +1,11 @@
 // ruflet-coverage: Flashlight
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ruflet/ruflet.dart';
-import 'package:ruflet_flashlight/ruflet_flashlight.dart';
 import 'package:ruflet_flashlight/src/flashlight.dart';
 import 'package:ruflet_flashlight/src/torch_backend.dart';
 import 'package:ruflet_flashlight/src/torch_exceptions.dart';
 
-const _timeout = Duration(seconds: 2);
+import 'torch_test_support.dart';
 
 /// Stands in for the native torch: records calls, answers or throws.
 class _FakeTorch implements TorchBackend {
@@ -51,105 +49,112 @@ void main() {
     debugDefaultTargetPlatformOverride = null;
   });
 
-  Control service() {
-    final backend = RufletBackend(
-        pageUri: Uri.parse('ruflet://flashlight-test'),
-        assetsDir: '',
-        extensions: [Extension()],
-        multiView: false);
-    final control =
-        Control(id: 1, type: 'Flashlight', properties: {}, backend: backend);
-    Extension().createService(control)!.init();
-    control.attach();
-    return control;
-  }
-
-  /// What the engine sends Ruby as the invoke error: `e.toString()`.
-  Future<String?> errorText(Control control, String method) async {
-    String? text;
-    await control.invokeMethod(method, null, _timeout).then((_) {},
-        onError: (Object e) {
-      text = e.toString();
-    });
-    return text;
-  }
-
   for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
     group('on ${platform.name}', () {
       setUp(() => debugDefaultTargetPlatformOverride = platform);
 
       test('on and off reach the native torch and reply nil', () async {
-        final control = service();
-        expect(await control.invokeMethod('on', null, _timeout), isNull);
-        expect(await control.invokeMethod('off', null, _timeout), isNull);
+        final control = flashlightService();
+        expect(await control.invokeMethod('on', null, invokeTimeout), isNull);
+        expect(await control.invokeMethod('off', null, invokeTimeout), isNull);
         expect(torch.calls, ['enableTorch', 'disableTorch']);
       });
 
       test('is_available replies the native answer', () async {
-        final control = service();
+        final control = flashlightService();
         torch.available = true;
-        expect(await control.invokeMethod('is_available', null, _timeout),
-            isTrue);
+        expect(
+          await control.invokeMethod('is_available', null, invokeTimeout),
+          isTrue,
+        );
         torch.available = false;
-        expect(await control.invokeMethod('is_available', null, _timeout),
-            isFalse);
+        expect(
+          await control.invokeMethod('is_available', null, invokeTimeout),
+          isFalse,
+        );
       });
 
       test('errors reach Ruby with torch_light\'s exact text', () async {
-        final control = service();
-        torch.enableError =
-            EnableTorchNotAvailableException(message: 'Torch is not available');
-        expect(await errorText(control, 'on'),
-            '[EnableTorchNotAvailableException: Torch is not available]');
-        torch.disableError = DisableTorchExistentUserException(
-            message: 'Could not disable torch');
-        expect(await errorText(control, 'off'),
-            '[DisableTorchExistentUserException: Could not disable torch]');
-        torch.availableError = EnableTorchException(
-            message: 'Could not determine if the device has a torch, please '
-                'make sure that you are doing this on a real device.');
+        final control = flashlightService();
+        torch.enableError = EnableTorchNotAvailableException(
+          message: 'Torch is not available',
+        );
         expect(
-            await errorText(control, 'is_available'),
-            '[EnableTorchException: Could not determine if the device has a '
-            'torch, please make sure that you are doing this on a real '
-            'device.]');
+          await invokeError(control, 'on'),
+          '[EnableTorchNotAvailableException: Torch is not available]',
+        );
+        torch.disableError = DisableTorchExistentUserException(
+          message: 'Could not disable torch',
+        );
+        expect(
+          await invokeError(control, 'off'),
+          '[DisableTorchExistentUserException: Could not disable torch]',
+        );
+        torch.availableError = EnableTorchException(
+          message:
+              'Could not determine if the device has a torch, please '
+              'make sure that you are doing this on a real device.',
+        );
+        expect(
+          await invokeError(control, 'is_available'),
+          '[EnableTorchException: Could not determine if the device has a '
+          'torch, please make sure that you are doing this on a real '
+          'device.]',
+        );
       });
 
       test('an unknown method is reported as before', () async {
-        final control = service();
-        expect(await errorText(control, 'blink'),
-            'Exception: Unknown Flashlight method: blink');
+        final control = flashlightService();
+        expect(
+          await invokeError(control, 'blink'),
+          'Exception: Unknown Flashlight method: blink',
+        );
         expect(torch.calls, isEmpty);
       });
     });
   }
 
-  test('other platforms keep the old error and never touch native code',
-      () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-    final control = service();
-    for (final method in ['on', 'off', 'is_available']) {
-      expect(
-          await errorText(control, method),
+  test(
+    'other platforms keep the old error and never touch native code',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      final control = flashlightService();
+      for (final method in ['on', 'off', 'is_available']) {
+        expect(
+          await invokeError(control, method),
           'Exception: Flashlight control is supported only on Android and '
-          'iOS devices.');
-    }
-    expect(torch.calls, isEmpty);
-  });
+          'iOS devices.',
+        );
+      }
+      expect(torch.calls, isEmpty);
+    },
+  );
 
   test('every exception prints exactly as torch_light 1.1.0 printed it', () {
     expect(EnableTorchException().toString(), '[EnableTorchException]');
-    expect(EnableTorchException(message: 'x').toString(),
-        '[EnableTorchException: x]');
-    expect(EnableTorchExistentUserException(message: 'x').toString(),
-        '[EnableTorchExistentUserException: x]');
-    expect(EnableTorchNotAvailableException().toString(),
-        '[EnableTorchNotAvailableException]');
-    expect(DisableTorchException(message: 'x').toString(),
-        '[DisableTorchException: x]');
-    expect(DisableTorchExistentUserException().toString(),
-        '[DisableTorchExistentUserException]');
-    expect(DisableTorchNotAvailableException(message: 'x').toString(),
-        '[DisableTorchNotAvailableException: x]');
+    expect(
+      EnableTorchException(message: 'x').toString(),
+      '[EnableTorchException: x]',
+    );
+    expect(
+      EnableTorchExistentUserException(message: 'x').toString(),
+      '[EnableTorchExistentUserException: x]',
+    );
+    expect(
+      EnableTorchNotAvailableException().toString(),
+      '[EnableTorchNotAvailableException]',
+    );
+    expect(
+      DisableTorchException(message: 'x').toString(),
+      '[DisableTorchException: x]',
+    );
+    expect(
+      DisableTorchExistentUserException().toString(),
+      '[DisableTorchExistentUserException]',
+    );
+    expect(
+      DisableTorchNotAvailableException(message: 'x').toString(),
+      '[DisableTorchNotAvailableException: x]',
+    );
   });
 }
