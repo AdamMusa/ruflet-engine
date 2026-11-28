@@ -36,15 +36,25 @@ class Poller<T> {
   bool _hasValue = false;
   late T _last;
 
+  /// Counts start() calls, so that the first read queued by a run that
+  /// stopped never reports into the next run (stop() then start() in one
+  /// turn would report the initial value twice).
+  int _run = 0;
+
   bool get isRunning => _timer != null;
 
   /// Starts polling. With [emitNow], the current value is reported on the
   /// next event-loop turn (as an EventChannel's first event was).
   void start({bool emitNow = true}) {
     if (_timer != null) return;
+    final run = ++_run;
     _timer = Timer.periodic(period, (_) => poll());
     _lifecycle = AppLifecycleListener(onResume: poll);
-    if (emitNow) Timer.run(() => poll(force: true));
+    if (emitNow) {
+      Timer.run(() {
+        if (run == _run) poll(force: true);
+      });
+    }
   }
 
   /// Reads once and reports per [distinctOnly]; [force] always reports.
