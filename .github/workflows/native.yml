@@ -84,9 +84,12 @@ jobs:
           xcrun simctl bootstatus "$udid" -b
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
 
+      # Every file except the Android-only ones (each file is one app launch).
       - name: Integration tests
         working-directory: tool/ruflet_native/example
-        run: flutter test integration_test -d "${{ steps.sim.outputs.udid }}"
+        run: |
+          flutter test $(ls integration_test/*_test.dart | grep -v '_android_test.dart$') \
+            -d "${{ steps.sim.outputs.udid }}"
 
   android:
     name: Android emulator (API ${{ matrix.api }})
@@ -131,7 +134,7 @@ jobs:
           target: google_apis
           disable-animations: true
           script: |
-            cd tool/ruflet_native/example && flutter test integration_test -d emulator-5554
+            cd tool/ruflet_native/example && flutter test $(ls integration_test/*_test.dart | grep -v '_ios_test.dart$') -d emulator-5554
             tool/ruflet_native/check_manifest_parity.sh debug
             tool/ruflet_native/release_smoke.sh emulator-5554
 
