@@ -53,7 +53,7 @@ void main() {
   });
 
   test('on and off set torchMode .on (1) and .off (0) and reply nil', () async {
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(await control.invokeMethod('on', null, invokeTimeout), isNull);
     expect(await control.invokeMethod('off', null, invokeTimeout), isNull);
     expect(ios.device!.torchModes, [1, 0]);
@@ -62,7 +62,7 @@ void main() {
   test(
     'every call asks AVCaptureDevice for the default video device again',
     () async {
-      final control = flashlightService();
+      final control = startService('Flashlight');
       await control.invokeMethod('on', null, invokeTimeout);
       await control.invokeMethod('off', null, invokeTimeout);
       await control.invokeMethod('is_available', null, invokeTimeout);
@@ -71,7 +71,7 @@ void main() {
   );
 
   test('is_available replies hasTorch', () async {
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(
       await control.invokeMethod('is_available', null, invokeTimeout),
       true,
@@ -85,7 +85,7 @@ void main() {
 
   test('no video device (the simulator) asks for a real device', () async {
     ios.device = null;
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(
       await invokeError(control, 'is_available'),
       '[EnableTorchException: Could not determine if the device has a '
@@ -106,7 +106,7 @@ void main() {
 
   test('no torch: the torch is not available', () async {
     ios.device!.hasTorch = false;
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(
       await invokeError(control, 'on'),
       '[EnableTorchNotAvailableException: Torch is not available]',
@@ -120,7 +120,7 @@ void main() {
 
   test('a failed lockForConfiguration is an existent camera user', () async {
     ios.device!.lockSucceeds = false;
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(
       await invokeError(control, 'on'),
       '[EnableTorchExistentUserException: Could not enable torch: ]',

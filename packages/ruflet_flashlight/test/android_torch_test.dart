@@ -70,14 +70,14 @@ void main() {
   });
 
   test('on and off set the torch of the first camera and reply nil', () async {
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(await control.invokeMethod('on', null, invokeTimeout), isNull);
     expect(await control.invokeMethod('off', null, invokeTimeout), isNull);
     expect(android.torchModes, [('0', true), ('0', false)]);
   });
 
   test('the camera id is looked up once and kept', () async {
-    final control = flashlightService();
+    final control = startService('Flashlight');
     await control.invokeMethod('on', null, invokeTimeout);
     android.cameraIds = ['5'];
     await control.invokeMethod('off', null, invokeTimeout);
@@ -89,7 +89,7 @@ void main() {
   test('no camera: the torch is not available, and stays so', () async {
     final logs = captureDebugPrint();
     android.cameraIds = [];
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(
       await invokeError(control, 'on'),
       '[EnableTorchNotAvailableException: Torch is not available]',
@@ -120,7 +120,7 @@ void main() {
     android.cameraIdError = JavaException(
       'java.lang.SecurityException: no access',
     );
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(
       await invokeError(control, 'on'),
       '[EnableTorchNotAvailableException: Torch is not available]',
@@ -147,7 +147,7 @@ void main() {
           '"1" is not available due to an existing camera user',
       isCameraAccess: true,
     );
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(
       await invokeError(control, 'on'),
       '[EnableTorchExistentUserException: There is an existent camera '
@@ -165,7 +165,7 @@ void main() {
       'java.lang.IllegalArgumentException: bad id',
       message: 'bad id',
     );
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(
       await invokeError(control, 'on'),
       '[EnableTorchException: Could not enable torch: '
@@ -179,7 +179,7 @@ void main() {
 
   test('a Java Error is not caught as an exception', () async {
     android.torchError = _JavaError();
-    final control = flashlightService();
+    final control = startService('Flashlight');
     expect(
       await invokeError(control, 'on'),
       'Exception in Java: java.lang.OutOfMemoryError',
@@ -191,7 +191,7 @@ void main() {
   });
 
   test('is_available replies whether the device has a camera flash', () async {
-    final control = flashlightService();
+    final control = startService('Flashlight');
     android.flash = true;
     expect(
       await control.invokeMethod('is_available', null, invokeTimeout),
@@ -206,7 +206,7 @@ void main() {
   });
 
   test('is_available failures come back as EnableTorchException', () async {
-    final control = flashlightService();
+    final control = startService('Flashlight');
     android.flashError = JavaException(
       'java.lang.RuntimeException: Package manager has died',
       message: 'Package manager has died',

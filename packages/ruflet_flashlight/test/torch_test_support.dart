@@ -5,21 +5,16 @@ import 'package:ruflet_flashlight/ruflet_flashlight.dart';
 
 const invokeTimeout = Duration(seconds: 2);
 
-/// The Flashlight service control that Ruby's `page.flashlight` talks to,
-/// built and started as the engine does.
-Control flashlightService() {
+/// A service control of wire [type] (for example the one Ruby's
+/// `page.flashlight` talks to), built and started as the engine does.
+Control startService(String type) {
   final backend = RufletBackend(
     pageUri: Uri.parse('ruflet://flashlight-test'),
     assetsDir: '',
     extensions: [Extension()],
     multiView: false,
   );
-  final control = Control(
-    id: 1,
-    type: 'Flashlight',
-    properties: {},
-    backend: backend,
-  );
+  final control = Control(id: 1, type: type, properties: {}, backend: backend);
   Extension().createService(control)!.init();
   control.attach();
   return control;

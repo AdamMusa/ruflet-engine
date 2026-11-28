@@ -54,14 +54,14 @@ void main() {
       setUp(() => debugDefaultTargetPlatformOverride = platform);
 
       test('on and off reach the native torch and reply nil', () async {
-        final control = flashlightService();
+        final control = startService('Flashlight');
         expect(await control.invokeMethod('on', null, invokeTimeout), isNull);
         expect(await control.invokeMethod('off', null, invokeTimeout), isNull);
         expect(torch.calls, ['enableTorch', 'disableTorch']);
       });
 
       test('is_available replies the native answer', () async {
-        final control = flashlightService();
+        final control = startService('Flashlight');
         torch.available = true;
         expect(
           await control.invokeMethod('is_available', null, invokeTimeout),
@@ -75,7 +75,7 @@ void main() {
       });
 
       test('errors reach Ruby with torch_light\'s exact text', () async {
-        final control = flashlightService();
+        final control = startService('Flashlight');
         torch.enableError = EnableTorchNotAvailableException(
           message: 'Torch is not available',
         );
@@ -104,7 +104,7 @@ void main() {
       });
 
       test('an unknown method is reported as before', () async {
-        final control = flashlightService();
+        final control = startService('Flashlight');
         expect(
           await invokeError(control, 'blink'),
           'Exception: Unknown Flashlight method: blink',
@@ -118,7 +118,7 @@ void main() {
     'other platforms keep the old error and never touch native code',
     () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-      final control = flashlightService();
+      final control = startService('Flashlight');
       for (final method in ['on', 'off', 'is_available']) {
         expect(
           await invokeError(control, method),
