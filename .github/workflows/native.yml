@@ -62,6 +62,15 @@ jobs:
       - name: Prepare the example (${{ matrix.ios }})
         run: tool/ruflet_native/prepare_example.sh example --${{ matrix.ios }}
 
+      # Built once before the tests: a cold build (all of the core's plugins,
+      # SwiftPM resolution) can exceed flutter test's 12-minute load timeout.
+      - name: Build, and the privacy manifest ships in the app
+        working-directory: tool/ruflet_native/example
+        run: |
+          flutter pub get
+          flutter build ios --simulator --debug
+          find build/ios -path '*Runner.app/*' -name PrivacyInfo.xcprivacy | grep ruflet_native
+
       - name: Boot a simulator
         id: sim
         run: |
@@ -77,15 +86,7 @@ jobs:
 
       - name: Integration tests
         working-directory: tool/ruflet_native/example
-        run: |
-          flutter pub get
-          flutter test integration_test -d "${{ steps.sim.outputs.udid }}"
-
-      - name: The privacy manifest ships in the app
-        working-directory: tool/ruflet_native/example
-        run: |
-          flutter build ios --simulator --debug
-          find build/ios -path '*Runner.app/*' -name PrivacyInfo.xcprivacy | grep ruflet_native
+        run: flutter test integration_test -d "${{ steps.sim.outputs.udid }}"
 
   android:
     name: Android emulator (API ${{ matrix.api }})
