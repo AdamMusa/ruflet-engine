@@ -21,9 +21,10 @@ sees: none.
   `debugPrint` and its cause, where torch_light wrote `Log.d` (tag
   `torch_light_plugin`) without one.
 - `is_available` turns a Java exception into `EnableTorchException` with the
-  exception's `getMessage()`, as the MethodChannel and torch_light did. A
-  `java.lang.Error` from `setTorchMode`, which the MethodChannel did not catch
-  (the app crashed), is replied with its text.
+  exception's `getMessage()`, which is what torch_light's Dart side made of
+  the error its platform channel replied. A `java.lang.Error` from
+  `setTorchMode`, which torch_light's channel did not catch (the app
+  crashed), is replied with its text.
 - torch_light's iOS code sent a second reply after a failed
   `lockForConfiguration` (`result(FlutterError)` then `result(nil)`); the
   channel kept the first, which is what this feature throws.
