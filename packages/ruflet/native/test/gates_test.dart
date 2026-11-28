@@ -19,8 +19,8 @@ Iterable<File> _dart(String dir) => Directory(dir)
     .whereType<File>()
     .where((f) => f.path.endsWith('.dart'));
 
-/// Packages lib/ may import (everything else would be a plugin with native
-/// code, or an undeclared dependency).
+/// Packages lib/ may import and pubspec.yaml may depend on (everything else
+/// would be a plugin with native code, or an undeclared dependency).
 const _allowedPackages = {
   'flutter', 'ruflet', 'ruflet_native', 'ffi', 'jni', 'jni_flutter',
   'objective_c', 'url_launcher_platform_interface',
@@ -48,6 +48,23 @@ final _nativeFile = RegExp(
     r'rs|go|zig|jar|aar|class|dex|so|a|o|dylib|dll|lib|tbd)$|'
     r'(^|/)(jniLibs|[^/]+\.(xc)?framework)/|'
     r'(^|/)(CMakeLists\.txt|Makefile|Cargo\.toml|Package\.swift)$');
+
+/// The package names declared under [section] of a pubspec (two-space keys;
+/// comments and nested keys skipped).
+Set<String> _pubspecSection(String pubspec, String section) {
+  final names = <String>{};
+  var inside = false;
+  for (final line in pubspec.split('\n')) {
+    if (line.trim().isEmpty || line.trimLeft().startsWith('#')) continue;
+    if (!line.startsWith(' ')) {
+      inside = line.startsWith('$section:');
+      continue;
+    }
+    final name = RegExp(r'^  ([A-Za-z0-9_]+)\s*:').firstMatch(line);
+    if (inside && name != null) names.add(name[1]!);
+  }
+  return names;
+}
 
 bool _isFfiFile(String path) =>
     path.contains('/src/ffi/android/') ||
@@ -84,6 +101,36 @@ void main() {
         expect(_allowedPackages, contains(m[1]), reason: '${file.path}: ${m[1]}');
       }
     }
+  });
+
+  test('pubspec.yaml depends on no plugin package with native code', () {
+    // A dependency is built into the app (and registered by Flutter's
+    // generated plugin registrant) even when no file imports it.
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    final dependencies = _pubspecSection(pubspec, 'dependencies');
+    expect(dependencies, containsAll(['flutter', 'ruflet', 'jni', 'objective_c']));
+    for (final name in dependencies) {
+      expect(_allowedPackages, contains(name), reason: 'pubspec.yaml: $name');
+    }
+  });
+
+  test('the pubspec check catches a native plugin dependency', () {
+    // Guards the parser against reading nothing.
+    const pubspec = '''
+name: ruflet_native
+dependencies:
+  flutter:
+    sdk: flutter
+  # a comment
+  jni: '>=1.2.1 <1.3.0'
+  torch_light: 1.1.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+''';
+    expect(_pubspecSection(pubspec, 'dependencies'),
+        {'flutter', 'jni', 'torch_light'});
+    expect(_allowedPackages, isNot(contains('torch_light')));
   });
 
   test('only FFI files import dart:ffi, jni or objective_c', () {
