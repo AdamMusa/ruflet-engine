@@ -4,7 +4,8 @@
 //   // ruflet-native-glue: replace=<old>=><new>      (applied in order)
 // among its comment lines, followed by one blank line and the copied body.
 // Every lib/src/<feature>/*_service.dart is service glue (SPEC §2.3, §3.3)
-// and must carry the header; any other file that carries it is checked too.
+// and must carry the header; any other file that carries it (code ported
+// from an engine package) is checked too.
 import 'dart:io';
 
 const _tag = '// ruflet-native-glue: ';

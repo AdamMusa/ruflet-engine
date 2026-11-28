@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ruflet_native/flashlight.dart';
 import 'package:ruflet_native/src/flashlight/errors.dart';
 import 'package:ruflet_native/src/flashlight/flashlight_api.dart';
+import 'package:ruflet_native/src/flashlight/flashlight_service.dart';
 import 'package:ruflet_native_wire/wire_harness.dart';
 
 /// Answers the recorded outcomes in call order.
@@ -80,7 +81,7 @@ void main() {
           fixture.platform == 'ios' ? TargetPlatform.iOS : TargetPlatform.android);
       tearDown(() {
         debugDefaultTargetPlatformOverride = null;
-        TorchBackend.debugOverride = null;
+        FlashlightControl.debugBackendOverride = null;
       });
 
       for (final recorded in fixture.cases) {
@@ -97,7 +98,7 @@ void main() {
             final error = payload['error'] as String?;
             outcomes.add(error == null ? payload['result'] : _exception(error));
           }
-          TorchBackend.debugOverride = _ScriptedTorch(outcomes);
+          FlashlightControl.debugBackendOverride = _ScriptedTorch(outcomes);
           final harness = await WireHarness.start([Extension()]);
           final actual = await harness.run(recorded.spec);
           harness.dispose();

@@ -1,148 +1,132 @@
-// Ported unchanged from ruflet-engine#136 (branch ffi/flashlight, 492b38b0):
-// packages/ruflet_flashlight/lib/src/android_torch.dart. Only the import paths
-// differ, plus `using<bool>` in isTorchAvailable (Flutter 3.50's analyzer
-// reports unawaited_return_in_try for the inferred FutureOr).
+// ruflet-native-glue: source=packages/ruflet_flashlight/lib/src/android_torch_jni.dart
+// ruflet-native-glue: commit=5a314c9fdf0780cc689a946b84e600540a02d9ae
+// The AndroidTorchCalls over JNI (package:jni).
+// Copied verbatim, with the substitutions above, from ruflet_flashlight
+// as ruflet-engine#136 merged it. tool/ruflet_native/check_glue_drift.sh
+// diffs it against the source, so a fix there must be copied here.
 
 import 'package:jni/jni.dart';
 import 'package:jni_flutter/jni_flutter.dart' show androidApplicationContext;
 
-import 'flashlight_api.dart';
-import 'errors.dart';
+import 'android_torch.dart';
 
-/// The torch on Android, through android.hardware.camera2.CameraManager,
-/// called directly over JNI.
-///
-/// It follows torch_light 1.1.0's TorchLightPlugin.kt step for step: the
-/// first camera id is looked up once, a missing id means "Torch is not
-/// available", and a CameraAccessException means another camera user.
-class AndroidTorchBackend implements TorchBackend {
+/// [AndroidTorchCalls] made directly over JNI.
+class JniTorchCalls implements AndroidTorchCalls {
   static final _contextClass = JClass.forName('android/content/Context');
   static final _getSystemService = _contextClass.instanceMethodId(
-      'getSystemService', '(Ljava/lang/String;)Ljava/lang/Object;');
+    'getSystemService',
+    '(Ljava/lang/String;)Ljava/lang/Object;',
+  );
   static final _getPackageManager = _contextClass.instanceMethodId(
-      'getPackageManager', '()Landroid/content/pm/PackageManager;');
+    'getPackageManager',
+    '()Landroid/content/pm/PackageManager;',
+  );
 
-  static final _hasSystemFeature =
-      JClass.forName('android/content/pm/PackageManager')
-          .instanceMethodId('hasSystemFeature', '(Ljava/lang/String;)Z');
+  static final _hasSystemFeature = JClass.forName(
+    'android/content/pm/PackageManager',
+  ).instanceMethodId('hasSystemFeature', '(Ljava/lang/String;)Z');
 
-  static final _cameraManagerClass =
-      JClass.forName('android/hardware/camera2/CameraManager');
+  static final _cameraManagerClass = JClass.forName(
+    'android/hardware/camera2/CameraManager',
+  );
   static final _getCameraIdList = _cameraManagerClass.instanceMethodId(
-      'getCameraIdList', '()[Ljava/lang/String;');
+    'getCameraIdList',
+    '()[Ljava/lang/String;',
+  );
   static final _setTorchMode = _cameraManagerClass.instanceMethodId(
-      'setTorchMode', '(Ljava/lang/String;Z)V');
+    'setTorchMode',
+    '(Ljava/lang/String;Z)V',
+  );
 
-  static final _cameraAccessException =
-      JClass.forName('android/hardware/camera2/CameraAccessException');
+  static final _cameraAccessException = JClass.forName(
+    'android/hardware/camera2/CameraAccessException',
+  );
   static final _exceptionClass = JClass.forName('java/lang/Exception');
-  static final _objectToString = JClass.forName('java/lang/Object')
-      .instanceMethodId('toString', '()Ljava/lang/String;');
+  static final _getMessage = JClass.forName(
+    'java/lang/Throwable',
+  ).instanceMethodId('getMessage', '()Ljava/lang/String;');
 
   // Context.CAMERA_SERVICE and PackageManager.FEATURE_CAMERA_FLASH.
   static const _cameraService = 'camera';
   static const _featureCameraFlash = 'android.hardware.camera.flash';
 
-  static JObject? _cameraManager;
-  static String? _cameraId;
-  static bool _cameraIdLooked = false;
+  /// Kept for the life of the process, as the plugin kept its CameraManager.
+  JObject? _cameraManager;
 
-  static JObject get _manager => _cameraManager ??= using<JObject>((arena) {
-        final name = _cameraService.toJString()..releasedBy(arena);
-        return _getSystemService.call(
-            androidApplicationContext, JObject.type, [name]);
-      });
-
-  /// The first camera id, looked up once as the plugin did when it attached.
-  /// Any failure (no camera, no permission to list them) leaves it null.
-  static String? get _firstCameraId {
-    if (!_cameraIdLooked) {
-      _cameraIdLooked = true;
-      try {
-        final ids = _getCameraIdList.call(_manager, JObject.type, [])
-            as JArray<JString?>;
-        try {
-          final first = ids.length > 0 ? ids[0] : null;
-          _cameraId = first?.toDartString(releaseOriginal: true);
-        } finally {
-          ids.release();
-        }
-      } catch (_) {
-        _cameraId = null;
-      }
-    }
-    return _cameraId;
-  }
-
-  /// What Kotlin's "$e" printed: the Java exception's own toString().
-  static String _javaText(JThrowable e) =>
-      _objectToString.call(e, JString.type, []).toDartString(
-          releaseOriginal: true);
-
-  @override
-  Future<bool> isTorchAvailable() async {
-    final packageManager =
-        _getPackageManager.call(androidApplicationContext, JObject.type, []);
+  /// Runs [body] with the application context, then releases the new
+  /// reference androidApplicationContext returns.
+  static R _withContext<R>(R Function(JObject context) body) {
+    final context = androidApplicationContext;
     try {
-      return using<bool>((arena) {
-        final feature = _featureCameraFlash.toJString()..releasedBy(arena);
-        return _hasSystemFeature
-            .call(packageManager, jboolean.type, [feature]);
-      });
+      return body(context);
     } finally {
-      packageManager.release();
+      context.release();
     }
   }
 
-  void _setTorch(bool on) {
-    final id = _firstCameraId!;
+  JObject get _manager => _cameraManager ??= _withContext<JObject>(
+    (context) => using((arena) {
+      final name = _cameraService.toJString()..releasedBy(arena);
+      return _getSystemService.call(context, JObject.type, [name]);
+    }),
+  );
+
+  /// Runs [body]. A Java Exception it throws becomes a [JavaException], and
+  /// its reference is released. Other Throwables pass through unchanged.
+  static T _java<T>(T Function() body) {
+    try {
+      return body();
+    } on JThrowable catch (e) {
+      if (!e.isInstanceOf(_exceptionClass)) rethrow;
+      final error = JavaException(
+        // jni fills JThrowable.message with the exception's toString().
+        e.message,
+        message: _getMessage
+            .callNullable(e, JString.type, [])
+            ?.toDartString(releaseOriginal: true),
+        isCameraAccess: e.isInstanceOf(_cameraAccessException),
+      );
+      e.release();
+      throw error;
+    }
+  }
+
+  @override
+  List<String?> cameraIdList() => _java(() {
+    final ids =
+        _getCameraIdList.call(_manager, JObject.type, []) as JArray<JString?>;
+    try {
+      return [
+        for (var i = 0; i < ids.length; i++)
+          ids[i]?.toDartString(releaseOriginal: true),
+      ];
+    } finally {
+      ids.release();
+    }
+  });
+
+  @override
+  void setTorchMode(String cameraId, bool enabled) => _java(() {
     using((arena) {
-      final jid = id.toJString()..releasedBy(arena);
-      _setTorchMode.call(_manager, jvoid.type, [jid, on]);
+      final id = cameraId.toJString()..releasedBy(arena);
+      _setTorchMode.call(_manager, jvoid.type, [id, enabled]);
     });
-  }
+  });
 
   @override
-  Future<void> enableTorch() async {
-    if (_firstCameraId == null) {
-      throw EnableTorchNotAvailableException(message: 'Torch is not available');
-    }
-    try {
-      _setTorch(true);
-    } on JThrowable catch (e) {
-      if (e.isInstanceOf(_cameraAccessException)) {
-        throw EnableTorchExistentUserException(
-            message:
-                'There is an existent camera user, cannot enable torch: '
-                '${_javaText(e)}');
+  bool hasFlashFeature() => _java(
+    () => _withContext((context) {
+      final packageManager = _getPackageManager.call(context, JObject.type, []);
+      try {
+        return using((arena) {
+          final feature = _featureCameraFlash.toJString()..releasedBy(arena);
+          return _hasSystemFeature.call(packageManager, jboolean.type, [
+            feature,
+          ]);
+        });
+      } finally {
+        packageManager.release();
       }
-      if (e.isInstanceOf(_exceptionClass)) {
-        throw EnableTorchException(
-            message: 'Could not enable torch: ${_javaText(e)}');
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> disableTorch() async {
-    if (_firstCameraId == null) {
-      throw DisableTorchNotAvailableException(
-          message: 'Torch is not available');
-    }
-    try {
-      _setTorch(false);
-    } on JThrowable catch (e) {
-      if (e.isInstanceOf(_cameraAccessException)) {
-        throw DisableTorchExistentUserException(
-            message:
-                'There is an existent camera user, cannot disable torch: '
-                '${_javaText(e)}');
-      }
-      if (e.isInstanceOf(_exceptionClass)) {
-        throw DisableTorchException(message: 'Could not disable torch');
-      }
-      rethrow;
-    }
-  }
+    }),
+  );
 }

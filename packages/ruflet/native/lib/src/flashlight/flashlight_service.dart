@@ -1,16 +1,26 @@
 // ruflet-native-glue: source=packages/ruflet_flashlight/lib/src/flashlight.dart
-// ruflet-native-glue: commit=a4c64d157bb16b08bf2198809ed48c4ed51531dd
-// ruflet-native-glue: replace=import 'package:torch_light/torch_light.dart';=>import 'flashlight_api.dart';
-// ruflet-native-glue: replace=TorchLight.=>TorchBackend.instance.
-// The Flashlight service glue: today's service file, copied verbatim with the
-// substitutions above (tool/ruflet_native/check_glue_drift.sh diffs it).
+// ruflet-native-glue: commit=5a314c9fdf0780cc689a946b84e600540a02d9ae
+// ruflet-native-glue: replace=import 'torch_backend.dart';=>import 'flashlight_api.dart';
+// The Flashlight service glue: the extension's service file.
+// Copied verbatim, with the substitutions above, from ruflet_flashlight
+// as ruflet-engine#136 merged it. tool/ruflet_native/check_glue_drift.sh
+// diffs it against the source, so a fix there must be copied here.
 
+import 'package:flutter/foundation.dart';
 import 'package:ruflet/ruflet.dart';
-import 'package:flutter/widgets.dart';
+
 import 'flashlight_api.dart';
 
 class FlashlightControl extends RufletService {
   FlashlightControl({required super.control});
+
+  /// Replaces the platform torch in tests.
+  @visibleForTesting
+  static TorchBackend? debugBackendOverride;
+
+  TorchBackend? _backend;
+  TorchBackend get _torch =>
+      _backend ??= debugBackendOverride ?? TorchBackend.forPlatform();
 
   @override
   void init() {
@@ -24,11 +34,11 @@ class FlashlightControl extends RufletService {
     if (isMobilePlatform()) {
       switch (name) {
         case "on":
-          await TorchBackend.instance.enableTorch();
+          await _torch.enableTorch();
         case "off":
-          await TorchBackend.instance.disableTorch();
+          await _torch.disableTorch();
         case "is_available":
-          return await TorchBackend.instance.isTorchAvailable();
+          return await _torch.isTorchAvailable();
         default:
           throw Exception("Unknown Flashlight method: $name");
       }

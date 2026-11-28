@@ -39,7 +39,7 @@ Future<void> main() async {
   }
   await _check('torch is_available', () async {
     try {
-      return await TorchBackend.instance.isTorchAvailable();
+      return await TorchBackend.forPlatform().isTorchAvailable();
     } on Exception catch (e) {
       return e.toString();
     }

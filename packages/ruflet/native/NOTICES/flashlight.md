@@ -12,7 +12,7 @@ exception classes (names and `toString()`) of:
   (https://www.apache.org/licenses/LICENSE-2.0). The package ships the
   license text without a separate copyright line.
 
-The Dart code was first written for ruflet-engine#136 (branch
-ffi/flashlight) and moved here unchanged. No torch_light source file is
-included: the platform calls are made from Dart over JNI and the
+The Dart code is ruflet_flashlight's (ruflet-engine#136, merged in
+5a314c9f), copied unchanged except for import paths. No torch_light source
+file is included: the platform calls are made from Dart over JNI and the
 Objective-C runtime.

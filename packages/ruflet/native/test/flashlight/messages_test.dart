@@ -1,5 +1,5 @@
-// Pins every error the native torch code throws (exception class and
-// message text) to torch_light 1.1.0, because the engine replies
+// Pins every error the torch code throws with a literal message (exception
+// class and message text) to torch_light 1.1.0, because the engine replies
 // `e.toString()` to Ruby. The device replays compare these texts byte for
 // byte only on the recording device, and CI's devices are other ones (and
 // the Android emulators have a flash, so Android's error branches never run
@@ -13,23 +13,25 @@ typedef _Throw = (String exception, String message);
 
 /// torch_light 1.1.0, android/src/main/kotlin/com/svprdga/torchlight/
 /// TorchLightPlugin.kt (result.error codes mapped to exceptions by
-/// lib/torch_light.dart). Kotlin's "$e" is the Java toString(), _javaText.
+/// lib/torch_light.dart). Kotlin's "$e" is the Java toString(), which
+/// JavaException.text holds. is_available's catch passes the Java message on
+/// (not a literal; android_torch_test.dart covers it).
 const _android = <_Throw>[
   // enableTorch: cameraId == null
   ('EnableTorchNotAvailableException', 'Torch is not available'),
   // enableTorch: catch (e: CameraAccessException)
   (
     'EnableTorchExistentUserException',
-    r'There is an existent camera user, cannot enable torch: ${_javaText(e)}'
+    r'There is an existent camera user, cannot enable torch: ${e.text}'
   ),
   // enableTorch: catch (e: Exception)
-  ('EnableTorchException', r'Could not enable torch: ${_javaText(e)}'),
+  ('EnableTorchException', r'Could not enable torch: ${e.text}'),
   // disableTorch: cameraId == null
   ('DisableTorchNotAvailableException', 'Torch is not available'),
   // disableTorch: catch (e: CameraAccessException)
   (
     'DisableTorchExistentUserException',
-    r'There is an existent camera user, cannot disable torch: ${_javaText(e)}'
+    r'There is an existent camera user, cannot disable torch: ${e.text}'
   ),
   // disableTorch: catch (e: Exception)
   ('DisableTorchException', 'Could not disable torch'),
@@ -66,11 +68,12 @@ const _ios = <_Throw>[
 ];
 
 final _throwSite = RegExp(
-    r'''throw\s+(\w+)\(\s*message:\s*((?:'(?:[^'\\]|\\.)*'\s*)+)\)''');
+    r'''throw\s+(\w+)\(\s*message:\s*((?:'(?:[^'\\]|\\.)*'\s*)+),?\s*\)''');
 final _literal = RegExp(r"""'((?:[^'\\]|\\.)*)'""");
 
 /// The `throw X(message: '...' '...')` sites of [path], in source order,
-/// with adjacent literals joined (interpolations kept as written).
+/// with adjacent literals joined (interpolations kept as written). A
+/// trailing comma is allowed (the tall dart format style writes one).
 List<_Throw> _throws(String path) => [
       for (final m in _throwSite.allMatches(File(path).readAsStringSync()))
         (
@@ -109,11 +112,14 @@ bool _produces(_Throw pin, String recorded) {
 
 void main() {
   test('Android throws torch_light 1.1.0 texts', () {
-    expect(_throws('lib/src/flashlight/flashlight_android.dart'), _android);
+    expect(_throws('lib/src/flashlight/android_torch.dart'), _android);
+    // The JNI calls only report Java exceptions; every text is above.
+    expect(_throws('lib/src/flashlight/flashlight_android.dart'), isEmpty);
   });
 
   test('iOS throws torch_light 1.1.0 texts', () {
-    expect(_throws('lib/src/flashlight/flashlight_ios.dart'), _ios);
+    expect(_throws('lib/src/flashlight/ios_torch.dart'), _ios);
+    expect(_throws('lib/src/flashlight/flashlight_ios.dart'), isEmpty);
   });
 
   for (final (platform, pins) in [('android', _android), ('ios', _ios)]) {

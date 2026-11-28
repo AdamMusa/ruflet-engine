@@ -1,5 +1,9 @@
-// Ported unchanged from ruflet-engine#136 (branch ffi/flashlight, 492b38b0):
-// packages/ruflet_flashlight/lib/src/torch_exceptions.dart. Only the import paths differ.
+// ruflet-native-glue: source=packages/ruflet_flashlight/lib/src/torch_exceptions.dart
+// ruflet-native-glue: commit=5a314c9fdf0780cc689a946b84e600540a02d9ae
+// torch_light 1.1.0's exception classes, as ruflet_flashlight keeps them.
+// Copied verbatim, with the substitutions above, from ruflet_flashlight
+// as ruflet-engine#136 merged it. tool/ruflet_native/check_glue_drift.sh
+// diffs it against the source, so a fix there must be copied here.
 
 // The exceptions torch_light 1.1.0 threw, with the same names and the same
 // toString(). The engine sends `e.toString()` back to Ruby as the invoke

@@ -1,9 +1,15 @@
-// The torch contract of the Flashlight feature, from ruflet-engine#136
-// (packages/ruflet_flashlight/lib/src/torch_backend.dart), plus the instance
-// the glue calls and its test override.
-import 'package:flutter/foundation.dart';
+// ruflet-native-glue: source=packages/ruflet_flashlight/lib/src/torch_backend.dart
+// ruflet-native-glue: commit=5a314c9fdf0780cc689a946b84e600540a02d9ae
+// ruflet-native-glue: replace=torch_backend_stub.dart=>flashlight_stub.dart
+// ruflet-native-glue: replace=torch_backend_native.dart=>flashlight_native.dart
+// ruflet-native-glue: replace=torch_exceptions.dart=>errors.dart
+// The torch contract (SPEC §3.2).
+// Copied verbatim, with the substitutions above, from ruflet_flashlight
+// as ruflet-engine#136 merged it. tool/ruflet_native/check_glue_drift.sh
+// diffs it against the source, so a fix there must be copied here.
 
-import 'flashlight_select.dart' as platform;
+import 'flashlight_stub.dart'
+    if (dart.library.ffi) 'flashlight_native.dart' as platform;
 
 /// The device torch, reached directly through the platform's own API.
 ///
@@ -23,15 +29,4 @@ abstract class TorchBackend {
   /// Objective-C runtime on iOS. Other platforms never reach it, because the
   /// Flashlight service only runs on Android and iOS.
   static TorchBackend forPlatform() => platform.createTorchBackend();
-
-  /// Replaces the platform torch in tests.
-  @visibleForTesting
-  static TorchBackend? debugOverride;
-
-  static TorchBackend? _platform;
-
-  /// The torch the Flashlight glue calls: [debugOverride], or the platform
-  /// backend, created on first use.
-  static TorchBackend get instance =>
-      debugOverride ?? (_platform ??= forPlatform());
 }
