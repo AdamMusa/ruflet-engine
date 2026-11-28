@@ -170,23 +170,29 @@ jobs:
 
       - run: flutter --version
 
-      # lib/main.dart imports nothing from ruflet_native: build the probes
-      # that import every feature library (all_features.dart) and the shared
-      # FFI layers (release_smoke.dart), so the plugin's Dart code compiles
-      # on this Flutter, not only its Gradle and pod configuration.
+      # lib/main.dart imports nothing from ruflet_native, so on stable the
+      # probes are built: all_features.dart (every feature library) and
+      # release_smoke.dart (the shared FFI layers). On 3.38.4 the core itself
+      # (package:ruflet) does not compile: it uses CupertinoSheetRoute's
+      # showDragHandle, Semantics' minValue and DropdownMenu's
+      # decorationBuilder. No Ruflet app builds there, so that job builds
+      # main.dart (ruflet_native's Gradle and pod configuration) and analyzes
+      # ruflet_native's code (owner question Q17).
       - name: Build the example
+        env:
+          TARGETS: ${{ matrix.flutter == 'stable' && 'lib/all_features.dart lib/release_smoke.dart' || 'lib/main.dart' }}
         run: |
           tool/ruflet_native/prepare_example.sh example
           cd tool/ruflet_native/example
           flutter pub get
-          for target in lib/all_features.dart lib/release_smoke.dart; do
+          for target in $TARGETS; do
             flutter build apk --debug -t "$target"
             flutter build ios --simulator --debug -t "$target"
           done
 
-      # The declared minimum (pubspec `flutter: '>=3.38.4'`): every library
-      # and test of ruflet_native analyzes cleanly. The stable analysis is in
-      # test.yml (flutter-stable).
+      # ruflet_native's declared minimum (pubspec `flutter: '>=3.38.4'`, from
+      # its FFI packages): every library and test analyzes cleanly. The
+      # stable analysis is in test.yml (flutter-stable).
       - name: Analyze ruflet_native
         if: matrix.flutter != 'stable'
         working-directory: packages/ruflet/native
