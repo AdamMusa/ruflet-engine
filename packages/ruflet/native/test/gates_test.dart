@@ -33,6 +33,22 @@ const _allowedPackages = {
 final _ffiImport = RegExp(
     r'''import\s+['"](dart:ffi|package:(jni|jni_flutter|objective_c|ffi)/)''');
 
+/// Platform channels: the channel classes, Flutter's own channels, any binary
+/// messenger (defaultBinaryMessenger, binaryMessenger:) and raw platform
+/// messages. Flutter's high-level services (Clipboard, HapticFeedback) stay
+/// allowed. Same pattern as tool/ruflet_native/check_no_channels.sh.
+final _channel = RegExp(r'\b(MethodChannel|EventChannel|BasicMessageChannel|'
+    r'OptionalMethodChannel|SystemChannels|sendPlatformMessage|'
+    r'setMessageHandler|channelBuffers)\b|[Bb]inaryMessenger');
+
+/// Native sources, prebuilt native binaries and libraries, and the folders
+/// and build files that only exist for them.
+final _nativeFile = RegExp(
+    r'\.(java|kt|kts|groovy|scala|m|mm|h|hh|hpp|hxx|c|cc|cpp|cxx|swift|s|S|asm|'
+    r'rs|go|zig|jar|aar|class|dex|so|a|o|dylib|dll|lib|tbd)$|'
+    r'(^|/)(jniLibs|[^/]+\.(xc)?framework)/|'
+    r'(^|/)(CMakeLists\.txt|Makefile|Cargo\.toml|Package\.swift)$');
+
 bool _isFfiFile(String path) =>
     path.contains('/src/ffi/android/') ||
     path.contains('/src/ffi/ios/') ||
@@ -42,11 +58,23 @@ bool _isFfiFile(String path) =>
 
 void main() {
   test('no platform channels in lib/', () {
-    final channel = RegExp(r'\b(MethodChannel|EventChannel|BasicMessageChannel|'
-        r'OptionalMethodChannel|BinaryMessenger)\b');
     for (final file in _dart('lib')) {
-      expect(channel.hasMatch(_code(file)), isFalse, reason: file.path);
+      expect(_channel.hasMatch(_code(file)), isFalse, reason: file.path);
     }
+  });
+
+  test('the channel pattern catches the bypasses', () {
+    // Guards the pattern against being narrowed again.
+    for (final code in [
+      "const MethodChannel('x')",
+      "SystemChannels.platform.invokeMethod<void>('HapticFeedback.vibrate')",
+      "ServicesBinding.instance.defaultBinaryMessenger.send('x', null)",
+      'EventChannel(name, binaryMessenger: messenger)',
+      "PlatformDispatcher.instance.sendPlatformMessage('x', null, null)",
+    ]) {
+      expect(_channel.hasMatch(code), isTrue, reason: code);
+    }
+    expect(_channel.hasMatch('await Clipboard.setData(data)'), isFalse);
   });
 
   test('lib/ imports no plugin package with native code', () {
@@ -79,14 +107,57 @@ void main() {
         contains("export 'stub.dart' if (dart.library.ffi) 'native.dart'"));
   });
 
-  test('the package has no native source file', () {
-    final native = RegExp(r'\.(java|kt|kts|m|mm|h|c|cc|cpp|cxx|swift|S|s)$');
+  test('the package has no native source file and no prebuilt binary', () {
+    // Same patterns as tool/ruflet_native/check_no_native_sources.sh.
     for (final entity in Directory('.').listSync(recursive: true)) {
-      final path = entity.path;
+      final path = entity.path.replaceAll(r'\', '/');
       if (path.contains('/.dart_tool/') || path.contains('/build/')) continue;
       if (entity is File) {
-        expect(native.hasMatch(path), isFalse, reason: path);
+        expect(_nativeFile.hasMatch(path), isFalse, reason: path);
       }
     }
+  });
+
+  test('the native-file pattern catches sources, binaries and their folders',
+      () {
+    for (final path in [
+      './android/src/main/kotlin/X.kt',
+      './android/src/main/java/X.java',
+      './ios/Classes/X.m',
+      './ios/Classes/X.swift',
+      './src/x.c',
+      './android/libs/x.jar',
+      './android/libs/x.aar',
+      './android/src/main/jniLibs/arm64-v8a/libx.so',
+      './ios/x.xcframework/Info.plist',
+      './ios/libx.a',
+      './rust/src/lib.rs',
+      './src/CMakeLists.txt',
+      './ios/Package.swift',
+    ]) {
+      expect(_nativeFile.hasMatch(path), isTrue, reason: path);
+    }
+    for (final path in [
+      './android/build.gradle',
+      './android/features/CORE',
+      './android/proguard/shared.pro',
+      './ios/ruflet_native.podspec',
+      './ios/Resources/PrivacyInfo.xcprivacy',
+      './lib/src/ffi/ios/c/libsystem.dart',
+    ]) {
+      expect(_nativeFile.hasMatch(path), isFalse, reason: path);
+    }
+  });
+
+  test('the CI scripts use the same patterns', () {
+    // tool/ is not part of the package (absent from synced copies).
+    final tool = Directory('../../../tool/ruflet_native');
+    if (!tool.existsSync()) return;
+    final channels =
+        File('${tool.path}/check_no_channels.sh').readAsStringSync();
+    final sources =
+        File('${tool.path}/check_no_native_sources.sh').readAsStringSync();
+    expect(channels, contains("grep -rnE '${_channel.pattern}' lib"));
+    expect(sources, contains("grep -E '${_nativeFile.pattern}'"));
   });
 }

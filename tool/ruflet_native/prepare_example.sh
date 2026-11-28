@@ -33,8 +33,10 @@ done
 dir="$here/$app"
 cd "$dir"
 
-# The recorder's pubspec.yaml is generated: pubspec.base.yaml plus every
-# deps/<feature>.yaml (the old package of each recorded feature).
+# Both apps' pubspec.yaml is generated from the committed pubspec.base.yaml,
+# so the choices below (--swiftpm/--cocoapods) never edit a committed file.
+# The recorder's also gets every deps/<feature>.yaml (the old package of each
+# recorded feature).
 if [ -f pubspec.base.yaml ]; then
   python3 - <<'PY'
 import glob
@@ -127,7 +129,8 @@ end
 PODFILE
 
 # Swift Package Manager or CocoaPods for this app only (no global flutter
-# config change): Flutter reads `flutter: config:` from the app's pubspec.
+# config change): Flutter reads `flutter: config:` from the app's pubspec
+# (the generated one, see above).
 if [ -n "$spm" ]; then
   python3 - "$spm" <<'PY'
 import re, sys

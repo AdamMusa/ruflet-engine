@@ -1,28 +1,49 @@
-// See check_glue_drift.sh. A glue file starts with header lines
+// See check_glue_drift.sh. A glue file starts with a comment block holding
 //   // ruflet-native-glue: source=<path from the repository root>
 //   // ruflet-native-glue: commit=<sha the copy was made from>
 //   // ruflet-native-glue: replace=<old>=><new>      (applied in order)
-// followed by further comment lines, one blank line, and the copied body.
+// among its comment lines, followed by one blank line and the copied body.
+// Every lib/src/<feature>/*_service.dart is service glue (SPEC §2.3, §3.3)
+// and must carry the header; any other file that carries it is checked too.
 import 'dart:io';
 
+const _tag = '// ruflet-native-glue: ';
+
+/// The leading comment block of [lines].
+Iterable<String> _header(List<String> lines) =>
+    lines.takeWhile((line) => line.startsWith('//'));
+
+bool _isServiceFile(String path) =>
+    RegExp(r'lib/src/[a-z0-9_]+/[a-z0-9_]+_service\.dart$')
+        .hasMatch(path.replaceAll(r'\', '/'));
+
 void main() {
-  final glue = Directory('packages/ruflet/native/lib')
+  final files = Directory('packages/ruflet/native/lib')
       .listSync(recursive: true)
       .whereType<File>()
       .where((f) => f.path.endsWith('.dart'))
-      .where((f) => f.readAsStringSync().startsWith('// ruflet-native-glue:'))
       .toList()
     ..sort((a, b) => a.path.compareTo(b.path));
   var failures = 0;
+  final glue = <File>[];
+  for (final file in files) {
+    final tagged = _header(file.readAsLinesSync()).any((l) => l.startsWith(_tag));
+    if (tagged) {
+      glue.add(file);
+    } else if (_isServiceFile(file.path)) {
+      stderr.writeln('::error file=${file.path}::service glue without a '
+          '"${_tag}source=" header in its leading comment block');
+      failures++;
+    }
+  }
   for (final file in glue) {
     final lines = file.readAsLinesSync();
     String? source;
     final replacements = <(String, String)>[];
     var i = 0;
     for (; i < lines.length && lines[i].startsWith('//'); i++) {
-      const tag = '// ruflet-native-glue: ';
-      if (!lines[i].startsWith(tag)) continue;
-      final entry = lines[i].substring(tag.length);
+      if (!lines[i].startsWith(_tag)) continue;
+      final entry = lines[i].substring(_tag.length);
       if (entry.startsWith('source=')) source = entry.substring(7);
       if (entry.startsWith('replace=')) {
         final rule = entry.substring(8);

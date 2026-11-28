@@ -12,3 +12,5 @@ pubspec.lock
 *.iml
 .idea/
 /fixtures/
+# Generated from pubspec.base.yaml (with --swiftpm/--cocoapods applied).
+/pubspec.yaml
