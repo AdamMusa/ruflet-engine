@@ -149,12 +149,20 @@ void main() {
       // objc_release, and the closure must not run.
       var completions = 0;
       final completion = AsyncBlock.boolean((_) => completions++);
+      // A second, open completion shows that UIKit calls them here.
+      final finished = Completer<bool>();
+      final control = AsyncBlock.boolean(finished.complete);
       final animations = MainThreadBlock.voidCallback(() {});
-      _animate(cls('UIView'), sel('animateWithDuration:animations:completion:'),
-          0.2, animations.ref.pointer.cast(), completion.pointer);
+      final animate = sel('animateWithDuration:animations:completion:');
+      _animate(cls('UIView'), animate, 0.2, animations.ref.pointer.cast(),
+          completion.pointer);
       completion.close();
-      await Future<void>.delayed(const Duration(seconds: 1));
+      _animate(cls('UIView'), animate, 0.2, animations.ref.pointer.cast(),
+          control.pointer);
+      expect(await finished.future.timeout(_timeout), isTrue);
+      await Future<void>.delayed(const Duration(milliseconds: 500));
       expect(completions, 0);
+      control.close();
       animations.ref.release();
     });
 
