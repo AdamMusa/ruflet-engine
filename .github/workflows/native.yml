@@ -1,0 +1,185 @@
+name: Native (ruflet_native)
+
+# Runs ruflet_native on real platforms: the example app's integration tests
+# (fixture replays, shared FFI layers) on the iOS simulator with CocoaPods
+# and with Swift Package Manager, on Android emulators, a release (R8) smoke
+# run, builds on the oldest supported and the latest stable Flutter, and the
+# tree-shaking check. Integration tests are found by glob, so feature PRs
+# never edit this file. Advisory until it has been green for two weeks.
+
+on:
+  pull_request:
+    paths:
+      - 'packages/ruflet/native/**'
+      - 'tool/ruflet_native/**'
+      - '.github/workflows/native.yml'
+  push:
+    branches: [codex/engine-initialization]
+    paths:
+      - 'packages/ruflet/native/**'
+      - 'tool/ruflet_native/**'
+      - '.github/workflows/native.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: 3.41.2
+
+jobs:
+  ios:
+    name: iOS simulator (${{ matrix.ios }})
+    runs-on: macos-15
+    timeout-minutes: 60
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        ios: [cocoapods, swiftpm]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Prepare the example (${{ matrix.ios }})
+        run: tool/ruflet_native/prepare_example.sh example --${{ matrix.ios }}
+
+      - name: Boot a simulator
+        id: sim
+        run: |
+          udid="$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          phones = [d for runtime, ds in sorted(devices.items()) if "iOS" in runtime
+                    for d in ds if d["name"].startswith("iPhone")]
+          print(phones[-1]["udid"])')"
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Integration tests
+        working-directory: tool/ruflet_native/example
+        run: |
+          flutter pub get
+          flutter test integration_test -d "${{ steps.sim.outputs.udid }}"
+
+      - name: The privacy manifest ships in the app
+        working-directory: tool/ruflet_native/example
+        run: |
+          flutter build ios --simulator --debug
+          find build/ios -path '*Runner.app/*' -name PrivacyInfo.xcprivacy | grep ruflet_native
+
+  android:
+    name: Android emulator (API ${{ matrix.api }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [34, 35]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Prepare the example
+        run: |
+          tool/ruflet_native/prepare_example.sh example
+          (cd tool/ruflet_native/example && flutter pub get)
+
+      - name: Integration tests, manifest parity, release smoke
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: |
+            cd tool/ruflet_native/example && flutter test integration_test -d emulator-5554
+            tool/ruflet_native/check_manifest_parity.sh debug
+            tool/ruflet_native/release_smoke.sh emulator-5554
+
+  builds:
+    name: Build on Flutter ${{ matrix.flutter }}
+    runs-on: macos-15
+    timeout-minutes: 60
+    # The oldest Flutter ruflet_native supports (owner question Q17) and the
+    # latest stable, which `ruflet build` downloads for apps without a pin.
+    # The latest-stable build becomes required before the switch.
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter: ['3.38.4', stable]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter != 'stable' && matrix.flutter || '' }}
+          channel: stable
+          cache: true
+
+      - run: flutter --version
+
+      - name: Build the example
+        run: |
+          tool/ruflet_native/prepare_example.sh example
+          cd tool/ruflet_native/example
+          flutter pub get
+          flutter build apk --debug
+          flutter build ios --simulator --debug
+
+  tree-shaking:
+    name: Tree shaking (advisory)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Core-only builds carry no extension feature
+        run: |
+          tool/ruflet_native/prepare_example.sh example
+          (cd tool/ruflet_native/example && flutter pub get)
+          tool/ruflet_native/check_tree_shaking.sh android

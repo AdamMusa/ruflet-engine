@@ -1,0 +1,15 @@
+name: ruflet_native_bindings
+description: >-
+  Binding generators for packages/ruflet/native (jnigen for Android/Java,
+  ffigen for C headers only). Never resolved by an app.
+publish_to: none
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+dependencies:
+  # jnigen checks that the generated code's package:jni is resolvable.
+  jni: '>=1.2.1 <1.3.0'
+
+dev_dependencies:
+  jnigen: 0.16.0

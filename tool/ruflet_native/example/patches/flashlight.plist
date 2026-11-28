@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- What `ruflet build` writes for extensions: [flashlight] (EXTENSION_REQUIRED_SERVICES -> camera). -->
+	<key>NSCameraUsageDescription</key>
+	<string>The example turns the torch on and off.</string>
+</dict>
+</plist>

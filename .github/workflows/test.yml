@@ -35,6 +35,8 @@ jobs:
       matrix:
         package:
           - ruflet
+          # ruflet_native: the FFI plugin nested in the core folder.
+          - ruflet/native
           - ruflet_ads
           - ruflet_audio
           - ruflet_audio_recorder
@@ -79,6 +81,56 @@ jobs:
         run: |
           if [ -d test ]; then flutter test; else echo "No tests in ${{ matrix.package }}"; fi
 
+  native-checks:
+    name: ruflet_native checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      # Everything is Dart over FFI: no Java/Kotlin/Objective-C/Swift/C
+      # source and no platform channel.
+      - name: No native sources
+        run: tool/ruflet_native/check_no_native_sources.sh
+
+      - name: No platform channels
+        run: tool/ruflet_native/check_no_channels.sh
+
+      # Each service glue file is today's service file with recorded
+      # substitutions; a later fix to the source must reach the copy.
+      - name: Glue matches its source
+        run: tool/ruflet_native/check_glue_drift.sh
+
+      - name: Privacy manifest covers the code
+        run: tool/ruflet_native/check_privacy.sh
+
+      - name: Version pins
+        run: |
+          (cd packages/ruflet && flutter pub get)
+          tool/ruflet_native/check_pins.sh
+
+      # The web never imports dart:ffi, jni or objective_c.
+      - name: Web compile of every feature library
+        run: |
+          tool/ruflet_native/prepare_example.sh example --web
+          cd tool/ruflet_native/example
+          flutter pub get
+          flutter build web -t lib/all_features.dart
+
+      - name: Analyze the dev tooling
+        run: |
+          tool/ruflet_native/prepare_example.sh fixture_recorder
+          for dir in tool/ruflet_native/wire_harness tool/ruflet_native/example tool/ruflet_native/fixture_recorder; do
+            (cd "$dir" && flutter pub get && flutter analyze)
+          done
+
   ruby-surface:
     name: Ruby control surface
     runs-on: ubuntu-24.04
@@ -116,15 +168,19 @@ jobs:
           fi
 
   flutter-stable:
-    name: ruflet on Flutter stable (advisory)
+    name: ${{ matrix.package }} on Flutter stable (advisory)
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     # Advisory: a new Flutter release can break an untouched tree. This job
     # reports that early without blocking work on the pinned version.
     continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [ruflet, ruflet/native]
     defaults:
       run:
-        working-directory: packages/ruflet
+        working-directory: packages/${{ matrix.package }}
     steps:
       - uses: actions/checkout@v5
 

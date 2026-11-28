@@ -1,0 +1,3 @@
+  # The old Flashlight extension (torch_light 1.1.0).
+  ruflet_flashlight:
+    path: ../../../packages/ruflet_flashlight

@@ -1,0 +1,21 @@
+name: ruflet_native_wire
+description: >-
+  Wire-level test harness for ruflet_native: plays the invoke and patch
+  messages Ruby sends through a real RufletBackend and records the replies
+  and events it sends back (fixtures, SPEC §8.1). Dev tooling, never shipped.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.38.4'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  ruflet:
+    path: ../../../packages/ruflet
+  msgpack_dart: ^1.0.1
+
+dev_dependencies:
+  flutter_lints: ^3.0.0
